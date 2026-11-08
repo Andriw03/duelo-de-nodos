@@ -171,9 +171,9 @@
   }
 
   /* ---------- Acciones legales ----------
-     Movimiento obligatorio: si alguna figura puede entrar o moverse, el turno debe ser un movimiento
-     (después de moverse, atacar es opcional). Solo si ninguna puede moverse se ataca sin moverse,
-     y en ese caso el ataque es obligatorio. Si tampoco hay ataques, se pasa. */
+     Acción obligatoria: cada turno hay que entrar, moverse o atacar; no se puede pasar a voluntad.
+     Atacar sin moverse está permitido siempre y, una vez elegido, no se puede cancelar.
+     Después de moverse, atacar es opcional. Si no hay ninguna acción posible, se pasa. */
   function legalActions(s) {
     if (s.winner !== null) return [];
     const p = s.current; const occ = occupancy(s);
@@ -199,8 +199,7 @@
         if (adjacentRivals(s, f, occ).length) acts.push({ type: 'stay', fig: f.id });
       }
     }
-    const moves = acts.filter(a => a.type !== 'stay');
-    return moves.length ? moves : acts;
+    return acts;
   }
 
   // true si al jugador actual no le queda otra que atacar sin moverse

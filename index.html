@@ -434,9 +434,9 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing:
   }
 
   /* ---------- Acciones legales ----------
-     Movimiento obligatorio: si alguna figura puede entrar o moverse, el turno debe ser un movimiento
-     (después de moverse, atacar es opcional). Solo si ninguna puede moverse se ataca sin moverse,
-     y en ese caso el ataque es obligatorio. Si tampoco hay ataques, se pasa. */
+     Acción obligatoria: cada turno hay que entrar, moverse o atacar; no se puede pasar a voluntad.
+     Atacar sin moverse está permitido siempre y, una vez elegido, no se puede cancelar.
+     Después de moverse, atacar es opcional. Si no hay ninguna acción posible, se pasa. */
   function legalActions(s) {
     if (s.winner !== null) return [];
     const p = s.current; const occ = occupancy(s);
@@ -462,8 +462,7 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing:
         if (adjacentRivals(s, f, occ).length) acts.push({ type: 'stay', fig: f.id });
       }
     }
-    const moves = acts.filter(a => a.type !== 'stay');
-    return moves.length ? moves : acts;
+    return acts;
   }
 
   // true si al jugador actual no le queda otra que atacar sin moverse
@@ -1039,8 +1038,9 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing:
       '<h3>Tu turno</h3><ol>' +
       '<li><b>Meter</b> una figura de tu banca por una de tus 2 entradas libres. La entrada cuenta como el primer paso de su MP.</li>' +
       '<li>O <b>mover</b> una figura del tablero hasta su MP (1 a 3) por casillas libres unidas por líneas. No se salta sobre nadie.</li>' +
-      '<li>Si después queda junto a un rival, puede <b>atacar</b> (opcional).</li></ol>' +
-      '<p><b>Mover es obligatorio.</b> Si ninguna de tus figuras puede entrar ni moverse, debes <b>atacar sin moverte</b> con una figura que tenga un rival al lado. Si tampoco puedes atacar, pasas el turno.</p>' +
+      '<li>Si después queda junto a un rival, puede <b>atacar</b> (opcional).</li>' +
+      '<li>O <b>atacar sin moverte</b>: toca tu figura y luego un rival que tenga al lado.</li></ol>' +
+      '<p><b>No se puede pasar el turno.</b> Siempre hay que entrar, moverse o atacar. Si eliges atacar sin moverte, ya no puedes cancelar el ataque. Si ninguna figura puede moverse, el ataque es obligatorio; si tampoco puedes atacar, el turno se pasa solo.</p>' +
       '<h3>Combate</h3><p>Las dos figuras giran su ruleta. El tamaño de cada segmento es su probabilidad.</p>' +
       '<div class="prio">' +
       seg('b') + '<span>Anula el combate: nadie pierde.</span>' +
@@ -1223,11 +1223,12 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing:
         else { msg = 'Puedes atacar: toca un rival marcado en rojo.'; acts = [{ label: 'No atacar', onClick: () => commit({ type: 'end' }) }]; }
       } else if (ui.sel) {
         acts = [{ label: 'Cancelar', onClick: () => { ui.sel = null; ui.msg = ''; refresh(); } }];
-        if (!msg) msg = ui.sel.dest.size ? 'Toca una casilla verde.'
-          : ui.sel.targets.length ? '<b>Ninguna figura puede moverse:</b> debes atacar. Toca un rival en rojo.'
-          : 'Esta figura no puede moverse. Elige otra: mover es obligatorio.';
+        if (!msg) msg = ui.sel.dest.size && ui.sel.targets.length ? 'Toca una casilla verde para moverte o un rival en rojo para atacar sin moverte.'
+          : ui.sel.dest.size ? 'Toca una casilla verde.'
+          : ui.sel.targets.length ? (D.mustAttack(s) ? '<b>Ninguna figura puede moverse:</b> debes atacar. ' : 'No puede moverse, pero puede atacar. ') + 'Toca un rival en rojo.'
+          : 'Esta figura no tiene jugadas. Elige otra.';
       } else if (!msg) msg = D.mustAttack(s) ? '<b>Ninguna figura puede moverse:</b> el ataque es obligatorio. Toca una figura tuya junto a un rival.'
-          : 'Tu turno: mueve una figura (obligatorio). Toca una de tu banca o del tablero.';
+          : 'Tu turno: mueve una figura o ataca con una que tenga un rival al lado.';
     }
     $('#msg').innerHTML = msg || '';
     setActions(acts);
