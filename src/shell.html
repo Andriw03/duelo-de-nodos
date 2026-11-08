@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Duelo de Nodos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+/*CSS*/
+</style>
+</head>
+<body>
+<div id="app">
+  <section id="scr-team" class="screen">
+    <header class="tbar">
+      <h1>Duelo de <span>Nodos</span></h1>
+      <button type="button" id="btn-rules-t" class="btn icon" aria-label="Cómo jugar">?</button>
+    </header>
+    <p class="intro">Elige 6 de las 12 criaturas. La CPU arma un equipo equilibrado al azar. Toca la <b>i</b> para ver la ruleta de cada una.</p>
+    <div class="diff" id="diff" role="radiogroup" aria-label="Dificultad">
+      <button type="button" role="radio" data-lv="facil">Fácil</button>
+      <button type="button" role="radio" data-lv="normal">Normal</button>
+      <button type="button" role="radio" data-lv="dificil">Difícil</button>
+    </div>
+    <div id="type-strip-t" class="type-strip" aria-label="Ciclo de tipos: cada tipo vence al siguiente"></div>
+    <div id="team-grid" class="grid"></div>
+    <footer class="team-foot">
+      <button type="button" id="btn-continue" class="btn" hidden>Continuar partida guardada</button>
+      <div class="row">
+        <span class="count" id="team-count">0/6</span>
+        <button type="button" id="btn-random" class="btn">Al azar</button>
+        <button type="button" id="btn-play" class="btn primary" disabled>Jugar</button>
+      </div>
+    </footer>
+  </section>
+
+  <section id="scr-game" class="screen" hidden>
+    <header class="gbar">
+      <button type="button" id="btn-menu" class="btn icon" aria-label="Menú">☰</button>
+      <div id="turn-pill" class="pill" aria-live="polite"></div>
+      <button type="button" id="btn-rules-g" class="btn icon" aria-label="Cómo jugar">?</button>
+    </header>
+    <div id="type-strip-g" class="type-strip" aria-label="Ciclo de tipos: cada tipo vence al siguiente"></div>
+    <div id="bench-1" class="bench p1"></div>
+    <div class="board-wrap"><svg id="board" role="img" aria-label="Tablero de 29 casillas"></svg></div>
+    <div id="bench-0" class="bench p0"></div>
+    <div class="panel">
+      <div class="msg-row"><p id="msg" aria-live="polite"></p><div id="actions"></div></div>
+      <div id="ficha" class="ficha empty"></div>
+    </div>
+  </section>
+</div>
+
+<div id="battle" class="overlay" hidden>
+  <div class="battle-inner" role="dialog" aria-modal="true" aria-labelledby="battle-title">
+    <h2 id="battle-title">Combate</h2>
+    <div class="fighter" id="bf-top"><canvas></canvas><div class="fi"><div class="fn"></div><div class="fr"></div><div class="res"></div></div></div>
+    <div class="fighter" id="bf-bot"><canvas></canvas><div class="fi"><div class="fn"></div><div class="fr"></div><div class="res"></div></div></div>
+    <p id="battle-text" class="battle-text" aria-live="polite"></p>
+    <button type="button" id="battle-go" class="btn primary">Continuar</button>
+  </div>
+</div>
+
+<div id="modal" class="overlay modal" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <h2 id="modal-title"></h2>
+    <div id="modal-body" class="modal-body"></div>
+    <div id="modal-actions" class="modal-actions"></div>
+  </div>
+</div>
+
+<script>
+/*LOGIC*/
+</script>
+<script>
+/*AI*/
+</script>
+<script>
+/*UI*/
+</script>
+</body>
+</html>
