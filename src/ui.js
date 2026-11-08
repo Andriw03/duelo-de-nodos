@@ -160,7 +160,8 @@
       '<h3>Tu turno</h3><ol>' +
       '<li><b>Meter</b> una figura de tu banca por una de tus 2 entradas libres. La entrada cuenta como el primer paso de su MP.</li>' +
       '<li>O <b>mover</b> una figura del tablero hasta su MP (1 a 3) por casillas libres unidas por líneas. No se salta sobre nadie.</li>' +
-      '<li>Si después queda junto a un rival, puede <b>atacar</b>. También puedes atacar sin moverte: toca tu figura y luego al rival.</li></ol>' +
+      '<li>Si después queda junto a un rival, puede <b>atacar</b> (opcional).</li></ol>' +
+      '<p><b>Mover es obligatorio.</b> Si ninguna de tus figuras puede entrar ni moverse, debes <b>atacar sin moverte</b> con una figura que tenga un rival al lado. Si tampoco puedes atacar, pasas el turno.</p>' +
       '<h3>Combate</h3><p>Las dos figuras giran su ruleta. El tamaño de cada segmento es su probabilidad.</p>' +
       '<div class="prio">' +
       seg('b') + '<span>Anula el combate: nadie pierde.</span>' +
@@ -339,12 +340,15 @@
           (rel > 0 ? '<br>▲ Tienes ventaja de tipo (+10 a tus blancos).' : rel < 0 ? '<br>▼ El rival tiene ventaja de tipo (+10 a sus blancos).' : '');
         acts = [{ label: 'Volver', onClick: () => { ui.confirm = null; refresh(); } }, { label: 'Atacar', primary: true, onClick: doAttack }];
       } else if (s.awaitAttack !== null) {
-        msg = 'Puedes atacar: toca un rival marcado en rojo.';
-        acts = [{ label: 'No atacar', onClick: () => commit({ type: 'end' }) }];
+        if (s.forcedAttack) msg = '<b>Ataque obligatorio:</b> toca un rival marcado en rojo.';
+        else { msg = 'Puedes atacar: toca un rival marcado en rojo.'; acts = [{ label: 'No atacar', onClick: () => commit({ type: 'end' }) }]; }
       } else if (ui.sel) {
         acts = [{ label: 'Cancelar', onClick: () => { ui.sel = null; ui.msg = ''; refresh(); } }];
-        if (!msg) msg = ui.sel.dest.size ? 'Toca una casilla verde' + (ui.sel.targets.length ? ' o un rival en rojo.' : '.') : (ui.sel.targets.length ? 'Toca un rival en rojo para atacar.' : 'Esta figura no tiene jugadas.');
-      } else if (!msg) msg = 'Tu turno: toca una figura de tu banca o del tablero.';
+        if (!msg) msg = ui.sel.dest.size ? 'Toca una casilla verde.'
+          : ui.sel.targets.length ? '<b>Ninguna figura puede moverse:</b> debes atacar. Toca un rival en rojo.'
+          : 'Esta figura no puede moverse. Elige otra: mover es obligatorio.';
+      } else if (!msg) msg = D.mustAttack(s) ? '<b>Ninguna figura puede moverse:</b> el ataque es obligatorio. Toca una figura tuya junto a un rival.'
+          : 'Tu turno: mueve una figura (obligatorio). Toca una de tu banca o del tablero.';
     }
     $('#msg').innerHTML = msg || '';
     setActions(acts);

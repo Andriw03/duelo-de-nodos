@@ -120,7 +120,7 @@
   function clone(s) {
     return {
       turn: s.turn, current: s.current, winner: s.winner, winReason: s.winReason,
-      awaitAttack: s.awaitAttack, firstPlayer: s.firstPlayer,
+      awaitAttack: s.awaitAttack, forcedAttack: !!s.forcedAttack, firstPlayer: s.firstPlayer,
       figs: s.figs.map(f => ({ ...f, status: f.status ? { ...f.status } : null }))
     };
   }
@@ -131,7 +131,7 @@
       if (!CREATURE[kind]) throw new Error('Criatura desconocida: ' + kind);
       figs.push({ id: figs.length, owner, slot, kind, loc: 'bench', node: null, status: null, koLeft: 0, koAt: 0 });
     }));
-    return { turn: 1, current: firstPlayer || 0, firstPlayer: firstPlayer || 0, winner: null, winReason: '', awaitAttack: null, figs };
+    return { turn: 1, current: firstPlayer || 0, firstPlayer: firstPlayer || 0, winner: null, winReason: '', awaitAttack: null, forcedAttack: false, figs };
   }
 
   const creatureOf = f => CREATURE[f.kind];
@@ -170,13 +170,17 @@
     return BOARD.adj[fig.node].map(n => occ[n]).filter(id => id !== -1 && s.figs[id].owner !== fig.owner);
   }
 
-  /* ---------- Acciones legales ---------- */
+  /* ---------- Acciones legales ----------
+     Movimiento obligatorio: si alguna figura puede entrar o moverse, el turno debe ser un movimiento
+     (después de moverse, atacar es opcional). Solo si ninguna puede moverse se ataca sin moverse,
+     y en ese caso el ataque es obligatorio. Si tampoco hay ataques, se pasa. */
   function legalActions(s) {
     if (s.winner !== null) return [];
     const p = s.current; const occ = occupancy(s);
     if (s.awaitAttack !== null) {
       const f = s.figs[s.awaitAttack];
-      return adjacentRivals(s, f, occ).map(t => ({ type: 'attack', fig: f.id, target: t })).concat([{ type: 'end' }]);
+      const atk = adjacentRivals(s, f, occ).map(t => ({ type: 'attack', fig: f.id, target: t }));
+      return s.forcedAttack && atk.length ? atk : atk.concat([{ type: 'end' }]);
     }
     const acts = [];
     for (const f of s.figs) {
@@ -195,7 +199,14 @@
         if (adjacentRivals(s, f, occ).length) acts.push({ type: 'stay', fig: f.id });
       }
     }
-    return acts;
+    const moves = acts.filter(a => a.type !== 'stay');
+    return moves.length ? moves : acts;
+  }
+
+  // true si al jugador actual no le queda otra que atacar sin moverse
+  function mustAttack(s) {
+    const acts = legalActions(s);
+    return s.awaitAttack === null && acts.length > 0 && acts.every(a => a.type === 'stay');
   }
 
   /* ---------- Rodear ---------- */
@@ -230,7 +241,7 @@
         if (f.koLeft <= 0) { f.loc = 'bench'; f.koLeft = 0; events.push({ type: 'heal', fig: f.id, text: creatureOf(f).name + ' vuelve a la banca.' }); }
       }
     }
-    s.awaitAttack = null;
+    s.awaitAttack = null; s.forcedAttack = false;
     if (s.turn >= MAX_TURNS) {
       const c = [0, 1].map(o => s.figs.filter(f => f.owner === o && f.loc === 'board').length);
       s.winner = c[0] === c[1] ? 'draw' : (c[0] > c[1] ? 0 : 1);
@@ -258,7 +269,7 @@
     if (s.winner !== null) return { state: s, events };
     if (act.type === 'pass') { events.push({ type: 'pass', text: 'Sin jugadas posibles: se pasa el turno.' }); endTurn(s, events); return { state: s, events }; }
     if (act.type === 'end') { endTurn(s, events); return { state: s, events }; }
-    if (act.type === 'stay') { s.awaitAttack = act.fig; return { state: s, events }; }
+    if (act.type === 'stay') { s.awaitAttack = act.fig; s.forcedAttack = true; return { state: s, events }; }
     if (act.type === 'enter' || act.type === 'move') {
       const f = s.figs[act.fig];
       const from = f.loc === 'board' ? f.node : null;
@@ -266,7 +277,7 @@
       events.push({ type: act.type, fig: f.id, from, to: act.to, path: act.path });
       if (checkGoal(s, f, events)) return { state: s, events };
       surroundCheck(s, s.current, events);
-      if (adjacentRivals(s, f).length) s.awaitAttack = f.id; else endTurn(s, events);
+      if (adjacentRivals(s, f).length) { s.awaitAttack = f.id; s.forcedAttack = false; } else endTurn(s, events);
       return { state: s, events };
     }
     if (act.type === 'attack') {
@@ -444,6 +455,7 @@
       if (f.loc !== 'board' && f.status) errs.push('estado fuera del tablero ' + f.id);
       if (f.status && (f.status.left < 1 || f.status.left > STATUS[f.status.k].dur)) errs.push('duración de estado rara ' + f.id);
     });
+    if (s.forcedAttack && s.awaitAttack === null) errs.push('ataque obligatorio sin figura atacante');
     return errs;
   }
 
@@ -451,7 +463,7 @@
     MAX_TURNS, KO_TURNS, TYPES, TYPE_ORDER, STATUS, SEG, FX, RARITY, CREATURES, CREATURE, BOARD,
     mulberry32, clone, newGame, occupancy, reachable, adjacentRivals, legalActions, applyAction,
     pickIndex, effectiveWheel, compareSegs, spinBattle, battleOdds, resolveBattle, segLabel,
-    randomBalancedTeam, validate, wheelFractions, segmentAtRotation, targetRotation, creatureOf, isImmobile, rivalGoal
+    randomBalancedTeam, validate, mustAttack, wheelFractions, segmentAtRotation, targetRotation, creatureOf, isImmobile, rivalGoal
   };
   root.Duel = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;

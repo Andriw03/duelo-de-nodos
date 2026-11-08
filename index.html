@@ -383,7 +383,7 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing:
   function clone(s) {
     return {
       turn: s.turn, current: s.current, winner: s.winner, winReason: s.winReason,
-      awaitAttack: s.awaitAttack, firstPlayer: s.firstPlayer,
+      awaitAttack: s.awaitAttack, forcedAttack: !!s.forcedAttack, firstPlayer: s.firstPlayer,
       figs: s.figs.map(f => ({ ...f, status: f.status ? { ...f.status } : null }))
     };
   }
@@ -394,7 +394,7 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing:
       if (!CREATURE[kind]) throw new Error('Criatura desconocida: ' + kind);
       figs.push({ id: figs.length, owner, slot, kind, loc: 'bench', node: null, status: null, koLeft: 0, koAt: 0 });
     }));
-    return { turn: 1, current: firstPlayer || 0, firstPlayer: firstPlayer || 0, winner: null, winReason: '', awaitAttack: null, figs };
+    return { turn: 1, current: firstPlayer || 0, firstPlayer: firstPlayer || 0, winner: null, winReason: '', awaitAttack: null, forcedAttack: false, figs };
   }
 
   const creatureOf = f => CREATURE[f.kind];
@@ -433,13 +433,17 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing:
     return BOARD.adj[fig.node].map(n => occ[n]).filter(id => id !== -1 && s.figs[id].owner !== fig.owner);
   }
 
-  /* ---------- Acciones legales ---------- */
+  /* ---------- Acciones legales ----------
+     Movimiento obligatorio: si alguna figura puede entrar o moverse, el turno debe ser un movimiento
+     (después de moverse, atacar es opcional). Solo si ninguna puede moverse se ataca sin moverse,
+     y en ese caso el ataque es obligatorio. Si tampoco hay ataques, se pasa. */
   function legalActions(s) {
     if (s.winner !== null) return [];
     const p = s.current; const occ = occupancy(s);
     if (s.awaitAttack !== null) {
       const f = s.figs[s.awaitAttack];
-      return adjacentRivals(s, f, occ).map(t => ({ type: 'attack', fig: f.id, target: t })).concat([{ type: 'end' }]);
+      const atk = adjacentRivals(s, f, occ).map(t => ({ type: 'attack', fig: f.id, target: t }));
+      return s.forcedAttack && atk.length ? atk : atk.concat([{ type: 'end' }]);
     }
     const acts = [];
     for (const f of s.figs) {
@@ -458,7 +462,14 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing:
         if (adjacentRivals(s, f, occ).length) acts.push({ type: 'stay', fig: f.id });
       }
     }
-    return acts;
+    const moves = acts.filter(a => a.type !== 'stay');
+    return moves.length ? moves : acts;
+  }
+
+  // true si al jugador actual no le queda otra que atacar sin moverse
+  function mustAttack(s) {
+    const acts = legalActions(s);
+    return s.awaitAttack === null && acts.length > 0 && acts.every(a => a.type === 'stay');
   }
 
   /* ---------- Rodear ---------- */
@@ -493,7 +504,7 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing:
         if (f.koLeft <= 0) { f.loc = 'bench'; f.koLeft = 0; events.push({ type: 'heal', fig: f.id, text: creatureOf(f).name + ' vuelve a la banca.' }); }
       }
     }
-    s.awaitAttack = null;
+    s.awaitAttack = null; s.forcedAttack = false;
     if (s.turn >= MAX_TURNS) {
       const c = [0, 1].map(o => s.figs.filter(f => f.owner === o && f.loc === 'board').length);
       s.winner = c[0] === c[1] ? 'draw' : (c[0] > c[1] ? 0 : 1);
@@ -521,7 +532,7 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing:
     if (s.winner !== null) return { state: s, events };
     if (act.type === 'pass') { events.push({ type: 'pass', text: 'Sin jugadas posibles: se pasa el turno.' }); endTurn(s, events); return { state: s, events }; }
     if (act.type === 'end') { endTurn(s, events); return { state: s, events }; }
-    if (act.type === 'stay') { s.awaitAttack = act.fig; return { state: s, events }; }
+    if (act.type === 'stay') { s.awaitAttack = act.fig; s.forcedAttack = true; return { state: s, events }; }
     if (act.type === 'enter' || act.type === 'move') {
       const f = s.figs[act.fig];
       const from = f.loc === 'board' ? f.node : null;
@@ -529,7 +540,7 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing:
       events.push({ type: act.type, fig: f.id, from, to: act.to, path: act.path });
       if (checkGoal(s, f, events)) return { state: s, events };
       surroundCheck(s, s.current, events);
-      if (adjacentRivals(s, f).length) s.awaitAttack = f.id; else endTurn(s, events);
+      if (adjacentRivals(s, f).length) { s.awaitAttack = f.id; s.forcedAttack = false; } else endTurn(s, events);
       return { state: s, events };
     }
     if (act.type === 'attack') {
@@ -707,6 +718,7 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing:
       if (f.loc !== 'board' && f.status) errs.push('estado fuera del tablero ' + f.id);
       if (f.status && (f.status.left < 1 || f.status.left > STATUS[f.status.k].dur)) errs.push('duración de estado rara ' + f.id);
     });
+    if (s.forcedAttack && s.awaitAttack === null) errs.push('ataque obligatorio sin figura atacante');
     return errs;
   }
 
@@ -714,7 +726,7 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing:
     MAX_TURNS, KO_TURNS, TYPES, TYPE_ORDER, STATUS, SEG, FX, RARITY, CREATURES, CREATURE, BOARD,
     mulberry32, clone, newGame, occupancy, reachable, adjacentRivals, legalActions, applyAction,
     pickIndex, effectiveWheel, compareSegs, spinBattle, battleOdds, resolveBattle, segLabel,
-    randomBalancedTeam, validate, wheelFractions, segmentAtRotation, targetRotation, creatureOf, isImmobile, rivalGoal
+    randomBalancedTeam, validate, mustAttack, wheelFractions, segmentAtRotation, targetRotation, creatureOf, isImmobile, rivalGoal
   };
   root.Duel = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
@@ -1027,7 +1039,8 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing:
       '<h3>Tu turno</h3><ol>' +
       '<li><b>Meter</b> una figura de tu banca por una de tus 2 entradas libres. La entrada cuenta como el primer paso de su MP.</li>' +
       '<li>O <b>mover</b> una figura del tablero hasta su MP (1 a 3) por casillas libres unidas por líneas. No se salta sobre nadie.</li>' +
-      '<li>Si después queda junto a un rival, puede <b>atacar</b>. También puedes atacar sin moverte: toca tu figura y luego al rival.</li></ol>' +
+      '<li>Si después queda junto a un rival, puede <b>atacar</b> (opcional).</li></ol>' +
+      '<p><b>Mover es obligatorio.</b> Si ninguna de tus figuras puede entrar ni moverse, debes <b>atacar sin moverte</b> con una figura que tenga un rival al lado. Si tampoco puedes atacar, pasas el turno.</p>' +
       '<h3>Combate</h3><p>Las dos figuras giran su ruleta. El tamaño de cada segmento es su probabilidad.</p>' +
       '<div class="prio">' +
       seg('b') + '<span>Anula el combate: nadie pierde.</span>' +
@@ -1206,12 +1219,15 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing:
           (rel > 0 ? '<br>▲ Tienes ventaja de tipo (+10 a tus blancos).' : rel < 0 ? '<br>▼ El rival tiene ventaja de tipo (+10 a sus blancos).' : '');
         acts = [{ label: 'Volver', onClick: () => { ui.confirm = null; refresh(); } }, { label: 'Atacar', primary: true, onClick: doAttack }];
       } else if (s.awaitAttack !== null) {
-        msg = 'Puedes atacar: toca un rival marcado en rojo.';
-        acts = [{ label: 'No atacar', onClick: () => commit({ type: 'end' }) }];
+        if (s.forcedAttack) msg = '<b>Ataque obligatorio:</b> toca un rival marcado en rojo.';
+        else { msg = 'Puedes atacar: toca un rival marcado en rojo.'; acts = [{ label: 'No atacar', onClick: () => commit({ type: 'end' }) }]; }
       } else if (ui.sel) {
         acts = [{ label: 'Cancelar', onClick: () => { ui.sel = null; ui.msg = ''; refresh(); } }];
-        if (!msg) msg = ui.sel.dest.size ? 'Toca una casilla verde' + (ui.sel.targets.length ? ' o un rival en rojo.' : '.') : (ui.sel.targets.length ? 'Toca un rival en rojo para atacar.' : 'Esta figura no tiene jugadas.');
-      } else if (!msg) msg = 'Tu turno: toca una figura de tu banca o del tablero.';
+        if (!msg) msg = ui.sel.dest.size ? 'Toca una casilla verde.'
+          : ui.sel.targets.length ? '<b>Ninguna figura puede moverse:</b> debes atacar. Toca un rival en rojo.'
+          : 'Esta figura no puede moverse. Elige otra: mover es obligatorio.';
+      } else if (!msg) msg = D.mustAttack(s) ? '<b>Ninguna figura puede moverse:</b> el ataque es obligatorio. Toca una figura tuya junto a un rival.'
+          : 'Tu turno: mueve una figura (obligatorio). Toca una de tu banca o del tablero.';
     }
     $('#msg').innerHTML = msg || '';
     setActions(acts);
