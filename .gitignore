@@ -1,0 +1,2 @@
+# Salida de build para la app (python3 build.py --out www)
+www/

@@ -1,0 +1,17 @@
+/* Fuentes locales (licencia SIL OFL 1.1, ver src/fonts/OFL-*.txt). Subconjunto latino, suficiente para español.
+   build.py incrusta estos archivos en base64 (index.html de Pages) o los copia junto al HTML (--out www). */
+@font-face {
+  font-family: 'Lilita One';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(fonts/lilita-one-latin.woff2) format('woff2');
+}
+/* Nunito es variable: un solo archivo cubre los pesos 400 a 800. */
+@font-face {
+  font-family: 'Nunito';
+  font-style: normal;
+  font-weight: 200 1000;
+  font-display: swap;
+  src: url(fonts/nunito-latin.woff2) format('woff2');
+}
