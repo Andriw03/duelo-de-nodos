@@ -1,2 +1,9 @@
 # Salida de build para la app (python3 build.py --out www)
 www/
+
+# Dependencias de npm
+node_modules/
+
+# Builds de Android (android/.gitignore cubre también .gradle/ y local.properties)
+android/build/
+android/app/build/

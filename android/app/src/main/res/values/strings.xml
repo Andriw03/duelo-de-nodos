@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Duelo de Nodos</string>
+    <string name="title_activity_main">Duelo de Nodos</string>
+    <string name="package_name">cl.andres.nodostelar</string>
+    <string name="custom_url_scheme">cl.andres.nodostelar</string>
+</resources>

@@ -1,0 +1,37 @@
+{
+  "name": "duelo-de-nodos",
+  "version": "1.0.0",
+  "description": "Duelo de Nodos: estrategia por turnos contra la CPU",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "build": "python build.py",
+    "build:app": "python build.py --out www",
+    "sync": "python build.py --out www && npx cap sync android",
+    "android": "npx cap open android",
+    "test": "node test/run.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Andriw03/duelo-de-nodos.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Andriw03/duelo-de-nodos/issues"
+  },
+  "homepage": "https://github.com/Andriw03/duelo-de-nodos#readme",
+  "dependencies": {
+    "@capacitor/android": "8.6.0",
+    "@capacitor/app": "8.1.2",
+    "@capacitor/core": "8.6.0",
+    "@capacitor/haptics": "8.0.2",
+    "@capacitor/preferences": "8.0.1",
+    "@capacitor/splash-screen": "8.0.2"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "8.6.0"
+  },
+  "private": true
+}
