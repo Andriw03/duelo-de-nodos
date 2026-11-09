@@ -1,5 +1,22 @@
 {
   "appId": "cl.andres.nodostelar",
   "appName": "Duelo de Nodos",
-  "webDir": "www"
+  "webDir": "www",
+  "backgroundColor": "#0e1322",
+  "android": {
+    "backgroundColor": "#0e1322"
+  },
+  "plugins": {
+    "SystemBars": {
+      "style": "DARK",
+      "insetsHandling": "css",
+      "initialViewportFitValueHint": "cover"
+    },
+    "SplashScreen": {
+      "launchShowDuration": 2000,
+      "launchAutoHide": true,
+      "backgroundColor": "#0e1322",
+      "showSpinner": false
+    }
+  }
 }

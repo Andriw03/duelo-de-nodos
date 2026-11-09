@@ -39,6 +39,9 @@
   --gold: #e8b730;
   --font-display: 'Lilita One', 'Arial Rounded MT Bold', system-ui, sans-serif;
   --font-body: 'Nunito', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  /* Zonas seguras: en la app Capacitor 8 inyecta --safe-area-inset-*; en la web vale env(). */
+  --sat: var(--safe-area-inset-top, env(safe-area-inset-top, 0px));
+  --sab: var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px));
   color-scheme: dark;
 }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -56,7 +59,7 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing:
 .btn:disabled { opacity: .45; cursor: default; }
 .icon { width: 44px; height: 44px; padding: 0; border-radius: 50%; font-size: 20px; }
 
-#app { max-width: 480px; margin: 0 auto; height: 100%; }
+#app { max-width: 480px; margin: 0 auto; height: 100%; padding-top: var(--sat); }
 .screen { display: flex; flex-direction: column; min-height: 100%; }
 
 /* ---------- Pantalla de equipo ---------- */
@@ -80,7 +83,7 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing:
 .card.on .check { display: grid; }
 .chip { display: inline-flex; align-items: center; gap: 4px; padding: 1px 7px; border-radius: 999px; background: var(--raise); font-size: 11.5px; font-weight: 700; color: var(--ink); white-space: nowrap; }
 .dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; flex: none; }
-.team-foot { position: fixed; left: 0; right: 0; bottom: 0; padding: 10px 16px calc(10px + env(safe-area-inset-bottom)); background: linear-gradient(transparent, var(--bg) 30%); display: flex; flex-direction: column; gap: 8px; max-width: 480px; margin: 0 auto; }
+.team-foot { position: fixed; left: 0; right: 0; bottom: 0; padding: 10px 16px calc(10px + var(--sab)); background: linear-gradient(transparent, var(--bg) 30%); display: flex; flex-direction: column; gap: 8px; max-width: 480px; margin: 0 auto; }
 .team-foot .row { display: flex; gap: 8px; align-items: center; }
 .team-foot .count { font-weight: 800; color: var(--muted); min-width: 64px; font-variant-numeric: tabular-nums; }
 .team-foot .row .btn { flex: 1; }
@@ -106,7 +109,7 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing:
 .slot .tdot { position: absolute; right: 3px; bottom: 3px; width: 8px; height: 8px; border-radius: 50%; }
 .board-wrap { flex: 1 1 0; min-height: 300px; position: relative; margin: 2px 6px; }
 #board { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: manipulation; user-select: none; }
-.panel { flex: none; background: var(--panel); border-radius: 18px 18px 0 0; padding: 8px 12px calc(8px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 6px; }
+.panel { flex: none; background: var(--panel); border-radius: 18px 18px 0 0; padding: 8px 12px calc(8px + var(--sab)); display: flex; flex-direction: column; gap: 6px; }
 .msg-row { display: flex; align-items: center; gap: 8px; min-height: 48px; }
 #scr-game .panel { padding-top: 6px; }
 #msg { flex: 1; margin: 0; font-size: 13.5px; font-weight: 600; }
@@ -154,7 +157,7 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing:
 
 /* ---------- Overlays ---------- */
 .overlay { position: fixed; inset: 0; z-index: 20; background: rgba(6, 9, 18, .86); display: flex; align-items: flex-end; justify-content: center; }
-.modal .sheet { width: 100%; max-width: 480px; max-height: 88%; overflow: auto; background: var(--panel); border-radius: 20px 20px 0 0; padding: 18px 16px calc(16px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 12px; }
+.modal .sheet { width: 100%; max-width: 480px; max-height: 88%; overflow: auto; background: var(--panel); border-radius: 20px 20px 0 0; padding: 18px 16px calc(16px + var(--sab)); display: flex; flex-direction: column; gap: 12px; }
 .modal h2 { font-size: 24px; }
 .modal-body { font-size: 14.5px; }
 .modal-body p { margin: 0 0 8px; max-width: 65ch; }
@@ -178,7 +181,7 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing:
 .log li span { color: var(--muted); font-variant-numeric: tabular-nums; margin-right: 6px; }
 
 #battle { align-items: stretch; background: rgba(6, 9, 18, .97); }
-.battle-inner { width: 100%; max-width: 480px; margin: 0 auto; display: flex; flex-direction: column; justify-content: center; gap: 10px; padding: 14px 16px calc(14px + env(safe-area-inset-bottom)); }
+.battle-inner { width: 100%; max-width: 480px; margin: 0 auto; display: flex; flex-direction: column; justify-content: center; gap: 10px; padding: calc(14px + var(--sat)) 16px calc(14px + var(--sab)); }
 .battle-inner h2 { text-align: center; font-size: 22px; }
 .fighter { display: flex; align-items: center; gap: 12px; background: var(--panel); border-radius: 16px; padding: 10px; border: 2px solid transparent; }
 .fighter.p0 { border-color: var(--p0); }
@@ -891,6 +894,71 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing:
 
 </script>
 <script>
+/* ===================== PLATAFORMA (web / app nativa) =====================
+   Única capa que conoce Capacitor. En la web (GitHub Pages) no existe window.Capacitor
+   y todo cae en el comportamiento de siempre: localStorage y sin vibración.
+   En la app, build.py --out www agrega capacitor.js (de @capacitor/core) antes de este archivo. */
+(function () {
+  'use strict';
+  const Cap = window.Capacitor;
+  const native = !!(Cap && Cap.isNativePlatform && Cap.isNativePlatform() && Cap.registerPlugin);
+  const plug = name => (native && Cap.isPluginAvailable(name)) ? Cap.registerPlugin(name) : null;
+  const App = plug('App'), Haptics = plug('Haptics'), Prefs = plug('Preferences'), Splash = plug('SplashScreen');
+  const ignore = () => {};
+  const VIBRA_KEY = 'duelo-nodos-vibra';
+
+  const ls = {
+    get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* sin almacenamiento */ } },
+    del(k) { try { localStorage.removeItem(k); } catch (e) { /* nada */ } }
+  };
+
+  /* Guardado: lectura y escritura síncronas en localStorage (lo que la UI ya usaba) y, en la app,
+     copia en Preferences (almacenamiento nativo), que el sistema no borra como puede pasar con el
+     almacenamiento web. Al arrancar, restore() recupera desde Preferences lo que falte. */
+  const storage = {
+    get: ls.get,
+    set(k, v) { ls.set(k, v); if (Prefs) Prefs.set({ key: k, value: v }).catch(ignore); },
+    del(k) { ls.del(k); if (Prefs) Prefs.remove({ key: k }).catch(ignore); }
+  };
+  function restore(keys) {
+    if (!Prefs) return Promise.resolve();
+    const work = Promise.all(keys.map(k => Prefs.get({ key: k }).then(r => {
+      const local = ls.get(k);
+      if (local === null && r && r.value != null) ls.set(k, r.value);        // web borrado: recuperar
+      else if (local !== null && (!r || r.value !== local)) Prefs.set({ key: k, value: local }).catch(ignore); // primera vez: respaldar
+    }).catch(ignore)));
+    return Promise.race([work, new Promise(r => setTimeout(r, 1500))]);     // nunca bloquear el arranque
+  }
+
+  /* Vibración: solo en la app y si el jugador no la desactivó. */
+  let vibra = ls.get(VIBRA_KEY) !== '0';
+  function haptic(kind) {
+    if (!Haptics || !vibra) return;
+    const p = kind === 'win' ? Haptics.notification({ type: 'SUCCESS' })
+      : kind === 'lose' ? Haptics.notification({ type: 'ERROR' })
+      : Haptics.impact({ style: kind === 'hit' ? 'MEDIUM' : 'LIGHT' });
+    p.catch(ignore);
+  }
+
+  window.Platform = {
+    native,
+    canVibrate: !!Haptics,
+    storage,
+    restore,
+    haptic,
+    get vibra() { return vibra; },
+    setVibra(v) { vibra = !!v; ls.set(VIBRA_KEY, vibra ? '1' : '0'); if (vibra) haptic('tap'); },
+    /* Botón "atrás" de Android. Al registrarlo, Capacitor deja de cerrar la app por su cuenta. */
+    onBack(fn) { if (App) App.addListener('backButton', fn); },
+    /* Mandar la app a segundo plano (como el botón de inicio) en vez de cerrarla. */
+    minimize() { if (App) App.minimizeApp().catch(ignore); },
+    hideSplash() { if (Splash) Splash.hide().catch(ignore); }
+  };
+})();
+
+</script>
+<script>
 /* ===================== INTERFAZ (DOM) ===================== */
 (function () {
   'use strict';
@@ -903,12 +971,13 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing:
   const reduced = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
   const pct = w => (w / 96 * 100).toFixed(1).replace('.', ',') + '%';
 
-  /* ---------- Guardado opcional ---------- */
+  /* ---------- Guardado opcional (localStorage en la web; con respaldo nativo en la app, ver platform.js) ---------- */
+  const P = window.Platform;
   const SAVE_KEY = 'duelo-nodos-v1';
   const store = {
-    get() { try { const r = localStorage.getItem(SAVE_KEY); return r ? JSON.parse(r) : null; } catch (e) { return null; } },
-    set(v) { try { localStorage.setItem(SAVE_KEY, JSON.stringify(v)); } catch (e) { /* sin almacenamiento */ } },
-    del() { try { localStorage.removeItem(SAVE_KEY); } catch (e) { /* nada */ } }
+    get() { try { const r = P.storage.get(SAVE_KEY); return r ? JSON.parse(r) : null; } catch (e) { return null; } },
+    set(v) { P.storage.set(SAVE_KEY, JSON.stringify(v)); },
+    del() { P.storage.del(SAVE_KEY); }
   };
 
   const ui = {
@@ -1276,6 +1345,7 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing:
     const targets = acts.some(a => a.type === 'stay') ? D.adjacentRivals(s, f) : [];
     if (f.loc === 'bench' && !dest.size) { ui.sel = null; say('Tus dos entradas están ocupadas.'); return; }
     ui.sel = { fig: id, dest, targets };
+    P.haptic('tap');
   }
   function slotTapped(id) {
     const f = ui.state.figs[id];
@@ -1384,6 +1454,7 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing:
         const w = preview.battle.winner;
         if (w !== null) (w === top.id ? anims[0] : anims[1]).box.classList.add('win');
         $('#battle-text').textContent = preview.battle.text;
+        if (w !== null) P.haptic('hit');
         go.disabled = false; go.focus();
         go.onclick = () => {
           go.onclick = null;
@@ -1456,6 +1527,7 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing:
     store.del();
     const s = ui.state;
     const title = s.winner === 0 ? '¡Ganaste!' : s.winner === 1 ? 'Ganó la CPU' : 'Empate';
+    P.haptic(s.winner === 0 ? 'win' : 'lose');
     const choice = await openModal(title, '<p>' + esc(s.winReason) + '</p><p class="note">Partida de ' + s.turn + ' turnos en nivel ' + AI.LEVELS[ui.level].name + '.</p>',
       [{ label: 'Cambiar equipo', value: 'team' }, { label: 'Revancha', value: 'again', primary: true }]);
     if (choice === 'again') startGame(ui.team, ui.cpuTeam); else showTeamScreen();
@@ -1518,17 +1590,27 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing:
       { label: 'Historial', onClick: () => setTimeout(openLog, 0) },
       { label: 'Prueba de ruletas', onClick: () => setTimeout(openWheelTest, 0) },
       { label: ui.fast ? 'Animación normal' : 'Animación rápida', onClick: () => { ui.fast = !ui.fast; } },
+    ].concat(P.canVibrate ? [{ label: P.vibra ? 'Vibración: sí' : 'Vibración: no', onClick: () => P.setVibra(!P.vibra) }] : []).concat([
       { label: 'Abandonar partida', danger: true, onClick: () => setTimeout(confirmQuit, 0) },
       { label: 'Seguir jugando', primary: true }
-    ]);
+    ]));
   }
   async function confirmQuit() {
     const v = await openModal('¿Abandonar la partida?', '<p>Se pierde la partida en curso y vuelves a elegir equipo.</p>', [{ label: 'Cancelar', value: 'no' }, { label: 'Abandonar', value: 'yes', danger: true }]);
     if (v === 'yes') { store.del(); ui.busy = false; showTeamScreen(); }
   }
 
+  /* ---------- Botón "atrás" (Android) ---------- */
+  function onBack() {
+    if (!$('#modal').hidden) { closeModal(); return; }   // cierra la ventana abierta
+    if (!$('#battle').hidden) return;                     // el combate se cierra con "Continuar"
+    if (!$('#scr-game').hidden) { openMenu(); return; }  // en partida: abre el menú (la partida ya está guardada)
+    P.minimize();                                         // en la elección de equipo: a segundo plano, sin cerrar
+  }
+
   /* ---------- Arranque ---------- */
   function init() {
+    P.onBack(onBack);
     document.querySelectorAll('#diff button').forEach(b => b.addEventListener('click', () => { ui.level = b.dataset.lv; renderTeam(); }));
     $('#btn-random').addEventListener('click', () => { ui.team = D.randomBalancedTeam(); renderTeam(); });
     $('#btn-play').addEventListener('click', () => { if (ui.team.length === 6) startGame(ui.team); });
@@ -1538,9 +1620,11 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing:
     $('#btn-menu').addEventListener('click', openMenu);
     ui.team = ['tizonaje', 'pulpiza', 'erizarza', 'tejonrock', 'zumbiza', 'musgoso'];
     renderTeam();
+    P.hideSplash();
   }
   window.DuelUI = { get state() { return ui.state; }, get busy() { return ui.busy; }, setFast(v) { ui.fast = v; } };
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+  const start = () => P.restore([SAVE_KEY]).then(init);
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
 })();
 
 </script>

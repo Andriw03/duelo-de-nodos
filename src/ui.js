@@ -10,12 +10,13 @@
   const reduced = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
   const pct = w => (w / 96 * 100).toFixed(1).replace('.', ',') + '%';
 
-  /* ---------- Guardado opcional ---------- */
+  /* ---------- Guardado opcional (localStorage en la web; con respaldo nativo en la app, ver platform.js) ---------- */
+  const P = window.Platform;
   const SAVE_KEY = 'duelo-nodos-v1';
   const store = {
-    get() { try { const r = localStorage.getItem(SAVE_KEY); return r ? JSON.parse(r) : null; } catch (e) { return null; } },
-    set(v) { try { localStorage.setItem(SAVE_KEY, JSON.stringify(v)); } catch (e) { /* sin almacenamiento */ } },
-    del() { try { localStorage.removeItem(SAVE_KEY); } catch (e) { /* nada */ } }
+    get() { try { const r = P.storage.get(SAVE_KEY); return r ? JSON.parse(r) : null; } catch (e) { return null; } },
+    set(v) { P.storage.set(SAVE_KEY, JSON.stringify(v)); },
+    del() { P.storage.del(SAVE_KEY); }
   };
 
   const ui = {
@@ -383,6 +384,7 @@
     const targets = acts.some(a => a.type === 'stay') ? D.adjacentRivals(s, f) : [];
     if (f.loc === 'bench' && !dest.size) { ui.sel = null; say('Tus dos entradas están ocupadas.'); return; }
     ui.sel = { fig: id, dest, targets };
+    P.haptic('tap');
   }
   function slotTapped(id) {
     const f = ui.state.figs[id];
@@ -491,6 +493,7 @@
         const w = preview.battle.winner;
         if (w !== null) (w === top.id ? anims[0] : anims[1]).box.classList.add('win');
         $('#battle-text').textContent = preview.battle.text;
+        if (w !== null) P.haptic('hit');
         go.disabled = false; go.focus();
         go.onclick = () => {
           go.onclick = null;
@@ -563,6 +566,7 @@
     store.del();
     const s = ui.state;
     const title = s.winner === 0 ? '¡Ganaste!' : s.winner === 1 ? 'Ganó la CPU' : 'Empate';
+    P.haptic(s.winner === 0 ? 'win' : 'lose');
     const choice = await openModal(title, '<p>' + esc(s.winReason) + '</p><p class="note">Partida de ' + s.turn + ' turnos en nivel ' + AI.LEVELS[ui.level].name + '.</p>',
       [{ label: 'Cambiar equipo', value: 'team' }, { label: 'Revancha', value: 'again', primary: true }]);
     if (choice === 'again') startGame(ui.team, ui.cpuTeam); else showTeamScreen();
@@ -625,17 +629,27 @@
       { label: 'Historial', onClick: () => setTimeout(openLog, 0) },
       { label: 'Prueba de ruletas', onClick: () => setTimeout(openWheelTest, 0) },
       { label: ui.fast ? 'Animación normal' : 'Animación rápida', onClick: () => { ui.fast = !ui.fast; } },
+    ].concat(P.canVibrate ? [{ label: P.vibra ? 'Vibración: sí' : 'Vibración: no', onClick: () => P.setVibra(!P.vibra) }] : []).concat([
       { label: 'Abandonar partida', danger: true, onClick: () => setTimeout(confirmQuit, 0) },
       { label: 'Seguir jugando', primary: true }
-    ]);
+    ]));
   }
   async function confirmQuit() {
     const v = await openModal('¿Abandonar la partida?', '<p>Se pierde la partida en curso y vuelves a elegir equipo.</p>', [{ label: 'Cancelar', value: 'no' }, { label: 'Abandonar', value: 'yes', danger: true }]);
     if (v === 'yes') { store.del(); ui.busy = false; showTeamScreen(); }
   }
 
+  /* ---------- Botón "atrás" (Android) ---------- */
+  function onBack() {
+    if (!$('#modal').hidden) { closeModal(); return; }   // cierra la ventana abierta
+    if (!$('#battle').hidden) return;                     // el combate se cierra con "Continuar"
+    if (!$('#scr-game').hidden) { openMenu(); return; }  // en partida: abre el menú (la partida ya está guardada)
+    P.minimize();                                         // en la elección de equipo: a segundo plano, sin cerrar
+  }
+
   /* ---------- Arranque ---------- */
   function init() {
+    P.onBack(onBack);
     document.querySelectorAll('#diff button').forEach(b => b.addEventListener('click', () => { ui.level = b.dataset.lv; renderTeam(); }));
     $('#btn-random').addEventListener('click', () => { ui.team = D.randomBalancedTeam(); renderTeam(); });
     $('#btn-play').addEventListener('click', () => { if (ui.team.length === 6) startGame(ui.team); });
@@ -645,7 +659,9 @@
     $('#btn-menu').addEventListener('click', openMenu);
     ui.team = ['tizonaje', 'pulpiza', 'erizarza', 'tejonrock', 'zumbiza', 'musgoso'];
     renderTeam();
+    P.hideSplash();
   }
   window.DuelUI = { get state() { return ui.state; }, get busy() { return ui.busy; }, setFast(v) { ui.fast = v; } };
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+  const start = () => P.restore([SAVE_KEY]).then(init);
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
 })();

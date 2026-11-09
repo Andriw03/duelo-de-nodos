@@ -2,8 +2,8 @@
 
   python3 build.py            -> index.html en la raíz (demo de GitHub Pages).
                                  Fuentes incrustadas en base64: archivo único, funciona sin conexión.
-  python3 build.py --out www  -> www/index.html + www/fonts/ (web de la app Capacitor).
-                                 Fuentes como archivos aparte: HTML más liviano.
+  python3 build.py --out www  -> www/index.html + www/fonts/ + www/capacitor.js (web de la app Capacitor).
+                                 Fuentes como archivos aparte: HTML más liviano. Requiere npm install.
 """
 import argparse
 import base64
@@ -33,12 +33,19 @@ def main():
     args = ap.parse_args()
 
     fonts_css = leer('fonts.css')
+    capacitor = ''
     if args.out:
         destino = pathlib.Path(args.out)
         destino.mkdir(parents=True, exist_ok=True)
         (destino / 'fonts').mkdir(exist_ok=True)
         for f in (SRC / 'fonts').iterdir():
             shutil.copy2(f, destino / 'fonts' / f.name)
+        # Runtime de Capacitor (registerPlugin) para usar plugins sin bundler. Solo en la app.
+        core = RAIZ / 'node_modules' / '@capacitor' / 'core' / 'dist' / 'capacitor.js'
+        if not core.exists():
+            raise SystemExit('Falta ' + str(core) + ': corre "npm install" antes de --out')
+        shutil.copy2(core, destino / 'capacitor.js')
+        capacitor = '<script src="capacitor.js"></script>'
     else:
         destino = RAIZ
         fonts_css = fuentes_incrustadas(fonts_css)
@@ -46,7 +53,8 @@ def main():
     s = leer('shell.html')
     for marca, contenido in [('/*FONTS*/', fonts_css), ('/*CSS*/', leer('style.css')),
                              ('/*LOGIC*/', leer('logic.js')), ('/*AI*/', leer('ai.js')),
-                             ('/*UI*/', leer('ui.js'))]:
+                             ('<!--CAPACITOR-->\n', capacitor + '\n' if capacitor else ''),
+                             ('/*PLATFORM*/', leer('platform.js')), ('/*UI*/', leer('ui.js'))]:
         assert marca in s, 'falta el marcador ' + marca
         s = s.replace(marca, contenido)
 
