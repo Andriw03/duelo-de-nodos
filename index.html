@@ -67,6 +67,8 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing:
 .tbar h1 { font-size: 28px; color: var(--ink); }
 .tbar h1 span { color: var(--p0); }
 .intro { padding: 0 16px; color: var(--muted); font-size: 14px; max-width: 65ch; }
+.about { display: flex; align-items: center; gap: 4px; margin: 2px 16px 0; color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+.linkbtn { min-height: 44px; padding: 0 8px; border: 0; background: none; color: var(--p0); font: inherit; font-weight: 800; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 .diff { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 12px 16px 8px; background: var(--panel); padding: 4px; border-radius: 14px; }
 .diff button { min-height: 44px; border: 0; border-radius: 10px; background: transparent; font-weight: 800; color: var(--muted); cursor: pointer; }
 .diff button[aria-checked="true"] { background: var(--raise); color: var(--ink); box-shadow: inset 0 0 0 2px var(--p0); }
@@ -226,6 +228,7 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing:
       <button type="button" id="btn-rules-t" class="btn icon" aria-label="Cómo jugar">?</button>
     </header>
     <p class="intro">Elige 6 de las 12 criaturas. La CPU arma un equipo equilibrado al azar. Toca la <b>i</b> para ver la ruleta de cada una.</p>
+    <p class="about"><span id="version-t"></span><button type="button" id="btn-feedback-t" class="linkbtn" hidden>Enviar comentarios</button></p>
     <div class="diff" id="diff" role="radiogroup" aria-label="Dificultad">
       <button type="button" role="radio" data-lv="facil">Fácil</button>
       <button type="button" role="radio" data-lv="normal">Normal</button>
@@ -894,6 +897,7 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing:
 
 </script>
 <script>
+window.DUEL_CONFIG = {"version": "0.2.0", "feedbackUrl": ""};
 /* ===================== PLATAFORMA (web / app nativa) =====================
    Única capa que conoce Capacitor. En la web (GitHub Pages) no existe window.Capacitor
    y todo cae en el comportamiento de siempre: localStorage y sin vibración.
@@ -985,6 +989,11 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing:
     sel: null, info: null, confirm: null, busy: false, fast: false,
     lastCpuMs: null, log: [], figEls: new Map(), msg: ''
   };
+  /* ---------- Versión y comentarios (los inyecta build.py desde package.json y src/config.json) ---------- */
+  const CFG = window.DUEL_CONFIG || { version: 'dev', feedbackUrl: '' };
+  const feedbackUrl = CFG.feedbackUrl ? CFG.feedbackUrl.split('{version}').join(encodeURIComponent(CFG.version)) : '';
+  function openFeedback() { if (feedbackUrl) window.open(feedbackUrl, '_blank', 'noopener'); }
+
   const wait = ms => new Promise(r => setTimeout(r, reduced ? Math.min(ms, 120) : (ui.fast ? ms * 0.45 : ms)));
 
   /* ---------- Ruletas en canvas ---------- */
@@ -1586,11 +1595,11 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing:
   }
   function openMenu() {
     const ms = ui.lastCpuMs === null ? '—' : ui.lastCpuMs.toFixed(0) + ' ms';
-    openModal('Menú', '<p>Nivel: <b>' + AI.LEVELS[ui.level].name + '</b>. Último turno de la CPU: <b>' + ms + '</b> de cálculo (sin animaciones).</p>', [
+    openModal('Menú', '<p>Nivel: <b>' + AI.LEVELS[ui.level].name + '</b>. Último turno de la CPU: <b>' + ms + '</b> de cálculo (sin animaciones).</p><p class="note">Versión ' + esc(CFG.version) + '</p>', [
       { label: 'Historial', onClick: () => setTimeout(openLog, 0) },
       { label: 'Prueba de ruletas', onClick: () => setTimeout(openWheelTest, 0) },
       { label: ui.fast ? 'Animación normal' : 'Animación rápida', onClick: () => { ui.fast = !ui.fast; } },
-    ].concat(P.canVibrate ? [{ label: P.vibra ? 'Vibración: sí' : 'Vibración: no', onClick: () => P.setVibra(!P.vibra) }] : []).concat([
+    ].concat(feedbackUrl ? [{ label: 'Enviar comentarios', onClick: openFeedback }] : []).concat(P.canVibrate ? [{ label: P.vibra ? 'Vibración: sí' : 'Vibración: no', onClick: () => P.setVibra(!P.vibra) }] : []).concat([
       { label: 'Abandonar partida', danger: true, onClick: () => setTimeout(confirmQuit, 0) },
       { label: 'Seguir jugando', primary: true }
     ]));
@@ -1618,6 +1627,9 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing:
     $('#btn-rules-t').addEventListener('click', () => openModal('Cómo jugar', rulesHTML()));
     $('#btn-rules-g').addEventListener('click', () => openModal('Cómo jugar', rulesHTML()));
     $('#btn-menu').addEventListener('click', openMenu);
+    $('#version-t').textContent = 'Versión ' + CFG.version + (feedbackUrl ? ' ·' : '');
+    $('#btn-feedback-t').hidden = !feedbackUrl;
+    $('#btn-feedback-t').addEventListener('click', openFeedback);
     ui.team = ['tizonaje', 'pulpiza', 'erizarza', 'tejonrock', 'zumbiza', 'musgoso'];
     renderTeam();
     P.hideSplash();

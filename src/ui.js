@@ -24,6 +24,11 @@
     sel: null, info: null, confirm: null, busy: false, fast: false,
     lastCpuMs: null, log: [], figEls: new Map(), msg: ''
   };
+  /* ---------- Versión y comentarios (los inyecta build.py desde package.json y src/config.json) ---------- */
+  const CFG = window.DUEL_CONFIG || { version: 'dev', feedbackUrl: '' };
+  const feedbackUrl = CFG.feedbackUrl ? CFG.feedbackUrl.split('{version}').join(encodeURIComponent(CFG.version)) : '';
+  function openFeedback() { if (feedbackUrl) window.open(feedbackUrl, '_blank', 'noopener'); }
+
   const wait = ms => new Promise(r => setTimeout(r, reduced ? Math.min(ms, 120) : (ui.fast ? ms * 0.45 : ms)));
 
   /* ---------- Ruletas en canvas ---------- */
@@ -625,11 +630,11 @@
   }
   function openMenu() {
     const ms = ui.lastCpuMs === null ? '—' : ui.lastCpuMs.toFixed(0) + ' ms';
-    openModal('Menú', '<p>Nivel: <b>' + AI.LEVELS[ui.level].name + '</b>. Último turno de la CPU: <b>' + ms + '</b> de cálculo (sin animaciones).</p>', [
+    openModal('Menú', '<p>Nivel: <b>' + AI.LEVELS[ui.level].name + '</b>. Último turno de la CPU: <b>' + ms + '</b> de cálculo (sin animaciones).</p><p class="note">Versión ' + esc(CFG.version) + '</p>', [
       { label: 'Historial', onClick: () => setTimeout(openLog, 0) },
       { label: 'Prueba de ruletas', onClick: () => setTimeout(openWheelTest, 0) },
       { label: ui.fast ? 'Animación normal' : 'Animación rápida', onClick: () => { ui.fast = !ui.fast; } },
-    ].concat(P.canVibrate ? [{ label: P.vibra ? 'Vibración: sí' : 'Vibración: no', onClick: () => P.setVibra(!P.vibra) }] : []).concat([
+    ].concat(feedbackUrl ? [{ label: 'Enviar comentarios', onClick: openFeedback }] : []).concat(P.canVibrate ? [{ label: P.vibra ? 'Vibración: sí' : 'Vibración: no', onClick: () => P.setVibra(!P.vibra) }] : []).concat([
       { label: 'Abandonar partida', danger: true, onClick: () => setTimeout(confirmQuit, 0) },
       { label: 'Seguir jugando', primary: true }
     ]));
@@ -657,6 +662,9 @@
     $('#btn-rules-t').addEventListener('click', () => openModal('Cómo jugar', rulesHTML()));
     $('#btn-rules-g').addEventListener('click', () => openModal('Cómo jugar', rulesHTML()));
     $('#btn-menu').addEventListener('click', openMenu);
+    $('#version-t').textContent = 'Versión ' + CFG.version + (feedbackUrl ? ' ·' : '');
+    $('#btn-feedback-t').hidden = !feedbackUrl;
+    $('#btn-feedback-t').addEventListener('click', openFeedback);
     ui.team = ['tizonaje', 'pulpiza', 'erizarza', 'tejonrock', 'zumbiza', 'musgoso'];
     renderTeam();
     P.hideSplash();

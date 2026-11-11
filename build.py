@@ -7,6 +7,7 @@
 """
 import argparse
 import base64
+import json
 import pathlib
 import re
 import shutil
@@ -25,6 +26,16 @@ def fuentes_incrustadas(css):
         datos = (SRC / m.group(1)).read_bytes()
         return 'url(data:font/woff2;base64,' + base64.b64encode(datos).decode('ascii') + ')'
     return re.sub(r'url\((fonts/[^)]+\.woff2)\)', a_base64, css)
+
+
+def config_js():
+    """window.DUEL_CONFIG con la versión (package.json) y el link de comentarios (src/config.json)."""
+    version = json.loads((RAIZ / 'package.json').read_text(encoding='utf-8'))['version']
+    url = json.loads(leer('config.json')).get('feedbackUrl', '').strip()
+    if url and not url.startswith('https://'):
+        raise SystemExit('src/config.json: feedbackUrl debe empezar con https://')
+    datos = json.dumps({'version': version, 'feedbackUrl': url}, ensure_ascii=False)
+    return 'window.DUEL_CONFIG = ' + datos.replace('</', '<\\/') + ';'
 
 
 def main():
@@ -54,6 +65,7 @@ def main():
     for marca, contenido in [('/*FONTS*/', fonts_css), ('/*CSS*/', leer('style.css')),
                              ('/*LOGIC*/', leer('logic.js')), ('/*AI*/', leer('ai.js')),
                              ('<!--CAPACITOR-->\n', capacitor + '\n' if capacitor else ''),
+                             ('/*CONFIG*/', config_js()),
                              ('/*PLATFORM*/', leer('platform.js')), ('/*UI*/', leer('ui.js'))]:
         assert marca in s, 'falta el marcador ' + marca
         s = s.replace(marca, contenido)
