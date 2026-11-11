@@ -12,7 +12,8 @@ Juego de estrategia por turnos para celular, contra la CPU. Es web (un HTML gene
 ## Estructura actual
 - `src/logic.js`: reglas puras, sin DOM (patrón UMD: `(function(root){...})`, se usa con `require` en node y como global en el navegador).
 - `src/ai.js`: IA de la CPU (niveles `facil`, `normal`, `dificil`).
-- `src/ui.js`, `src/style.css`, `src/shell.html`: interfaz. `shell.html` tiene los marcadores `/*FONTS*/`, `/*CSS*/`, `/*LOGIC*/`, `/*AI*/`, `<!--CAPACITOR-->`, `/*PLATFORM*/`, `/*UI*/`.
+- `src/ui.js`, `src/style.css`, `src/shell.html`: interfaz. `shell.html` tiene los marcadores `/*FONTS*/`, `/*CSS*/`, `/*LOGIC*/`, `/*AI*/`, `<!--CAPACITOR-->`, `/*CONFIG*/`, `/*PLATFORM*/`, `/*UI*/`.
+- `/*CONFIG*/` → `window.DUEL_CONFIG = {version, feedbackUrl}`: la versión sale de `package.json` (única fuente) y `feedbackUrl` de `src/config.json` (`{version}` dentro del link se reemplaza; solo `https://`; vacío = sin botón de comentarios).
 - `src/platform.js`: **única capa que conoce Capacitor** (`window.Platform`): guardado con respaldo nativo, vibración, botón atrás, splash, minimizar. En la web cae a `localStorage` y no hace nada nuevo. `ui.js` solo habla con `Platform`, nunca con Capacitor.
 - `src/fonts.css` + `src/fonts/`: Lilita One y Nunito (woff2, subconjunto latino, OFL). Nunito es variable (un archivo, pesos 200–1000).
 - `build.py`: une `src/` en un HTML. **`index.html` es el build que publica GitHub Pages: no se edita a mano.**
@@ -103,8 +104,15 @@ Juego de estrategia por turnos para celular, contra la CPU. Es web (un HTML gene
 ## Fase 0 (empaquetado Android): terminada 2026-11-11, en pausa
 Rama `capacitor-android` (en GitHub). App probada en emulador: toque, splash, zonas seguras, atrás, rotación, segundo plano y partida guardada. APK de prueba con `npm run apk`.
 
-## Siguiente: Fase 0b de `ROADMAP.md` (web lista para testers)
-Fusionar `capacitor-android` en `main`, versión visible, botón de comentarios (formulario que crea Andrés) y prueba en Chrome Android, Safari iPhone y computador. Decidir antes si se hace instalable y sin conexión (PWA). Después, Fase 1 (motor dirigido por datos).
+## Fase 0b (web para testers): en curso, rama `web-testers`
+- Hecho: `capacitor-android` fusionada en `main` y publicada (2026-11-11). Versión visible 0.2.0 (pantalla de equipo y Menú). Botón "Enviar comentarios" (pantalla de equipo y Menú), oculto mientras `feedbackUrl` esté vacío.
+- Probado: navegador de computador, teléfono simulado 375×812 y Chrome 133 real en el emulador (toques, partida, guardado al cerrar y reabrir; sin errores en consola).
+- PWA (instalable y sin conexión): descartada por ahora; se retoma si los testers lo piden.
+- Falta: link del formulario (Andrés), prueba en Safari de iPhone (alguien con iPhone), fusionar `web-testers` en `main` y que 2–3 personas jueguen desde el link.
+- Lista para probar en iPhone: abrir el link en Safari; que se vean las fuentes redondeadas; elegir equipo y jugar 3–4 turnos tocando; que nada quede bajo el notch ni la barra inferior; abrir Menú, Historial y "Cómo jugar"; cerrar Safari, reabrir el link y usar "Continuar partida guardada".
+- Probar Chrome en el emulador: `adb reverse tcp:8765 tcp:8765` y abrir `http://localhost:8765/` (por `10.0.2.2` la descarga se cortaba a medias). Para saltar la bienvenida de Chrome sin aceptar nada: archivo `/data/local/tmp/chrome-command-line` con `_ --disable-fre --no-first-run` + `am set-debug-app --persistent com.android.chrome` (deshacer al terminar).
+
+## Siguiente: Fase 1 de `ROADMAP.md` (motor dirigido por datos)
 
 ## Después (no empezar sin pedirlo)
 - Fases 2 a 7 de `ROADMAP.md`. Multijugador online (requiere servidor autoritativo; versión 2).

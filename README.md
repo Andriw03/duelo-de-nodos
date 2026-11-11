@@ -20,6 +20,12 @@ python3 build.py        # index.html con las fuentes incrustadas (en Windows: py
 node test/run.js        # simulaciones; correr después de tocar logic.js o ai.js
 ```
 
+Se publica fusionando en `main`: GitHub Pages sirve `index.html` (puede tardar unos 10 minutos en verse por la caché).
+
+### Versión y comentarios
+- La versión visible en el juego (pantalla de equipo y menú) sale de `"version"` en `package.json`. Subirla en cada publicación.
+- El botón "Enviar comentarios" aparece solo si `src/config.json` tiene `feedbackUrl` (un link `https://`, por ejemplo el "enlace rellenado previamente" de Google Forms). Dentro del link, `{version}` se reemplaza por la versión del juego.
+
 ## App Android
 Requisitos: Node 22+, Python 3 y Android Studio (trae el JDK 21 y el SDK de Android). Una vez:
 ```bash
