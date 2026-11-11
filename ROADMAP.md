@@ -23,7 +23,7 @@ Objetivo: que mandar el link baste para que alguien juegue y cuente qué le pas�
 - Opcional (decidir antes): hacerla instalable desde el navegador ("Agregar a la pantalla de inicio") y jugable sin conexión (manifiesto web + service worker). Sirve a quien juegue seguido, pero agrega caché que hay que invalidar en cada versión.
 - Criterio de salida: 2 o 3 personas juegan desde el link en sus teléfonos y el formulario recibe sus comentarios.
 
-## Fase 1 — Motor dirigido por datos
+## Fase 1 — Motor dirigido por datos (terminada)
 Objetivo: que tableros, duelos y reglas especiales sean datos y no código.
 - Sacar el tablero de 29 nodos a un formato de datos (`data/boards/*.json`) y hacer que `logic.js` lo reciba como parámetro (hoy asume uno solo).
 - Definir la "configuración de duelo": tablero, equipo del jugador (libre o fijo), equipo rival (fijo o aleatorio), dificultad de IA, reglas especiales activas y condición de victoria.

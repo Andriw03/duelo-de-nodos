@@ -10,7 +10,10 @@ Juego de estrategia por turnos para celular, contra la CPU. Es web (un HTML gene
 - Dueño: Andrés (Chile). Idioma de la UI, textos y comentarios: **español**.
 
 ## Estructura actual
-- `src/logic.js`: reglas puras, sin DOM (patrón UMD: `(function(root){...})`, se usa con `require` en node y como global en el navegador).
+- `src/logic.js`: reglas puras, sin DOM (patrón UMD: `(function(root){...})`, se usa con `require` en node y como global en el navegador). **El tablero sale siempre de la partida: `D.boardOf(s)`**; `D.BOARD` es solo el clásico, para código sin partida.
+- `data/boards/*.json`: tableros (`nodes` con x/y, `edges`, `goals`, `entries`, `marked`, `links`). **El orden de `edges` define el orden de vecinos y con eso las decisiones de la IA**: no reordenar sin revisar `test/golden.js`. `compileBoard` valida (aristas, metas, entradas, conexión).
+- `data/duels/*.json`: configuración de duelo (`board`, `player.team`/`rival.team` = `free`/`random`/lista fija, `ai`, `rules`, `victory` = `{type: 'goal', turnLimit}`). Hoy solo existe `libre` (la partida de siempre). `newGame(team0, team1, primero, duelo)`.
+- En el navegador los datos llegan como `window.DUEL_DATA` (marcador `/*DATA*/`, lo arma `build.py`); en node `logic.js` lee `data/` del disco.
 - `src/ai.js`: IA de la CPU (niveles `facil`, `normal`, `dificil`).
 - `src/ui.js`, `src/style.css`, `src/shell.html`: interfaz. `shell.html` tiene los marcadores `/*FONTS*/`, `/*CSS*/`, `/*LOGIC*/`, `/*AI*/`, `<!--CAPACITOR-->`, `/*CONFIG*/`, `/*PLATFORM*/`, `/*UI*/`.
 - `/*CONFIG*/` → `window.DUEL_CONFIG = {version, feedbackUrl}`: la versión sale de `package.json` (única fuente) y `feedbackUrl` de `src/config.json` (`{version}` dentro del link se reemplaza; solo `https://`; vacío = sin botón de comentarios).
@@ -23,13 +26,13 @@ Juego de estrategia por turnos para celular, contra la CPU. Es web (un HTML gene
 - `android/`: proyecto nativo de Capacitor 8 (se versiona). Cambios propios: orientación vertical (`AndroidManifest.xml`), splash y fondo `#0e1322` (`styles.xml`, `colors_noche.xml`), `android.overridePathCheck=true` (`gradle.properties`, por la tilde en la ruta local).
 - `capacitor.config.json`: appId, color de fondo, `SystemBars` (íconos claros, insets por CSS) y `SplashScreen`.
 - `scripts/apk.js` (`npm run apk`): build de `www`, `cap sync` y `assembleDebug`; deja `dist/duelo-de-nodos-<versión>-debug.apk`. Busca solo un JDK 17+ (el de Android Studio si `JAVA_HOME` es viejo) y el SDK.
-- `test/run.js`: simulaciones CPU vs CPU en node (`node test/run.js` o `npm test`). `test/tune.js`, `test/len2.js`: apoyo para afinar.
+- `test/run.js`: simulaciones CPU vs CPU en node. `test/golden.js`: huella de cada jugada de esas 220 partidas (referencia en `test/golden-ref.json`). `test/reglas.js`: tableros, duelos, partida guardada antigua (`test/fixtures/partida-0.2.0.json`) y ganchos. `npm test` corre las tres. `test/tune.js`, `test/len2.js`: apoyo para afinar.
 - No se versionan: `www/`, `dist/`, `node_modules/`, builds de Android.
 
 ## Reglas de trabajo (importante)
 1. **No cambiar reglas del juego sin preguntar.** Las decisiones de abajo son deliberadas.
 2. La lógica sigue siendo pura (sin DOM, sin `window`, sin Capacitor). Todo lo nativo vive en la capa de UI/plataforma.
-3. Después de tocar `logic.js` o `ai.js`, correr `node test/run.js` y comparar con los números de referencia (ver "IA").
+3. Después de tocar `logic.js`, `ai.js` o `data/`, correr `npm test`. Si la huella de `test/golden.js` cambia, el juego cambió: solo se acepta (`--update`) si el cambio es deliberado y aprobado.
 4. No romper la demo web: GitHub Pages sirve `index.html` desde la raíz de `main`. `main` siempre jugable: se trabaja en ramas y se fusiona cuando está probado. El build de Capacitor es un paso aparte.
 8. Todo lo nuevo (datos, campaña, tutorial) tiene que funcionar en el HTML único de la web, sin servidor. Guardar progreso siempre vía `Platform.storage`, para que la app lo herede.
 5. Todo original: criaturas, nombres y arte sin relación con Pokémon ni Nintendo. No introducir nombres, diseños ni sonidos de esa franquicia.
@@ -112,7 +115,16 @@ Rama `capacitor-android` (en GitHub). App probada en emulador: toque, splash, zo
 - Lista para probar en iPhone: abrir el link en Safari; que se vean las fuentes redondeadas; elegir equipo y jugar 3–4 turnos tocando; que nada quede bajo el notch ni la barra inferior; abrir Menú, Historial y "Cómo jugar"; cerrar Safari, reabrir el link y usar "Continuar partida guardada".
 - Probar Chrome en el emulador: `adb reverse tcp:8765 tcp:8765` y abrir `http://localhost:8765/` (por `10.0.2.2` la descarga se cortaba a medias). Para saltar la bienvenida de Chrome sin aceptar nada: archivo `/data/local/tmp/chrome-command-line` con `_ --disable-fre --no-first-run` + `am set-debug-app --persistent com.android.chrome` (deshacer al terminar).
 
-## Siguiente: Fase 1 de `ROADMAP.md` (motor dirigido por datos)
+## Fase 1 (motor dirigido por datos): terminada 2026-11-11, rama `fase1-datos`
+- Tablero clásico en `data/boards/clasico.json` (generado desde el código anterior, mismo orden de vecinos) y duelo `libre` en `data/duels/libre.json`.
+- La partida guarda `boardId`, `rules`, `turnLimit` y `duelId`. Partidas guardadas sin esos campos (≤ 0.2.0) se tratan como clásico, sin reglas y 300 turnos.
+- Ganchos para reglas de jefe en `logic.js` (`registerRule`): `neighbors`, `afterLand`, `endTurn`, `wheel`. **Ninguna regla real registrada**: los efectos de cruces marcados y enlazados se definen con la biblia (Fase 4). Los tableros ya aceptan `marked` y `links` como datos.
+- Condición de victoria: solo `goal` (llegar a la meta) con `turnLimit`; otro tipo falla al crear la partida.
+- Verificado: huella idéntica en las 5 series, `run.js` igual a la referencia, 13 pruebas de `reglas.js`, web y `www/` sin errores, partida 0.2.0 recuperada con "Continuar".
+- Sin cambios visibles para el jugador. Publicar en `main` cuando Andrés lo pida (subir la versión).
+
+## Siguiente: Fase 2 de `ROADMAP.md` (tutorial interactivo)
+Pendiente de la 0b: link del formulario, prueba en iPhone y 2–3 testers.
 
 ## Después (no empezar sin pedirlo)
 - Fases 2 a 7 de `ROADMAP.md`. Multijugador online (requiere servidor autoritativo; versión 2).
