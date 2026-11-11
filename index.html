@@ -282,6 +282,9 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing:
 </div>
 
 <script>
+window.DUEL_DATA = {"boards":{"clasico":{"id":"clasico","nombre":"Clásico","descripcion":"29 cruces: filas pares de 5, filas impares en las columnas 0, 2 y 4, y el centro unido en diagonal. Fila 0 = lado CPU (jugador 1), fila 6 = lado jugador (jugador 0).","width":360,"height":416,"nodes":[{"c":0,"r":0,"x":40,"y":34},{"c":1,"r":0,"x":110,"y":34},{"c":2,"r":0,"x":180,"y":34},{"c":3,"r":0,"x":250,"y":34},{"c":4,"r":0,"x":320,"y":34},{"c":0,"r":1,"x":40,"y":92},{"c":2,"r":1,"x":180,"y":92},{"c":4,"r":1,"x":320,"y":92},{"c":0,"r":2,"x":40,"y":150},{"c":1,"r":2,"x":110,"y":150},{"c":2,"r":2,"x":180,"y":150},{"c":3,"r":2,"x":250,"y":150},{"c":4,"r":2,"x":320,"y":150},{"c":0,"r":3,"x":40,"y":208},{"c":2,"r":3,"x":180,"y":208},{"c":4,"r":3,"x":320,"y":208},{"c":0,"r":4,"x":40,"y":266},{"c":1,"r":4,"x":110,"y":266},{"c":2,"r":4,"x":180,"y":266},{"c":3,"r":4,"x":250,"y":266},{"c":4,"r":4,"x":320,"y":266},{"c":0,"r":5,"x":40,"y":324},{"c":2,"r":5,"x":180,"y":324},{"c":4,"r":5,"x":320,"y":324},{"c":0,"r":6,"x":40,"y":382},{"c":1,"r":6,"x":110,"y":382},{"c":2,"r":6,"x":180,"y":382},{"c":3,"r":6,"x":250,"y":382},{"c":4,"r":6,"x":320,"y":382}],"_edges":"El orden importa: define el orden de vecinos, que usan el recorrido y la IA.","edges":[[0,1],[1,2],[2,3],[3,4],[8,9],[9,10],[10,11],[11,12],[16,17],[17,18],[18,19],[19,20],[24,25],[25,26],[26,27],[27,28],[0,5],[2,6],[4,7],[5,8],[6,10],[7,12],[8,13],[10,14],[12,15],[13,16],[14,18],[15,20],[16,21],[18,22],[20,23],[21,24],[22,26],[23,28],[14,9],[14,11],[14,17],[14,19]],"goals":[26,2],"entries":[[24,28],[0,4]],"marked":[],"links":[]}},"duels":{"libre":{"id":"libre","nombre":"Partida libre","_formato":"board: id de data/boards. player/rival.team: 'free' (lo elige el jugador), 'random' (equipo equilibrado al azar) o una lista fija de 6 criaturas. ai: 'choose' (lo elige el jugador) o facil/normal/dificil. rules: reglas especiales [{ type, ...parámetros }], ninguna por defecto. victory: type 'goal' (llegar a la meta rival) y turnLimit.","board":"clasico","player":{"team":"free"},"rival":{"team":"random"},"ai":"choose","rules":[],"victory":{"type":"goal","turnLimit":300}}}};
+</script>
+<script>
 /* ===================== LÓGICA PURA (sin DOM) ===================== */
 (function (root) {
   'use strict';
@@ -358,37 +361,99 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing:
   const CREATURE = {};
   CREATURES.forEach((c, i) => { c.index = i; CREATURE[c.id] = c; });
 
-  /* ---------- Tablero: red de 29 nodos ----------
-     Fila 0 = lado CPU (jugador 1), fila 6 = lado jugador (jugador 0).
-     Filas pares: 5 nodos encadenados. Filas impares: columnas 0, 2 y 4.
-     El nodo central (2,3) se une en diagonal a (1,2),(3,2),(1,4),(3,4). */
-  const BOARD = (function () {
-    const layout = [[0, 1, 2, 3, 4], [0, 2, 4], [0, 1, 2, 3, 4], [0, 2, 4], [0, 1, 2, 3, 4], [0, 2, 4], [0, 1, 2, 3, 4]];
-    const nodes = []; const at = {};
-    layout.forEach((cols, r) => cols.forEach(c => {
-      const id = nodes.length;
-      nodes.push({ id, c, r, x: 40 + c * 70, y: 34 + r * 58, kind: 'n', owner: null });
-      at[c + ',' + r] = id;
-    }));
+  /* ---------- Datos: tableros y duelos ----------
+     Vienen de data/boards/*.json y data/duels/*.json. En el navegador, build.py los incrusta
+     como DUEL_DATA antes de este archivo; en node se leen del disco. */
+  function loadData() {
+    if (root.DUEL_DATA) return root.DUEL_DATA;
+    if (typeof require === 'function' && typeof __dirname === 'string') {
+      const fs = require('fs'), path = require('path');
+      const read = dir => {
+        const out = {}; const base = path.join(__dirname, '..', 'data', dir);
+        fs.readdirSync(base).filter(f => f.endsWith('.json')).sort().forEach(f => { const j = JSON.parse(fs.readFileSync(path.join(base, f), 'utf8')); out[j.id] = j; });
+        return out;
+      };
+      return { boards: read('boards'), duels: read('duels') };
+    }
+    throw new Error('Faltan los datos del juego (DUEL_DATA)');
+  }
+
+  /* Convierte un tablero en datos a la forma que usa el motor y lo valida.
+     El orden de "edges" define el orden de vecinos (adj), que el recorrido y la IA usan para desempatar. */
+  function compileBoard(j) {
+    const fail = m => { throw new Error('Tablero ' + (j && j.id) + ': ' + m); };
+    if (!j || !Array.isArray(j.nodes) || !j.nodes.length) fail('sin nodos');
+    const N = j.nodes.length; const okId = n => Number.isInteger(n) && n >= 0 && n < N;
+    const nodes = j.nodes.map((n, id) => ({ id, c: n.c, r: n.r, x: n.x, y: n.y, kind: 'n', owner: null }));
     const adj = nodes.map(() => []);
-    const link = (a, b) => { const A = at[a], Bn = at[b]; if (A === undefined || Bn === undefined) throw new Error('nodo ' + a + '/' + b); adj[A].push(Bn); adj[Bn].push(A); };
-    [0, 2, 4, 6].forEach(r => { for (let c = 0; c < 4; c++) link(c + ',' + r, (c + 1) + ',' + r); });
-    for (let r = 0; r < 6; r++) [0, 2, 4].forEach(c => link(c + ',' + r, c + ',' + (r + 1)));
-    link('2,3', '1,2'); link('2,3', '3,2'); link('2,3', '1,4'); link('2,3', '3,4');
-    const goal = [at['2,6'], at['2,0']];
-    const entries = [[at['0,6'], at['4,6']], [at['0,0'], at['4,0']]];
+    (j.edges || []).forEach(([a, b]) => {
+      if (!okId(a) || !okId(b) || a === b) fail('arista inválida ' + a + '-' + b);
+      if (adj[a].includes(b)) fail('arista repetida ' + a + '-' + b);
+      adj[a].push(b); adj[b].push(a);
+    });
+    const goal = j.goals, entries = j.entries;
+    if (!Array.isArray(goal) || goal.length !== 2 || !goal.every(okId) || goal[0] === goal[1]) fail('metas inválidas');
+    if (!Array.isArray(entries) || entries.length !== 2 || !entries.every(es => Array.isArray(es) && es.length && es.every(okId))) fail('entradas inválidas');
     goal.forEach((g, p) => { nodes[g].kind = 'goal'; nodes[g].owner = p; });
-    entries.forEach((es, p) => es.forEach(e => { nodes[e].kind = 'entry'; nodes[e].owner = p; }));
+    entries.forEach((es, p) => es.forEach(e => { if (nodes[e].kind !== 'n') fail('cruce ' + e + ' usado dos veces'); nodes[e].kind = 'entry'; nodes[e].owner = p; }));
     const edges = [];
     adj.forEach((ns, a) => ns.forEach(b => { if (a < b) edges.push([a, b]); }));
     // distancias estáticas (sin ocupación)
     const dist = nodes.map((_, s) => {
-      const d = new Array(nodes.length).fill(99); d[s] = 0; const q = [s];
+      const d = new Array(N).fill(99); d[s] = 0; const q = [s];
       while (q.length) { const u = q.shift(); adj[u].forEach(v => { if (d[v] > d[u] + 1) { d[v] = d[u] + 1; q.push(v); } }); }
       return d;
     });
-    return { nodes, adj, edges, goal, entries, dist, width: 360, height: 416 };
-  })();
+    if (dist[goal[0]].some(d => d === 99)) fail('hay cruces desconectados');
+    // Datos para reglas de jefe (sin efecto por sí solos): cruces marcados y pares de cruces enlazados.
+    const marked = (j.marked || []).map(m => (typeof m === 'number' ? { node: m } : m));
+    marked.forEach(m => { if (!okId(m.node)) fail('cruce marcado inválido ' + m.node); });
+    const links = (j.links || []).map(l => (Array.isArray(l) ? { a: l[0], b: l[1] } : l));
+    links.forEach(l => { if (!okId(l.a) || !okId(l.b) || l.a === l.b) fail('enlace inválido ' + l.a + '-' + l.b); });
+    return { id: j.id, name: j.nombre || j.id, nodes, adj, edges, goal, entries, dist, marked, links, width: j.width, height: j.height };
+  }
+
+  const DATA = loadData();
+  const BOARDS = {};
+  Object.keys(DATA.boards).forEach(id => { BOARDS[id] = compileBoard(DATA.boards[id]); });
+  const DUELS = DATA.duels;
+  // Agrega (o reemplaza) un tablero en tiempo de ejecución; lo usan los tests para probar tableros distintos.
+  function registerBoard(j) { const b = compileBoard(j); BOARDS[b.id] = b; return b; }
+  const DEFAULT_BOARD = 'clasico';
+  // BOARD: tablero clásico, para código que aún no recibe una partida. El motor usa boardOf(s).
+  const BOARD = BOARDS[DEFAULT_BOARD];
+  if (!BOARD) throw new Error('Falta el tablero ' + DEFAULT_BOARD);
+
+  // Tablero de una partida. Las partidas guardadas antes de la Fase 1 no tienen boardId: son del clásico.
+  function boardOf(s) {
+    const b = BOARDS[(s && s.boardId) || DEFAULT_BOARD];
+    if (!b) throw new Error('Tablero desconocido: ' + s.boardId);
+    return b;
+  }
+  const turnLimitOf = s => (s && s.turnLimit) || MAX_TURNS;
+
+  /* ---------- Reglas especiales (ganchos para jefes) ----------
+     Una partida lleva en s.rules una lista de { type, ...parámetros }; vacía = juego normal.
+     Cada tipo se registra con registerRule(type, impl). impl puede definir:
+       neighbors(s, node, list, rule) -> lista de cruces a los que se puede avanzar desde node
+       afterLand(s, fig, events, rule)  -> después de entrar o moverse a un cruce
+       endTurn(s, player, events, rule) -> al terminar el turno de player, antes del cambio de turno
+       wheel(s, fig, opp, wheel, rule)  -> ruleta efectiva de fig contra opp (devuelve la ruleta)
+     Ninguna regla real está registrada todavía: sus efectos se definen con la biblia (Fase 4). */
+  const RULES = {};
+  function registerRule(type, impl) { RULES[type] = impl; }
+  const hasRules = s => !!(s && s.rules && s.rules.length);
+  function ruleImpl(r) { const impl = RULES[r.type]; if (!impl) throw new Error('Regla desconocida: ' + r.type); return impl; }
+  function runHook(s, name, args) {
+    if (!hasRules(s)) return;
+    for (const r of s.rules) { const impl = ruleImpl(r); if (impl[name]) impl[name].apply(null, [s].concat(args, [r])); }
+  }
+  // Cruces a los que se puede avanzar desde n (vecinos del tablero, más lo que agreguen las reglas)
+  function moveNeighbors(s, B, n) {
+    let list = B.adj[n];
+    if (hasRules(s)) for (const r of s.rules) { const impl = ruleImpl(r); if (impl.neighbors) list = impl.neighbors(s, n, list, r); }
+    return list;
+  }
 
   /* ---------- Utilidades ---------- */
   function mulberry32(seed) {
@@ -405,25 +470,37 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing:
     return {
       turn: s.turn, current: s.current, winner: s.winner, winReason: s.winReason,
       awaitAttack: s.awaitAttack, forcedAttack: !!s.forcedAttack, firstPlayer: s.firstPlayer,
+      boardId: s.boardId, rules: s.rules, turnLimit: s.turnLimit, duelId: s.duelId,
       figs: s.figs.map(f => ({ ...f, status: f.status ? { ...f.status } : null }))
     };
   }
 
-  function newGame(team0, team1, firstPlayer) {
+  /* duel: configuración de duelo (data/duels). Sin ella, la partida libre de siempre. */
+  function newGame(team0, team1, firstPlayer, duel) {
+    duel = duel || DUELS.libre || {};
+    const boardId = duel.board || DEFAULT_BOARD;
+    if (!BOARDS[boardId]) throw new Error('Tablero desconocido: ' + boardId);
+    const victory = duel.victory || {};
+    if (victory.type && victory.type !== 'goal') throw new Error('Condición de victoria no implementada: ' + victory.type);
+    const rules = (duel.rules || []).map(r => ({ ...r }));
+    rules.forEach(ruleImpl); // falla si alguna regla no está registrada
     const figs = [];
     [team0, team1].forEach((team, owner) => team.forEach((kind, slot) => {
       if (!CREATURE[kind]) throw new Error('Criatura desconocida: ' + kind);
       figs.push({ id: figs.length, owner, slot, kind, loc: 'bench', node: null, status: null, koLeft: 0, koAt: 0 });
     }));
-    return { turn: 1, current: firstPlayer || 0, firstPlayer: firstPlayer || 0, winner: null, winReason: '', awaitAttack: null, forcedAttack: false, figs };
+    return {
+      turn: 1, current: firstPlayer || 0, firstPlayer: firstPlayer || 0, winner: null, winReason: '', awaitAttack: null, forcedAttack: false,
+      boardId, rules, turnLimit: victory.turnLimit || MAX_TURNS, duelId: duel.id || null, figs
+    };
   }
 
   const creatureOf = f => CREATURE[f.kind];
-  const rivalGoal = p => BOARD.goal[1 - p];
+  const rivalGoal = (p, s) => boardOf(s).goal[1 - p];
   const isImmobile = f => !!(f.status && (f.status.k === 'sleep' || f.status.k === 'freeze'));
 
   function occupancy(s) {
-    const occ = new Array(BOARD.nodes.length).fill(-1);
+    const occ = new Array(boardOf(s).nodes.length).fill(-1);
     s.figs.forEach(f => { if (f.loc === 'board') occ[f.node] = f.id; });
     return occ;
   }
@@ -431,7 +508,8 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing:
   // BFS por casillas libres. No se atraviesa la meta rival (llegar ahí termina la partida).
   function reachable(s, start, steps, owner, occ) {
     occ = occ || occupancy(s);
-    const goalR = rivalGoal(owner);
+    const B = boardOf(s);
+    const goalR = B.goal[1 - owner];
     const prev = new Map(); const dist = new Map();
     dist.set(start, 0); prev.set(start, null);
     const q = [start];
@@ -439,7 +517,7 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing:
       const u = q.shift(); const d = dist.get(u);
       if (d >= steps) continue;
       if (u === goalR && u !== start) continue;
-      for (const v of BOARD.adj[u]) {
+      for (const v of moveNeighbors(s, B, u)) {
         if (dist.has(v) || occ[v] !== -1) continue;
         dist.set(v, d + 1); prev.set(v, u); q.push(v);
       }
@@ -451,7 +529,7 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing:
   function adjacentRivals(s, fig, occ) {
     occ = occ || occupancy(s);
     if (fig.loc !== 'board') return [];
-    return BOARD.adj[fig.node].map(n => occ[n]).filter(id => id !== -1 && s.figs[id].owner !== fig.owner);
+    return boardOf(s).adj[fig.node].map(n => occ[n]).filter(id => id !== -1 && s.figs[id].owner !== fig.owner);
   }
 
   /* ---------- Acciones legales ----------
@@ -472,7 +550,7 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing:
       const mp = creatureOf(f).mp;
       if (f.loc === 'bench') {
         const seen = new Set();
-        for (const e of BOARD.entries[p]) {
+        for (const e of boardOf(s).entries[p]) {
           if (occ[e] !== -1) continue;
           // meter = colocar la figura en una entrada libre (después puede atacar si queda junto a un rival)
           if (!seen.has(e)) { seen.add(e); acts.push({ type: 'enter', fig: f.id, to: e, path: [e] }); }
@@ -495,9 +573,9 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing:
   /* ---------- Rodear ---------- */
   // Se eliminan las figuras rivales del jugador que actúa cuyas casillas vecinas están todas ocupadas por él.
   function surroundCheck(s, acting, events) {
-    const occ = occupancy(s);
+    const occ = occupancy(s); const B = boardOf(s);
     const victims = s.figs.filter(f => f.owner !== acting && f.loc === 'board' &&
-      BOARD.adj[f.node].every(n => occ[n] !== -1 && s.figs[occ[n]].owner === acting));
+      B.adj[f.node].every(n => occ[n] !== -1 && s.figs[occ[n]].owner === acting));
     victims.forEach(f => { knockOut(s, f); events.push({ type: 'surround', fig: f.id, text: creatureOf(f).name + ' quedó rodeada y va a la enfermería.' }); });
     return victims.length;
   }
@@ -525,10 +603,12 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing:
       }
     }
     s.awaitAttack = null; s.forcedAttack = false;
-    if (s.turn >= MAX_TURNS) {
+    runHook(s, 'endTurn', [p, events]);
+    const limit = turnLimitOf(s);
+    if (s.turn >= limit) {
       const c = [0, 1].map(o => s.figs.filter(f => f.owner === o && f.loc === 'board').length);
       s.winner = c[0] === c[1] ? 'draw' : (c[0] > c[1] ? 0 : 1);
-      s.winReason = 'Límite de ' + MAX_TURNS + ' turnos: ' + c[0] + ' contra ' + c[1] + ' figuras en el tablero.';
+      s.winReason = 'Límite de ' + limit + ' turnos: ' + c[0] + ' contra ' + c[1] + ' figuras en el tablero.';
       events.push({ type: 'limit', text: s.winReason });
       return;
     }
@@ -537,7 +617,7 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing:
   }
 
   function checkGoal(s, f, events) {
-    if (f.loc === 'board' && f.node === rivalGoal(f.owner)) {
+    if (f.loc === 'board' && f.node === rivalGoal(f.owner, s)) {
       s.winner = f.owner;
       s.winReason = creatureOf(f).name + ' llegó a la meta rival.';
       events.push({ type: 'win', fig: f.id, text: s.winReason });
@@ -559,6 +639,8 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing:
       f.loc = 'board'; f.node = act.to;
       events.push({ type: act.type, fig: f.id, from, to: act.to, path: act.path });
       if (checkGoal(s, f, events)) return { state: s, events };
+      runHook(s, 'afterLand', [f, events]);
+      if (s.winner !== null) return { state: s, events };
       surroundCheck(s, s.current, events);
       if (adjacentRivals(s, f).length) { s.awaitAttack = f.id; s.forcedAttack = false; } else endTurn(s, events);
       return { state: s, events };
@@ -583,7 +665,14 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing:
   }
 
   // Ruleta efectiva de una figura frente a un rival (aplica estados y ventaja de tipo)
-  function effectiveWheel(f, opp) {
+  function effectiveWheel(f, opp, s) {
+    const w = baseEffectiveWheel(f, opp);
+    if (!hasRules(s)) return w;
+    let out = w;
+    for (const r of s.rules) { const impl = ruleImpl(r); if (impl.wheel) out = impl.wheel(s, f, opp, out, r); }
+    return out;
+  }
+  function baseEffectiveWheel(f, opp) {
     const c = creatureOf(f);
     if (isImmobile(f)) {
       return [{ t: 'r', name: STATUS[f.status.k].name + ': no gira', w: 96, forced: true, mods: [STATUS[f.status.k].name + ' (cuenta como fallo)'] }];
@@ -615,7 +704,7 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing:
 
   function spinBattle(s, aId, dId, rng) {
     const A = s.figs[aId], D = s.figs[dId];
-    const wa = effectiveWheel(A, D), wd = effectiveWheel(D, A);
+    const wa = effectiveWheel(A, D, s), wd = effectiveWheel(D, A, s);
     return { ai: pickIndex(wa, rng), di: pickIndex(wd, rng), wa, wd };
   }
 
@@ -627,7 +716,7 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing:
 
   function battleOdds(s, aId, dId) {
     const A = s.figs[aId], D = s.figs[dId];
-    const wa = effectiveWheel(A, D), wd = effectiveWheel(D, A);
+    const wa = effectiveWheel(A, D, s), wd = effectiveWheel(D, A, s);
     const ta = wa.reduce((x, y) => x + y.w, 0), td = wd.reduce((x, y) => x + y.w, 0);
     let win = 0, lose = 0;
     for (const a of wa) for (const d of wd) {
@@ -640,7 +729,7 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing:
   function resolveBattle(s0, aId, dId, ai, di) {
     const s = clone(s0); const events = [];
     const A = s.figs[aId], D = s.figs[dId];
-    const wa = effectiveWheel(A, D), wd = effectiveWheel(D, A);
+    const wa = effectiveWheel(A, D, s0), wd = effectiveWheel(D, A, s0);
     const sa = wa[ai], sd = wd[di];
     const c = compareSegs(sa, sd);
     const nA = creatureOf(A).name, nD = creatureOf(D).name;
@@ -673,7 +762,7 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing:
           else {
             const k = ws.fx === 'area_para' ? 'para' : 'sleep';
             const occ = occupancy(s);
-            BOARD.adj[wNode].forEach(n => { const id = occ[n]; if (id !== -1 && s.figs[id].owner !== Wf.owner) setStatus(s, s.figs[id], k); });
+            boardOf(s).adj[wNode].forEach(n => { const id = occ[n]; if (id !== -1 && s.figs[id].owner !== Wf.owner) setStatus(s, s.figs[id], k); });
           }
         }
         text += '.';
@@ -728,9 +817,11 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing:
   /* ---------- Validaciones ---------- */
   function validate(s) {
     const errs = []; const occ = {};
+    let B = null;
+    try { B = boardOf(s); } catch (e) { return [e.message]; }
     s.figs.forEach(f => {
       if (f.loc === 'board') {
-        if (f.node === null || f.node < 0 || f.node >= BOARD.nodes.length) errs.push('nodo inválido ' + f.id);
+        if (f.node === null || f.node < 0 || f.node >= B.nodes.length) errs.push('nodo inválido ' + f.id);
         if (occ[f.node] !== undefined) errs.push('dos figuras en el nodo ' + f.node);
         occ[f.node] = f.id;
       } else if (f.node !== null) errs.push('figura fuera del tablero con nodo ' + f.id);
@@ -744,6 +835,7 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing:
 
   const api = {
     MAX_TURNS, KO_TURNS, TYPES, TYPE_ORDER, STATUS, SEG, FX, RARITY, CREATURES, CREATURE, BOARD,
+    BOARDS, DUELS, compileBoard, registerBoard, boardOf, turnLimitOf, registerRule, RULES,
     mulberry32, clone, newGame, occupancy, reachable, adjacentRivals, legalActions, applyAction,
     pickIndex, effectiveWheel, compareSegs, spinBattle, battleOdds, resolveBattle, segLabel,
     randomBalancedTeam, validate, mustAttack, wheelFractions, segmentAtRotation, targetRotation, creatureOf, isImmobile, rivalGoal
@@ -758,7 +850,6 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing:
 (function (root) {
   'use strict';
   const D = root.Duel || (typeof require !== 'undefined' ? require('./logic.js') : null);
-  const { BOARD, STATUS } = D;
 
   const LEVELS = {
     facil:   { name: 'Fácil',   noise: 70, randomPick: 0.25, threatW: 600,  danger: 0 },
@@ -767,18 +858,20 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing:
     dificil: { name: 'Difícil', noise: 1,  randomPick: 0,    threatW: 4000, danger: 0.35, prog: 4 }
   };
 
-  const goalOfRival = p => BOARD.goal[1 - p];
+  // El tablero sale siempre de la partida (D.boardOf): la IA sirve para cualquier tablero.
+  const goalOfRival = (B, p) => B.goal[1 - p];
 
   // ¿Qué figuras de p pueden pisar la meta rival en su próximo turno?
   function winThreats(s, p, occ) {
     occ = occ || D.occupancy(s);
-    const g = goalOfRival(p);
+    const B = D.boardOf(s);
+    const g = goalOfRival(B, p);
     if (occ[g] !== -1) return [];
     const out = [];
     for (const f of s.figs) {
       if (f.owner !== p || f.loc !== 'board' || D.isImmobile(f)) continue;
       const mp = D.creatureOf(f).mp;
-      if (BOARD.dist[f.node][g] > mp) continue;
+      if (B.dist[f.node][g] > mp) continue;
       if (D.reachable(s, f.node, mp, p, occ).dist.has(g)) out.push(f.id);
     }
     return out;
@@ -786,24 +879,24 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing:
 
   // valor de una figura en juego: más cerca de la meta rival, más vale.
   // La urgencia crece con los turnos para evitar partidas estancadas.
-  function figWorth(f, turn, lv) {
+  function figWorth(B, f, turn, lv) {
     if (f.loc !== 'board') return 0;
-    const d = BOARD.dist[f.node][goalOfRival(f.owner)];
+    const d = B.dist[f.node][goalOfRival(B, f.owner)];
     const urg = 1 + Math.min(2, (turn || 0) / 120);
     return ((lv && lv.base) || 45) + (8 - d) * ((lv && lv.prog) || 7) * urg;
   }
 
   // Peligro de que el rival (que juega a continuación) ataque con ventaja
   function attackDanger(s, me, occ) {
-    const rival = 1 - me; let worst = 0;
+    const rival = 1 - me; let worst = 0; const B = D.boardOf(s);
     for (const f of s.figs) {
       if (f.owner !== rival || f.loc !== 'board' || D.isImmobile(f)) continue;
       const r = D.reachable(s, f.node, D.creatureOf(f).mp, rival, occ);
       const targets = new Set();
-      for (const [n] of r.dist) for (const m of BOARD.adj[n]) { const id = occ[m]; if (id !== -1 && s.figs[id].owner === me) targets.add(id); }
+      for (const [n] of r.dist) for (const m of B.adj[n]) { const id = occ[m]; if (id !== -1 && s.figs[id].owner === me) targets.add(id); }
       for (const t of targets) {
         const o = D.battleOdds(s, f.id, t);
-        const ev = o.win * (figWorth(s.figs[t], s.turn) + 30) - o.lose * (figWorth(f, s.turn) + 30);
+        const ev = o.win * (figWorth(B, s.figs[t], s.turn) + 30) - o.lose * (figWorth(B, f, s.turn) + 30);
         if (ev > worst) worst = ev;
       }
     }
@@ -814,18 +907,18 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing:
     if (s.winner === me) return 1e6;
     if (s.winner === 1 - me) return -1e6;
     if (s.winner === 'draw') return 0;
-    const occ = D.occupancy(s); let score = 0;
+    const occ = D.occupancy(s); let score = 0; const B = D.boardOf(s);
     for (const f of s.figs) {
       const sign = f.owner === me ? 1 : -1;
       if (f.loc === 'board') {
-        let v = figWorth(f, s.turn, lv);
+        let v = figWorth(B, f, s.turn, lv);
         if (f.status) v -= { sleep: 18, freeze: 24, para: 12, poison: 8 }[f.status.k];
         // riesgo de quedar rodeada: queda una sola salida y el resto son rivales
-        const ns = BOARD.adj[f.node];
+        const ns = B.adj[f.node];
         const rivals = ns.filter(n => occ[n] !== -1 && s.figs[occ[n]].owner !== f.owner).length;
         const free = ns.filter(n => occ[n] === -1).length;
         if (free === 1 && rivals === ns.length - 1) v -= f.owner === me ? 70 : 25;
-        if (f.owner === me && f.node === BOARD.goal[me]) v += 12;
+        if (f.owner === me && f.node === B.goal[me]) v += 12;
         score += sign * v;
       } else if (f.loc === 'ko') score -= sign * (lv.koPen || 20);
     }
@@ -840,7 +933,7 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing:
   // Valor esperado de atacar: se agrupan los resultados de la ruleta y se evalúa cada uno
   function attackValue(s, aId, tId, me, lv) {
     const A = s.figs[aId], T = s.figs[tId];
-    const wa = D.effectiveWheel(A, T), wd = D.effectiveWheel(T, A);
+    const wa = D.effectiveWheel(A, T, s), wd = D.effectiveWheel(T, A, s);
     const ta = wa.reduce((x, y) => x + y.w, 0), td = wd.reduce((x, y) => x + y.w, 0);
     const buckets = new Map();
     wa.forEach((a, i) => wd.forEach((d, j) => {
@@ -878,7 +971,7 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing:
       return bestFollowUp(s, me, lv).act;
     }
     // ganar ya si se puede
-    const win = acts.find(a => (a.type === 'move' || a.type === 'enter') && a.to === goalOfRival(me));
+    const win = acts.find(a => (a.type === 'move' || a.type === 'enter') && a.to === goalOfRival(D.boardOf(s), me));
     if (win) return win;
     if (lv.randomPick && rng() < lv.randomPick) return acts[Math.floor(rng() * acts.length)];
     const scored = acts.map(a => {
@@ -993,6 +1086,11 @@ window.DUEL_CONFIG = {"version": "0.2.0", "feedbackUrl": ""};
   const CFG = window.DUEL_CONFIG || { version: 'dev', feedbackUrl: '' };
   const feedbackUrl = CFG.feedbackUrl ? CFG.feedbackUrl.split('{version}').join(encodeURIComponent(CFG.version)) : '';
   function openFeedback() { if (feedbackUrl) window.open(feedbackUrl, '_blank', 'noopener'); }
+
+  // Tablero de la partida en curso (la partida guarda su boardId; ver logic.js)
+  const brd = () => D.boardOf(ui.state);
+  // Duelo que se juega desde la pantalla de equipo
+  const DUEL_LIBRE = D.DUELS.libre;
 
   const wait = ms => new Promise(r => setTimeout(r, reduced ? Math.min(ms, 120) : (ui.fast ? ms * 0.45 : ms)));
 
@@ -1151,7 +1249,7 @@ window.DUEL_CONFIG = {"version": "0.2.0", "feedbackUrl": ""};
       '<h3>Más reglas</h3><ul>' +
       '<li><b>Rodear:</b> si todas las casillas vecinas de una figura quedan ocupadas por rivales, va a la enfermería sin girar.</li>' +
       '<li><b>Tipos:</b> cada uno vence al siguiente: ' + cycle + '. La ventaja suma +10 a los blancos. Al tocar una figura, los rivales muestran ▲ si ella tiene ventaja y ▼ si la tienen ellos.</li></ul>' + cycleSVG() + '<ul>' +
-      '<li><b>Límite:</b> a los ' + D.MAX_TURNS + ' turnos (contando los de ambos) gana quien tenga más figuras en el tablero.</li></ul>';
+      '<li><b>Límite:</b> a los ' + D.turnLimitOf(ui.state) + ' turnos (contando los de ambos) gana quien tenga más figuras en el tablero.</li></ul>';
   }
 
   /* ---------- Pantalla de equipo ---------- */
@@ -1184,10 +1282,11 @@ window.DUEL_CONFIG = {"version": "0.2.0", "feedbackUrl": ""};
   function buildBoard() {
     $('#type-strip-g').innerHTML = typeStripHTML();
     const svg = $('#board'); svg.innerHTML = '';
-    svg.setAttribute('viewBox', '0 0 ' + D.BOARD.width + ' ' + D.BOARD.height);
+    const T = brd();
+    svg.setAttribute('viewBox', '0 0 ' + T.width + ' ' + T.height);
     const gE = svgEl('g', {}); const gN = svgEl('g', {});
-    D.BOARD.edges.forEach(([a, b]) => { const A = D.BOARD.nodes[a], B = D.BOARD.nodes[b]; gE.appendChild(svgEl('line', { class: 'edge', x1: A.x, y1: A.y, x2: B.x, y2: B.y })); });
-    D.BOARD.nodes.forEach(n => {
+    T.edges.forEach(([a, b]) => { const A = T.nodes[a], B = T.nodes[b]; gE.appendChild(svgEl('line', { class: 'edge', x1: A.x, y1: A.y, x2: B.x, y2: B.y })); });
+    T.nodes.forEach(n => {
       const r = n.kind === 'goal' ? 24 : 18;
       gN.appendChild(svgEl('circle', { class: 'node-c ' + n.kind + (n.owner !== null ? ' o' + n.owner : ''), cx: n.x, cy: n.y, r }));
       if (n.kind !== 'n') {
@@ -1208,7 +1307,7 @@ window.DUEL_CONFIG = {"version": "0.2.0", "feedbackUrl": ""};
   }
   function onBoardClick(evt) {
     const p = svgPoint(evt); let best = -1, bd = 31;
-    D.BOARD.nodes.forEach(n => { const d = Math.hypot(n.x - p.x, n.y - p.y); if (d < bd) { bd = d; best = n.id; } });
+    brd().nodes.forEach(n => { const d = Math.hypot(n.x - p.x, n.y - p.y); if (d < bd) { bd = d; best = n.id; } });
     if (best >= 0) nodeTapped(best);
   }
   function figGroup(f) {
@@ -1224,12 +1323,12 @@ window.DUEL_CONFIG = {"version": "0.2.0", "feedbackUrl": ""};
       const av = svgEl('g', { class: 'fa' }); av.appendChild(svgEl('circle', { cx: -16, cy: -16, r: 8.5 })); av.appendChild(svgEl('text', { x: -16, y: -15.5 })); g.appendChild(av);
       g.style.opacity = '0';
       $('#figs').appendChild(g); ui.figEls.set(f.id, g);
-      const n = D.BOARD.nodes[f.node]; g.style.transform = 'translate(' + n.x + 'px,' + n.y + 'px)';
+      const n = brd().nodes[f.node]; g.style.transform = 'translate(' + n.x + 'px,' + n.y + 'px)';
       requestAnimationFrame(() => { g.style.opacity = '1'; });
     }
     return g;
   }
-  function placeFig(g, nodeId) { const n = D.BOARD.nodes[nodeId]; g.style.transform = 'translate(' + n.x + 'px,' + n.y + 'px)'; }
+  function placeFig(g, nodeId) { const n = brd().nodes[nodeId]; g.style.transform = 'translate(' + n.x + 'px,' + n.y + 'px)'; }
   function renderBoard() {
     const s = ui.state;
     const alive = new Set();
@@ -1250,9 +1349,9 @@ window.DUEL_CONFIG = {"version": "0.2.0", "feedbackUrl": ""};
     // resaltados
     const hl = $('#hl'); hl.innerHTML = '';
     if (ui.sel) {
-      for (const [n] of ui.sel.dest) { const N = D.BOARD.nodes[n]; hl.appendChild(svgEl('circle', { class: 'hl-go', cx: N.x, cy: N.y, r: 16 })); hl.appendChild(svgEl('circle', { class: 'hl-go-ring', cx: N.x, cy: N.y, r: 19 })); }
+      for (const [n] of ui.sel.dest) { const N = brd().nodes[n]; hl.appendChild(svgEl('circle', { class: 'hl-go', cx: N.x, cy: N.y, r: 16 })); hl.appendChild(svgEl('circle', { class: 'hl-go-ring', cx: N.x, cy: N.y, r: 19 })); }
     }
-    targetIds().forEach(id => { const N = D.BOARD.nodes[s.figs[id].node]; hl.appendChild(svgEl('circle', { class: 'hl-hit', cx: N.x, cy: N.y, r: 27 })); });
+    targetIds().forEach(id => { const N = brd().nodes[s.figs[id].node]; hl.appendChild(svgEl('circle', { class: 'hl-hit', cx: N.x, cy: N.y, r: 27 })); });
   }
   // Figura de referencia para las marcas de ventaja: la seleccionada o la última tocada
   function advRef() {
@@ -1327,7 +1426,7 @@ window.DUEL_CONFIG = {"version": "0.2.0", "feedbackUrl": ""};
     setActions(acts);
     const pill = $('#turn-pill');
     if (s.winner !== null) { pill.className = 'pill'; pill.innerHTML = 'Partida terminada'; }
-    else { pill.className = 'pill p' + s.current; pill.innerHTML = (s.current === 0 ? 'Tu turno' : 'Turno CPU') + ' <small>· ' + s.turn + '/' + D.MAX_TURNS + '</small>'; }
+    else { pill.className = 'pill p' + s.current; pill.innerHTML = (s.current === 0 ? 'Tu turno' : 'Turno CPU') + ' <small>· ' + s.turn + '/' + D.turnLimitOf(s) + '</small>'; }
   }
   function refresh() { renderBoard(); renderBenches(); renderPanel(); renderFicha(); }
   function say(t) { ui.msg = t; }
@@ -1546,7 +1645,7 @@ window.DUEL_CONFIG = {"version": "0.2.0", "feedbackUrl": ""};
   function startGame(team, cpuTeam) {
     ui.team = team.slice(); ui.cpuTeam = cpuTeam || D.randomBalancedTeam();
     const first = Math.random() < 0.5 ? 0 : 1;
-    ui.state = D.newGame(ui.team, ui.cpuTeam, first);
+    ui.state = D.newGame(ui.team, ui.cpuTeam, first, DUEL_LIBRE);
     ui.log = []; ui.sel = null; ui.info = null; ui.confirm = null; ui.busy = false;
     $('#scr-team').hidden = true; $('#scr-game').hidden = false;
     buildBoard();

@@ -38,6 +38,20 @@ def config_js():
     return 'window.DUEL_CONFIG = ' + datos.replace('</', '<\\/') + ';'
 
 
+def data_js():
+    """window.DUEL_DATA con data/boards/*.json y data/duels/*.json (la web no tiene servidor: van dentro del HTML)."""
+    datos = {}
+    for carpeta in ('boards', 'duels'):
+        datos[carpeta] = {}
+        for f in sorted((RAIZ / 'data' / carpeta).glob('*.json')):
+            j = json.loads(f.read_text(encoding='utf-8'))
+            if j.get('id') in datos[carpeta]:
+                raise SystemExit('id repetido en data/' + carpeta + ': ' + str(j.get('id')))
+            datos[carpeta][j['id']] = j
+    texto = json.dumps(datos, ensure_ascii=False, separators=(',', ':'))
+    return 'window.DUEL_DATA = ' + texto.replace('</', '<\\/') + ';'
+
+
 def main():
     ap = argparse.ArgumentParser(description='Build de Duelo de Nodos')
     ap.add_argument('--out', help='carpeta destino (p. ej. www). Sin esto: index.html en la raíz')
@@ -62,7 +76,7 @@ def main():
         fonts_css = fuentes_incrustadas(fonts_css)
 
     s = leer('shell.html')
-    for marca, contenido in [('/*FONTS*/', fonts_css), ('/*CSS*/', leer('style.css')),
+    for marca, contenido in [('/*FONTS*/', fonts_css), ('/*CSS*/', leer('style.css')), ('/*DATA*/', data_js()),
                              ('/*LOGIC*/', leer('logic.js')), ('/*AI*/', leer('ai.js')),
                              ('<!--CAPACITOR-->\n', capacitor + '\n' if capacitor else ''),
                              ('/*CONFIG*/', config_js()),

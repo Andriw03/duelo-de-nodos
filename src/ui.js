@@ -29,6 +29,11 @@
   const feedbackUrl = CFG.feedbackUrl ? CFG.feedbackUrl.split('{version}').join(encodeURIComponent(CFG.version)) : '';
   function openFeedback() { if (feedbackUrl) window.open(feedbackUrl, '_blank', 'noopener'); }
 
+  // Tablero de la partida en curso (la partida guarda su boardId; ver logic.js)
+  const brd = () => D.boardOf(ui.state);
+  // Duelo que se juega desde la pantalla de equipo
+  const DUEL_LIBRE = D.DUELS.libre;
+
   const wait = ms => new Promise(r => setTimeout(r, reduced ? Math.min(ms, 120) : (ui.fast ? ms * 0.45 : ms)));
 
   /* ---------- Ruletas en canvas ---------- */
@@ -186,7 +191,7 @@
       '<h3>Más reglas</h3><ul>' +
       '<li><b>Rodear:</b> si todas las casillas vecinas de una figura quedan ocupadas por rivales, va a la enfermería sin girar.</li>' +
       '<li><b>Tipos:</b> cada uno vence al siguiente: ' + cycle + '. La ventaja suma +10 a los blancos. Al tocar una figura, los rivales muestran ▲ si ella tiene ventaja y ▼ si la tienen ellos.</li></ul>' + cycleSVG() + '<ul>' +
-      '<li><b>Límite:</b> a los ' + D.MAX_TURNS + ' turnos (contando los de ambos) gana quien tenga más figuras en el tablero.</li></ul>';
+      '<li><b>Límite:</b> a los ' + D.turnLimitOf(ui.state) + ' turnos (contando los de ambos) gana quien tenga más figuras en el tablero.</li></ul>';
   }
 
   /* ---------- Pantalla de equipo ---------- */
@@ -219,10 +224,11 @@
   function buildBoard() {
     $('#type-strip-g').innerHTML = typeStripHTML();
     const svg = $('#board'); svg.innerHTML = '';
-    svg.setAttribute('viewBox', '0 0 ' + D.BOARD.width + ' ' + D.BOARD.height);
+    const T = brd();
+    svg.setAttribute('viewBox', '0 0 ' + T.width + ' ' + T.height);
     const gE = svgEl('g', {}); const gN = svgEl('g', {});
-    D.BOARD.edges.forEach(([a, b]) => { const A = D.BOARD.nodes[a], B = D.BOARD.nodes[b]; gE.appendChild(svgEl('line', { class: 'edge', x1: A.x, y1: A.y, x2: B.x, y2: B.y })); });
-    D.BOARD.nodes.forEach(n => {
+    T.edges.forEach(([a, b]) => { const A = T.nodes[a], B = T.nodes[b]; gE.appendChild(svgEl('line', { class: 'edge', x1: A.x, y1: A.y, x2: B.x, y2: B.y })); });
+    T.nodes.forEach(n => {
       const r = n.kind === 'goal' ? 24 : 18;
       gN.appendChild(svgEl('circle', { class: 'node-c ' + n.kind + (n.owner !== null ? ' o' + n.owner : ''), cx: n.x, cy: n.y, r }));
       if (n.kind !== 'n') {
@@ -243,7 +249,7 @@
   }
   function onBoardClick(evt) {
     const p = svgPoint(evt); let best = -1, bd = 31;
-    D.BOARD.nodes.forEach(n => { const d = Math.hypot(n.x - p.x, n.y - p.y); if (d < bd) { bd = d; best = n.id; } });
+    brd().nodes.forEach(n => { const d = Math.hypot(n.x - p.x, n.y - p.y); if (d < bd) { bd = d; best = n.id; } });
     if (best >= 0) nodeTapped(best);
   }
   function figGroup(f) {
@@ -259,12 +265,12 @@
       const av = svgEl('g', { class: 'fa' }); av.appendChild(svgEl('circle', { cx: -16, cy: -16, r: 8.5 })); av.appendChild(svgEl('text', { x: -16, y: -15.5 })); g.appendChild(av);
       g.style.opacity = '0';
       $('#figs').appendChild(g); ui.figEls.set(f.id, g);
-      const n = D.BOARD.nodes[f.node]; g.style.transform = 'translate(' + n.x + 'px,' + n.y + 'px)';
+      const n = brd().nodes[f.node]; g.style.transform = 'translate(' + n.x + 'px,' + n.y + 'px)';
       requestAnimationFrame(() => { g.style.opacity = '1'; });
     }
     return g;
   }
-  function placeFig(g, nodeId) { const n = D.BOARD.nodes[nodeId]; g.style.transform = 'translate(' + n.x + 'px,' + n.y + 'px)'; }
+  function placeFig(g, nodeId) { const n = brd().nodes[nodeId]; g.style.transform = 'translate(' + n.x + 'px,' + n.y + 'px)'; }
   function renderBoard() {
     const s = ui.state;
     const alive = new Set();
@@ -285,9 +291,9 @@
     // resaltados
     const hl = $('#hl'); hl.innerHTML = '';
     if (ui.sel) {
-      for (const [n] of ui.sel.dest) { const N = D.BOARD.nodes[n]; hl.appendChild(svgEl('circle', { class: 'hl-go', cx: N.x, cy: N.y, r: 16 })); hl.appendChild(svgEl('circle', { class: 'hl-go-ring', cx: N.x, cy: N.y, r: 19 })); }
+      for (const [n] of ui.sel.dest) { const N = brd().nodes[n]; hl.appendChild(svgEl('circle', { class: 'hl-go', cx: N.x, cy: N.y, r: 16 })); hl.appendChild(svgEl('circle', { class: 'hl-go-ring', cx: N.x, cy: N.y, r: 19 })); }
     }
-    targetIds().forEach(id => { const N = D.BOARD.nodes[s.figs[id].node]; hl.appendChild(svgEl('circle', { class: 'hl-hit', cx: N.x, cy: N.y, r: 27 })); });
+    targetIds().forEach(id => { const N = brd().nodes[s.figs[id].node]; hl.appendChild(svgEl('circle', { class: 'hl-hit', cx: N.x, cy: N.y, r: 27 })); });
   }
   // Figura de referencia para las marcas de ventaja: la seleccionada o la última tocada
   function advRef() {
@@ -362,7 +368,7 @@
     setActions(acts);
     const pill = $('#turn-pill');
     if (s.winner !== null) { pill.className = 'pill'; pill.innerHTML = 'Partida terminada'; }
-    else { pill.className = 'pill p' + s.current; pill.innerHTML = (s.current === 0 ? 'Tu turno' : 'Turno CPU') + ' <small>· ' + s.turn + '/' + D.MAX_TURNS + '</small>'; }
+    else { pill.className = 'pill p' + s.current; pill.innerHTML = (s.current === 0 ? 'Tu turno' : 'Turno CPU') + ' <small>· ' + s.turn + '/' + D.turnLimitOf(s) + '</small>'; }
   }
   function refresh() { renderBoard(); renderBenches(); renderPanel(); renderFicha(); }
   function say(t) { ui.msg = t; }
@@ -581,7 +587,7 @@
   function startGame(team, cpuTeam) {
     ui.team = team.slice(); ui.cpuTeam = cpuTeam || D.randomBalancedTeam();
     const first = Math.random() < 0.5 ? 0 : 1;
-    ui.state = D.newGame(ui.team, ui.cpuTeam, first);
+    ui.state = D.newGame(ui.team, ui.cpuTeam, first, DUEL_LIBRE);
     ui.log = []; ui.sel = null; ui.info = null; ui.confirm = null; ui.busy = false;
     $('#scr-team').hidden = true; $('#scr-game').hidden = false;
     buildBoard();

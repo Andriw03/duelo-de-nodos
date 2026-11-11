@@ -2,7 +2,6 @@
 (function (root) {
   'use strict';
   const D = root.Duel || (typeof require !== 'undefined' ? require('./logic.js') : null);
-  const { BOARD, STATUS } = D;
 
   const LEVELS = {
     facil:   { name: 'Fácil',   noise: 70, randomPick: 0.25, threatW: 600,  danger: 0 },
@@ -11,18 +10,20 @@
     dificil: { name: 'Difícil', noise: 1,  randomPick: 0,    threatW: 4000, danger: 0.35, prog: 4 }
   };
 
-  const goalOfRival = p => BOARD.goal[1 - p];
+  // El tablero sale siempre de la partida (D.boardOf): la IA sirve para cualquier tablero.
+  const goalOfRival = (B, p) => B.goal[1 - p];
 
   // ¿Qué figuras de p pueden pisar la meta rival en su próximo turno?
   function winThreats(s, p, occ) {
     occ = occ || D.occupancy(s);
-    const g = goalOfRival(p);
+    const B = D.boardOf(s);
+    const g = goalOfRival(B, p);
     if (occ[g] !== -1) return [];
     const out = [];
     for (const f of s.figs) {
       if (f.owner !== p || f.loc !== 'board' || D.isImmobile(f)) continue;
       const mp = D.creatureOf(f).mp;
-      if (BOARD.dist[f.node][g] > mp) continue;
+      if (B.dist[f.node][g] > mp) continue;
       if (D.reachable(s, f.node, mp, p, occ).dist.has(g)) out.push(f.id);
     }
     return out;
@@ -30,24 +31,24 @@
 
   // valor de una figura en juego: más cerca de la meta rival, más vale.
   // La urgencia crece con los turnos para evitar partidas estancadas.
-  function figWorth(f, turn, lv) {
+  function figWorth(B, f, turn, lv) {
     if (f.loc !== 'board') return 0;
-    const d = BOARD.dist[f.node][goalOfRival(f.owner)];
+    const d = B.dist[f.node][goalOfRival(B, f.owner)];
     const urg = 1 + Math.min(2, (turn || 0) / 120);
     return ((lv && lv.base) || 45) + (8 - d) * ((lv && lv.prog) || 7) * urg;
   }
 
   // Peligro de que el rival (que juega a continuación) ataque con ventaja
   function attackDanger(s, me, occ) {
-    const rival = 1 - me; let worst = 0;
+    const rival = 1 - me; let worst = 0; const B = D.boardOf(s);
     for (const f of s.figs) {
       if (f.owner !== rival || f.loc !== 'board' || D.isImmobile(f)) continue;
       const r = D.reachable(s, f.node, D.creatureOf(f).mp, rival, occ);
       const targets = new Set();
-      for (const [n] of r.dist) for (const m of BOARD.adj[n]) { const id = occ[m]; if (id !== -1 && s.figs[id].owner === me) targets.add(id); }
+      for (const [n] of r.dist) for (const m of B.adj[n]) { const id = occ[m]; if (id !== -1 && s.figs[id].owner === me) targets.add(id); }
       for (const t of targets) {
         const o = D.battleOdds(s, f.id, t);
-        const ev = o.win * (figWorth(s.figs[t], s.turn) + 30) - o.lose * (figWorth(f, s.turn) + 30);
+        const ev = o.win * (figWorth(B, s.figs[t], s.turn) + 30) - o.lose * (figWorth(B, f, s.turn) + 30);
         if (ev > worst) worst = ev;
       }
     }
@@ -58,18 +59,18 @@
     if (s.winner === me) return 1e6;
     if (s.winner === 1 - me) return -1e6;
     if (s.winner === 'draw') return 0;
-    const occ = D.occupancy(s); let score = 0;
+    const occ = D.occupancy(s); let score = 0; const B = D.boardOf(s);
     for (const f of s.figs) {
       const sign = f.owner === me ? 1 : -1;
       if (f.loc === 'board') {
-        let v = figWorth(f, s.turn, lv);
+        let v = figWorth(B, f, s.turn, lv);
         if (f.status) v -= { sleep: 18, freeze: 24, para: 12, poison: 8 }[f.status.k];
         // riesgo de quedar rodeada: queda una sola salida y el resto son rivales
-        const ns = BOARD.adj[f.node];
+        const ns = B.adj[f.node];
         const rivals = ns.filter(n => occ[n] !== -1 && s.figs[occ[n]].owner !== f.owner).length;
         const free = ns.filter(n => occ[n] === -1).length;
         if (free === 1 && rivals === ns.length - 1) v -= f.owner === me ? 70 : 25;
-        if (f.owner === me && f.node === BOARD.goal[me]) v += 12;
+        if (f.owner === me && f.node === B.goal[me]) v += 12;
         score += sign * v;
       } else if (f.loc === 'ko') score -= sign * (lv.koPen || 20);
     }
@@ -84,7 +85,7 @@
   // Valor esperado de atacar: se agrupan los resultados de la ruleta y se evalúa cada uno
   function attackValue(s, aId, tId, me, lv) {
     const A = s.figs[aId], T = s.figs[tId];
-    const wa = D.effectiveWheel(A, T), wd = D.effectiveWheel(T, A);
+    const wa = D.effectiveWheel(A, T, s), wd = D.effectiveWheel(T, A, s);
     const ta = wa.reduce((x, y) => x + y.w, 0), td = wd.reduce((x, y) => x + y.w, 0);
     const buckets = new Map();
     wa.forEach((a, i) => wd.forEach((d, j) => {
@@ -122,7 +123,7 @@
       return bestFollowUp(s, me, lv).act;
     }
     // ganar ya si se puede
-    const win = acts.find(a => (a.type === 'move' || a.type === 'enter') && a.to === goalOfRival(me));
+    const win = acts.find(a => (a.type === 'move' || a.type === 'enter') && a.to === goalOfRival(D.boardOf(s), me));
     if (win) return win;
     if (lv.randomPick && rng() < lv.randomPick) return acts[Math.floor(rng() * acts.length)];
     const scored = acts.map(a => {

@@ -1,0 +1,11 @@
+{
+  "id": "libre",
+  "nombre": "Partida libre",
+  "_formato": "board: id de data/boards. player/rival.team: 'free' (lo elige el jugador), 'random' (equipo equilibrado al azar) o una lista fija de 6 criaturas. ai: 'choose' (lo elige el jugador) o facil/normal/dificil. rules: reglas especiales [{ type, ...parámetros }], ninguna por defecto. victory: type 'goal' (llegar a la meta rival) y turnLimit.",
+  "board": "clasico",
+  "player": { "team": "free" },
+  "rival": { "team": "random" },
+  "ai": "choose",
+  "rules": [],
+  "victory": { "type": "goal", "turnLimit": 300 }
+}
