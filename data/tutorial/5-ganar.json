@@ -1,0 +1,19 @@
+{
+  "id": "ganar",
+  "orden": 5,
+  "titulo": "Cómo ganar",
+  "duracion": "1 min",
+  "_figuras": "Jugador: 0 Tizonaje. CPU: 1 Corazamba (en la banca).",
+  "board": "clasico",
+  "player": ["tizonaje"],
+  "rival": ["corazamba"],
+  "first": 0,
+  "setup": [{ "fig": 0, "node": 10 }],
+  "steps": [
+    { "info": true, "text": "Ganas al pisar la META rival con cualquier figura. Recuerda: cada turno debes meter, mover o atacar; si ninguna figura puede moverse, atacar es obligatorio. A los 300 turnos gana quien tenga más figuras en el tablero." },
+    { "tap": { "fig": 0 }, "text": "Toca a Tizonaje." },
+    { "act": { "type": "move", "fig": 0, "to": 2 }, "text": "Tizonaje tiene 2 de movimiento y la META está a 2 casillas. ¡Entra!" }
+  ],
+  "cpu": [],
+  "fin": "¡Ya sabes jugar! Elige tu equipo y prueba contra la CPU."
+}

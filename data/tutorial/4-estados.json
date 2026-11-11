@@ -1,0 +1,32 @@
+{
+  "id": "estados",
+  "orden": 4,
+  "titulo": "Estados y enfermería",
+  "duracion": "2 min",
+  "_figuras": "Jugador: 0 Erizarza, 1 Musgoso. CPU: 2 Lodocaimán. Empieza la CPU.",
+  "board": "clasico",
+  "player": ["erizarza", "musgoso"],
+  "rival": ["lodocaiman"],
+  "first": 1,
+  "setup": [{ "fig": 0, "node": 18 }, { "fig": 2, "node": 14 }],
+  "steps": [
+    { "info": true, "text": "La CPU atacó y ganó con un segmento morado: Erizarza quedó envenenada ☠. El morado no manda a la enfermería, deja un estado. El veneno resta 20 a tus blancos por 3 turnos. También hay parálisis, sueño y congelación." },
+    { "tap": { "fig": 0 }, "text": "Toca a Erizarza." },
+    { "act": { "type": "attack", "fig": 0, "target": 2 }, "spin": { "ai": 4, "di": 0, "outcome": "ko", "winner": 2 },
+      "text": "Ataca a Lodocaimán. Esta vez saldrá mal, para que veas la enfermería." },
+    { "info": true, "text": "Al perder contra un blanco o un dorado, la figura va a la ENFERMERÍA (✚ en tu banca). Vuelve a la banca después de 2 turnos tuyos." },
+    { "tap": { "fig": 1 }, "text": "Mientras tanto, juega con otra. Toca a Musgoso en tu banca." },
+    { "act": { "type": "enter", "fig": 1, "to": 24 }, "text": "Mételo por la entrada marcada." },
+    { "tap": { "fig": 1 }, "text": "Toca a Musgoso." },
+    { "act": { "type": "move", "fig": 1, "to": 21 }, "text": "Avanza a la casilla marcada." },
+    { "info": true, "expect": { "fig": 0, "loc": "bench" }, "text": "Pasaron 2 turnos tuyos: Erizarza salió de la enfermería y está otra vez en la banca." }
+  ],
+  "cpu": [
+    { "type": "stay", "fig": 2 },
+    { "type": "attack", "fig": 2, "target": 0, "spin": { "ai": 2, "di": 4, "outcome": "status", "winner": 2 } },
+    { "type": "move", "fig": 2, "to": 10 },
+    { "type": "move", "fig": 2, "to": 9 },
+    { "type": "move", "fig": 2, "to": 8 }
+  ],
+  "fin": "Perder contra morado deja un estado; perder contra blanco o dorado manda a la enfermería por 2 turnos tuyos."
+}

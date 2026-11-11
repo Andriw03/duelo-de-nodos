@@ -1,0 +1,24 @@
+{
+  "id": "tipos",
+  "orden": 3,
+  "titulo": "Tipos y ventaja",
+  "duracion": "1 min",
+  "_figuras": "Jugador: 0 Pulpiza (Agua). CPU: 1 Tizonaje (Fuego), 2 Chispabúho (Rayo).",
+  "board": "clasico",
+  "player": ["pulpiza"],
+  "rival": ["tizonaje", "chispabuho"],
+  "first": 0,
+  "setup": [{ "fig": 0, "node": 18 }, { "fig": 1, "node": 14 }, { "fig": 2, "node": 19 }],
+  "steps": [
+    { "info": true, "text": "Cada criatura tiene un tipo. La franja de arriba muestra el ciclo: cada tipo vence al siguiente. Fuego › Planta › Tierra › Rayo › Agua › Fuego." },
+    { "tap": { "fig": 0 }, "text": "Toca a Pulpiza (Agua) y mira las marcas sobre las rivales." },
+    { "info": true, "text": "▲ verde: tienes ventaja (Agua vence a Fuego: Tizonaje). ▼ rojo: la tiene el rival (Rayo vence a Agua: Chispabúho). Con ventaja, tus segmentos blancos hacen +10 de daño." },
+    { "act": { "type": "attack", "fig": 0, "target": 1 }, "spin": { "ai": 0, "di": 1, "outcome": "ko", "winner": 0 },
+      "text": "Ataca a Tizonaje, la que tiene ▲: tócala y luego «Atacar»." },
+    { "info": true, "text": "Tentáculo hizo 50 + 10 por ventaja = 60, contra 40 de Pinza ardiente. Antes de atacar, fíjate en ▲ y ▼." }
+  ],
+  "cpu": [
+    { "type": "move", "fig": 2, "to": 20 }
+  ],
+  "fin": "Ciclo de tipos: Fuego › Planta › Tierra › Rayo › Agua › Fuego. Con ventaja, tus blancos hacen +10."
+}

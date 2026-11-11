@@ -1,0 +1,29 @@
+{
+  "id": "atacar",
+  "orden": 2,
+  "titulo": "Atacar",
+  "duracion": "2 min",
+  "_figuras": "Jugador: 0 Tizonaje. CPU: 1 y 2 Corazamba. spin: índice del segmento de la ruleta del atacante (ai) y del defensor (di); outcome y winner los comprueba test/tutorial.js.",
+  "board": "clasico",
+  "player": ["tizonaje"],
+  "rival": ["corazamba", "corazamba"],
+  "first": 0,
+  "setup": [{ "fig": 0, "node": 18 }, { "fig": 1, "node": 14 }, { "fig": 2, "node": 17 }],
+  "steps": [
+    { "info": true, "text": "Cuando una figura tuya está junto a una rival, puede atacarla. Tizonaje tiene dos Corazambas al lado." },
+    { "tap": { "fig": 0 }, "text": "Toca a Tizonaje. Las rivales que puede atacar se marcan en rojo." },
+    { "act": { "type": "attack", "fig": 0, "target": 1 }, "spin": { "ai": 0, "di": 4, "outcome": "ko", "winner": 0 },
+      "text": "Toca la Corazamba de arriba y luego «Atacar». Antes de confirmar ves tus probabilidades." },
+    { "info": true, "text": "¡Ganaste! Aguijón ígneo (blanco, 60) contra Fallo (rojo). En cada combate giran las dos ruletas y se comparan colores: Dorado › Morado › Blanco › Rojo. Si salen dos blancos, gana el mayor daño. La perdedora va a la enfermería." },
+    { "tap": { "fig": 0 }, "text": "La otra Corazamba se acercó. Toca a Tizonaje." },
+    { "act": { "type": "attack", "fig": 0, "target": 2 }, "spin": { "ai": 0, "di": 1, "outcome": "tie", "winner": null },
+      "text": "Ataca a la Corazamba marcada." },
+    { "info": true, "text": "Salió Caparazón (azul). El azul anula el combate contra cualquier color: nadie gana ni pierde. Es la mejor defensa." }
+  ],
+  "cpu": [
+    { "type": "move", "fig": 2, "to": 14 },
+    { "type": "end" },
+    { "type": "move", "fig": 2, "to": 10 }
+  ],
+  "fin": "Prioridad de colores: Azul anula · Dorado › Morado › Blanco › Rojo. Entre blancos o dorados gana el mayor daño."
+}

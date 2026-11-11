@@ -1,0 +1,25 @@
+{
+  "id": "entrar",
+  "orden": 1,
+  "titulo": "Entrar y moverse",
+  "duracion": "1 min",
+  "_figuras": "Jugador: 0 Zumbiza, 1 Corazamba. La CPU no tiene figuras (pasa sola).",
+  "board": "clasico",
+  "player": ["zumbiza", "corazamba"],
+  "rival": [],
+  "first": 0,
+  "setup": [],
+  "steps": [
+    { "info": true, "text": "¡Te damos la bienvenida! Ganas cuando una figura tuya llega a la META rival, arriba. Tus figuras esperan en la banca, abajo." },
+    { "tap": { "fig": 0 }, "text": "Toca a Zumbiza en tu banca." },
+    { "act": { "type": "enter", "fig": 0, "to": 24 }, "text": "Tus entradas se marcan en verde. Toca la de la izquierda para meter a Zumbiza al tablero." },
+    { "info": true, "text": "Meter una figura usa tu turno. La CPU no tiene figuras, así que pasó. Ahora a avanzar: Zumbiza tiene 3 de movimiento (MP), así que recorre hasta 3 casillas por turno." },
+    { "tap": { "fig": 0 }, "text": "Toca a Zumbiza en el tablero." },
+    { "act": { "type": "move", "fig": 0, "to": 17 }, "text": "En verde ves hasta dónde llega. Toca la casilla marcada, camino al centro." },
+    { "tap": { "fig": 0 }, "text": "Cada turno tienes que meter, mover o atacar: no se puede pasar. Toca otra vez a Zumbiza." },
+    { "act": { "type": "move", "fig": 0, "to": 6 }, "text": "Avanza a la casilla marcada, junto a la META rival." },
+    { "info": true, "text": "¡Bien! Ya sabes meter y mover figuras. Cómo entrar a la meta lo verás en la lección 5." }
+  ],
+  "cpu": [],
+  "fin": "Meter una figura usa el turno, y cada criatura avanza tantas casillas como su MP."
+}
