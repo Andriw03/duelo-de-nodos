@@ -7,3 +7,6 @@ node_modules/
 # Builds de Android (android/.gitignore cubre también .gradle/ y local.properties)
 android/build/
 android/app/build/
+
+# APK y AAB generados (npm run apk)
+dist/
