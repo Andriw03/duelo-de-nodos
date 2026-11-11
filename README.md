@@ -7,7 +7,8 @@ Juego de estrategia por turnos para celular, contra la CPU. Tablero de 29 nodos,
 ## Estructura
 - `index.html`: build de la web. Es lo que publica GitHub Pages: **no se edita a mano**.
 - `src/logic.js`: reglas puras, sin DOM. `src/ai.js`: IA de la CPU.
-- `data/boards/*.json`: tableros (cruces, caminos, metas, entradas). `data/duels/*.json`: configuraciones de duelo (tablero, equipos, IA, reglas especiales, victoria). `build.py` los incrusta en el HTML.
+- `data/boards/*.json`: tableros (cruces, caminos, metas, entradas). `data/duels/*.json`: configuraciones de duelo (tablero, equipos, IA, reglas especiales, victoria). `data/tutorial/*.json`: lecciones del tutorial (posición inicial, pasos, jugadas de la CPU y ruletas fijas). `build.py` incrusta todo `data/` en el HTML.
+- `src/tutorial.js`: motor de pasos del tutorial, sin DOM (el modo guiado de la interfaz vive en `src/ui.js`).
 - `src/ui.js`, `src/style.css`, `src/shell.html`: interfaz. `src/fonts.css` y `src/fonts/`: fuentes.
 - `src/platform.js`: única capa que conoce Capacitor (guardado nativo, vibración, botón atrás, splash). En la web no hace nada nuevo.
 - `build.py`: une `src/` en un HTML.
@@ -18,11 +19,12 @@ Juego de estrategia por turnos para celular, contra la CPU. Tablero de 29 nodos,
 ## Web
 ```bash
 python3 build.py        # index.html con las fuentes incrustadas (en Windows: python build.py)
-npm test                # las tres pruebas de abajo; correr después de tocar logic.js, ai.js o data/
+npm test                # las cuatro pruebas de abajo; correr después de tocar logic.js, ai.js o data/
 ```
 - `node test/run.js`: simulaciones CPU contra CPU (resultados por nivel).
 - `node test/golden.js`: huella de cada jugada de esas partidas; detecta cualquier cambio de comportamiento. `--update` solo si el cambio de juego es deliberado.
 - `node test/reglas.js`: tableros, configuración de duelo, partidas guardadas antiguas y ganchos para reglas de jefe.
+- `node test/tutorial.js`: recorre las 5 lecciones con el motor; falla si una jugada del guion es ilegal o una lección no se puede terminar.
 
 Se publica fusionando en `main`: GitHub Pages sirve `index.html` (puede tardar unos 10 minutos en verse por la caché).
 
@@ -46,7 +48,7 @@ Otros comandos:
 ```bash
 npm run sync            # build de www/ + npx cap sync android (después de cambiar src/)
 npm run android         # abre el proyecto en Android Studio (para correr en emulador o depurar)
-npm test                # run.js + golden.js + reglas.js
+npm test                # run.js + golden.js + reglas.js + tutorial.js
 ```
 
 `www/`, `dist/`, `node_modules/` y las carpetas de build de Android no se versionan.

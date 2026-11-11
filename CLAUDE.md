@@ -13,6 +13,7 @@ Juego de estrategia por turnos para celular, contra la CPU. Es web (un HTML gene
 - `src/logic.js`: reglas puras, sin DOM (patrón UMD: `(function(root){...})`, se usa con `require` en node y como global en el navegador). **El tablero sale siempre de la partida: `D.boardOf(s)`**; `D.BOARD` es solo el clásico, para código sin partida.
 - `data/boards/*.json`: tableros (`nodes` con x/y, `edges`, `goals`, `entries`, `marked`, `links`). **El orden de `edges` define el orden de vecinos y con eso las decisiones de la IA**: no reordenar sin revisar `test/golden.js`. `compileBoard` valida (aristas, metas, entradas, conexión).
 - `data/duels/*.json`: configuración de duelo (`board`, `player.team`/`rival.team` = `free`/`random`/lista fija, `ai`, `rules`, `victory` = `{type: 'goal', turnLimit}`). Hoy solo existe `libre` (la partida de siempre). `newGame(team0, team1, primero, duelo)`.
+- `data/tutorial/*.json` + `src/tutorial.js` (`window.DuelTutorial`, sin DOM): lecciones como partidas reales con posición fija, pasos (`info`, `tap`, `act`), jugadas de la CPU en orden (`cpu`) y ruletas fijas (`spin`: índices de segmento; `outcome`/`winner` los comprueba el test). Figuras: las del jugador son 0, 1…, las de la CPU siguen la numeración. El modo guiado está en `ui.js` (`ui.guide`): bloquea toques fuera del paso, resalta, usa el guion de la CPU y las ruletas fijas, y **no guarda** (nunca pisa la partida guardada). Progreso en `Platform.storage`, clave `duelo-nodos-tutorial` (`hechas`, `ofrecido`).
 - En el navegador los datos llegan como `window.DUEL_DATA` (marcador `/*DATA*/`, lo arma `build.py`); en node `logic.js` lee `data/` del disco.
 - `src/ai.js`: IA de la CPU (niveles `facil`, `normal`, `dificil`).
 - `src/ui.js`, `src/style.css`, `src/shell.html`: interfaz. `shell.html` tiene los marcadores `/*FONTS*/`, `/*CSS*/`, `/*LOGIC*/`, `/*AI*/`, `<!--CAPACITOR-->`, `/*CONFIG*/`, `/*PLATFORM*/`, `/*UI*/`.
@@ -26,7 +27,7 @@ Juego de estrategia por turnos para celular, contra la CPU. Es web (un HTML gene
 - `android/`: proyecto nativo de Capacitor 8 (se versiona). Cambios propios: orientación vertical (`AndroidManifest.xml`), splash y fondo `#0e1322` (`styles.xml`, `colors_noche.xml`), `android.overridePathCheck=true` (`gradle.properties`, por la tilde en la ruta local).
 - `capacitor.config.json`: appId, color de fondo, `SystemBars` (íconos claros, insets por CSS) y `SplashScreen`.
 - `scripts/apk.js` (`npm run apk`): build de `www`, `cap sync` y `assembleDebug`; deja `dist/duelo-de-nodos-<versión>-debug.apk`. Busca solo un JDK 17+ (el de Android Studio si `JAVA_HOME` es viejo) y el SDK.
-- `test/run.js`: simulaciones CPU vs CPU en node. `test/golden.js`: huella de cada jugada de esas 220 partidas (referencia en `test/golden-ref.json`). `test/reglas.js`: tableros, duelos, partida guardada antigua (`test/fixtures/partida-0.2.0.json`) y ganchos. `npm test` corre las tres. `test/tune.js`, `test/len2.js`: apoyo para afinar.
+- `test/run.js`: simulaciones CPU vs CPU en node. `test/golden.js`: huella de cada jugada de esas 220 partidas (referencia en `test/golden-ref.json`). `test/reglas.js`: tableros, duelos, partida guardada antigua (`test/fixtures/partida-0.2.0.json`) y ganchos. `test/tutorial.js`: recorre las 5 lecciones con el motor. `npm test` corre las cuatro. `test/tune.js`, `test/len2.js`: apoyo para afinar.
 - No se versionan: `www/`, `dist/`, `node_modules/`, builds de Android.
 
 ## Reglas de trabajo (importante)
@@ -123,8 +124,14 @@ Rama `capacitor-android` (en GitHub). App probada en emulador: toque, splash, zo
 - Verificado: huella idéntica en las 5 series, `run.js` igual a la referencia, 13 pruebas de `reglas.js`, web y `www/` sin errores, partida 0.2.0 recuperada con "Continuar".
 - Sin cambios visibles para el jugador. Publicar en `main` cuando Andrés lo pida (subir la versión).
 
-## Siguiente: Fase 2 de `ROADMAP.md` (tutorial interactivo)
-Pendiente de la 0b: link del formulario, prueba en iPhone y 2–3 testers.
+## Fase 2 (tutorial): terminada 2026-11-11, rama `fase2-tutorial`, publicada como 0.3.0
+- 5 lecciones: entrar y moverse, atacar (blanco › rojo y azul anula), tipos (▲/▼ y +10), estados y enfermería, cómo ganar. Textos escritos por Claude a partir de las reglas: Andrés debe revisarlos.
+- Se ofrece una vez al abrir el juego sin partida guardada; se repite desde "Cómo jugar" → "Tutorial" (no durante el turno de la CPU). "Salir" siempre visible (no durante animaciones).
+- Verificado: `npm test` (huella intacta y 5 lecciones), las 5 jugadas en el navegador con clics, toque equivocado bloqueado, salir a mitad sin tocar la partida guardada, teléfono 375 px sin scroll horizontal.
+- Falta (Andrés): probar con 2–3 personas que no conozcan el juego y anotar dónde se traban.
+
+## Siguiente: Fase 3 de `ROADMAP.md` (estructura de campaña)
+Antes: exportar la biblia a `docs/biblia.md`. Pendiente de la 0b: link del formulario, prueba en iPhone y testers.
 
 ## Después (no empezar sin pedirlo)
 - Fases 2 a 7 de `ROADMAP.md`. Multijugador online (requiere servidor autoritativo; versión 2).

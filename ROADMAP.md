@@ -31,7 +31,7 @@ Objetivo: que tableros, duelos y reglas especiales sean datos y no código.
 - Los datos tienen que llegar al HTML único de la web (incrustados por `build.py`), sin depender de un servidor.
 - Criterio de salida: la partida normal se comporta igual que hoy (mismos resultados con `node test/run.js` y la misma semilla).
 
-## Fase 2 — Tutorial interactivo
+## Fase 2 — Tutorial interactivo (terminada)
 Objetivo: que alguien que nunca vio el juego entienda las reglas en 5 minutos, sin leer el "Cómo jugar".
 - Motor de **escenarios guiados**: estado inicial fijo y semilla del azar fija (ya existe `mulberry32`), una lista de pasos con texto, casilla o botón resaltado, y bloqueo de toda acción que no sea la del paso.
 - Lecciones sugeridas (cada una de 1 a 2 minutos):
