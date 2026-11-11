@@ -10,7 +10,7 @@
     "build:app": "python build.py --out www",
     "sync": "python build.py --out www && npx cap sync android",
     "android": "npx cap open android",
-    "test": "node test/run.js",
+    "test": "node test/run.js && node test/golden.js && node test/reglas.js",
     "apk": "node scripts/apk.js"
   },
   "repository": {
