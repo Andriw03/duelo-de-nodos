@@ -6,7 +6,8 @@ Juego de estrategia por turnos para celular, contra la CPU. Es web (un HTML gene
 
 - Repo: https://github.com/Andriw03/duelo-de-nodos
 - Demo (GitHub Pages, se mantiene viva para que amigos la prueben): https://andriw03.github.io/duelo-de-nodos/
-- Biblia de historia y niveles (campaña, lore, 14 duelos, jefes): https://claude.ai/artifact/SbGD4Vmu45sqBeSCWywnim
+- Biblia de historia y niveles (campaña, lore, 14 duelos, jefes): **`docs/biblia.md`** (copia del Doc https://claude.ai/artifact/SbGD4Vmu45sqBeSCWywnim, exportada por Andrés el 2026-11-11).
+- Guion y diálogos de los 14 duelos, prólogo, interludios y epílogo: **`docs/guion.md`**. Los textos de la campaña salen de estos dos archivos; no inventar personajes, reglas ni fechas.
 - Dueño: Andrés (Chile). Idioma de la UI, textos y comentarios: **español**.
 
 ## Estructura actual
@@ -87,6 +88,13 @@ Juego de estrategia por turnos para celular, contra la CPU. Es web (un HTML gene
 - Cinco épocas, una por arco y por linaje: Neolítico/Planta, Edad Antigua/Tierra, Edad Media/Rayo, Edad Moderna/Agua, Edad Contemporánea/Fuego.
 - Villano: el Patrón (Orsolo Venn), dueño del Taller de Tarjetas (tarjetas perforadas tipo Jacquard); quiere automatizar el Telar y eliminar el azar.
 - Campaña lineal de 14 duelos: un jefe por época y un final. Los jefes necesitan reglas de tablero nuevas (cruces marcados, cruces enlazados).
+- Decisiones de Andrés anotadas en `docs/biblia.md` (2026-11-11):
+  - Nombre del juego: **Hilos del Tiempo**. Todavía no se aplicó (UI, `<title>`, README, app, appId): hacerlo como tarea aparte, con aprobación.
+  - "›" del ciclo significa "vence a" (confirmado).
+  - Datos históricos de la biblia: verificados por Andrés.
+  - Protagonista: **nombre elegible** (el guion usa `Ari` y deja `{jugador}` listo).
+  - **Final único**: la sección "Variantes del epílogo" de `docs/guion.md` queda descartada.
+- Reglas de jefe definidas en la biblia (sección "Jefes") y en el guion (cada jefe explica la suya): Hebras enredadas, Pesas, Pedales, Lanzadera, Caldera y Tarjetas perforadas. Se implementan sobre los ganchos de `logic.js` en las Fases 4 y 5, con aprobación (cambian el juego).
 
 ## Pendientes conocidos
 - Partidas CPU vs CPU que llegan al límite de 300 turnos (bloqueo de entradas): se anotó ~8 %, pero la salida de referencia da 24 de 220 (~11 %) y ~16 % en los cruces Normal/Difícil. Revisar antes de ajustar la IA.
@@ -94,9 +102,11 @@ Juego de estrategia por turnos para celular, contra la CPU. Es web (un HTML gene
 - Ícono de la app y del splash: siguen los de Capacitor por defecto (Fase 6).
 - Vibración sin probar en un teléfono real (el emulador no vibra).
 - La prueba "±3 % en 1.000 giros" de `test/run.js` es estadísticamente frágil (falla por azar en ~60 % de las corridas completas aunque el sorteo es correcto). Con 100k giros el desvío es <0,4 pp: subir el tamaño de muestra o cambiar el criterio.
-- Nombre definitivo del juego (hoy "Duelo de Nodos", que ya no encaja con el Telar).
-- Confirmar que "›" del ciclo significa "vence a"; verificar datos históricos antes de ponerlos en la campaña.
-- Antes de la Fase 3: exportar la biblia a `docs/biblia.md` (Claude Code no puede abrir el link del Doc).
+- Aplicar el nombre **Hilos del Tiempo** (decidido, sin aplicar).
+- Vocabulario del mundo frente al de la interfaz: el guion dice "rodillo" (meta), "lizo" (entrada), "calada" (carril central), "remiendo" (enfermería), "cruce" (nodo); la UI y el tutorial dicen META, entrada y enfermería. Decidir si la interfaz adopta el vocabulario del telar.
+- El guion trata a Ari en masculino ("hijo", "forastero", "sorprendido") y la biblia decide nombre elegible: si el jugador también elige cómo se le trata, hay que neutralizar o variar esas líneas.
+- Los duelos 1 y 2 del guion son tutoriales guiados con Maru y Teo; ya existe el tutorial genérico de la Fase 2. Decidir en la Fase 3 si se reemplaza, se reutiliza su motor con los textos del guion o conviven.
+- Posibles erratas en `docs/guion.md` (sin corregir; decide Andrés): "debi" (l. 32), "lizó" (l. 52), "Enseñame" (l. 209), "Lévalo" (l. 321), "Yo también eso digo" (l. 364), "en la fría" (l. 444), "huyí" (l. 458); y en la l. 500 "Si ganas, decide el hilo. Si pierdo, decide la tarjeta" dice lo mismo dos veces (¿"Si gano, decide la tarjeta"?).
 
 ## Entorno local (PC de Andrés, Windows 11)
 - La ruta del proyecto tiene tilde (`Programación`): ver `overridePathCheck` arriba.
@@ -131,7 +141,7 @@ Rama `capacitor-android` (en GitHub). App probada en emulador: toque, splash, zo
 - Falta (Andrés): probar con 2–3 personas que no conozcan el juego y anotar dónde se traban.
 
 ## Siguiente: Fase 3 de `ROADMAP.md` (estructura de campaña)
-Antes: exportar la biblia a `docs/biblia.md`. Pendiente de la 0b: link del formulario, prueba en iPhone y testers.
+La biblia y el guion ya están en `docs/`. Pendiente de la 0b: link del formulario, prueba en iPhone y testers.
 
 ## Después (no empezar sin pedirlo)
 - Fases 2 a 7 de `ROADMAP.md`. Multijugador online (requiere servidor autoritativo; versión 2).

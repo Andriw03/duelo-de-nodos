@@ -77,5 +77,5 @@ Objetivo: que alguien que nunca vio el juego entienda las reglas en 5 minutos, s
 ## Cómo pedir cada fase a Claude Code (plantilla)
 > Lee CLAUDE.md y ROADMAP.md. Trabajemos la Fase N. Primero dame un plan con los archivos que vas a tocar y los riesgos; no escribas código hasta que lo apruebe. Al terminar: corre `node test/run.js`, prueba la web en el navegador, haz commits pequeños en español, actualiza CLAUDE.md con lo decidido y avísame cuando esté listo para publicar en `main`.
 
-## Antes de empezar la Fase 3
-Exportar la biblia de historia (Doc de Claude) a Markdown y guardarla en `docs/biblia.md` dentro del repo. Claude Code no puede abrir el link del Doc, así que sin esto inventaría texto.
+## Antes de empezar la Fase 3 (hecho)
+La biblia está en `docs/biblia.md` y el guion con todos los diálogos en `docs/guion.md`.
