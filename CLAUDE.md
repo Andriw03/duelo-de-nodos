@@ -1,6 +1,8 @@
 # Duelo de Nodos — contexto para Claude Code
 
-Juego de estrategia por turnos para celular, contra la CPU. Es web (un HTML generado desde `src/`, publicado en GitHub Pages) y app Android con **Capacitor** (Fase 0 terminada). El objetivo es ampliarlo a juego completo con campaña, historia y lore siguiendo `ROADMAP.md` (una fase por sesión, con plan aprobado antes de tocar código).
+Juego de estrategia por turnos para celular, contra la CPU. Es web (un HTML generado desde `src/`, publicado en GitHub Pages) y app Android con **Capacitor** (Fase 0 terminada, en pausa). El objetivo es ampliarlo a juego completo con campaña, historia y lore siguiendo `ROADMAP.md` (una fase por sesión, con plan aprobado antes de tocar código).
+
+**El juego se completa y se prueba en la web** (decidido 2026-11-11): cualquiera lo abre con el link, sin instalar nada. Android se retoma en la publicación (Fase 7). Cada fase se verifica en el navegador; no hace falta compilar la app.
 
 - Repo: https://github.com/Andriw03/duelo-de-nodos
 - Demo (GitHub Pages, se mantiene viva para que amigos la prueben): https://andriw03.github.io/duelo-de-nodos/
@@ -27,7 +29,8 @@ Juego de estrategia por turnos para celular, contra la CPU. Es web (un HTML gene
 1. **No cambiar reglas del juego sin preguntar.** Las decisiones de abajo son deliberadas.
 2. La lógica sigue siendo pura (sin DOM, sin `window`, sin Capacitor). Todo lo nativo vive en la capa de UI/plataforma.
 3. Después de tocar `logic.js` o `ai.js`, correr `node test/run.js` y comparar con los números de referencia (ver "IA").
-4. No romper la demo web: GitHub Pages sirve `index.html` desde la raíz. El build de Capacitor debe ser un paso aparte.
+4. No romper la demo web: GitHub Pages sirve `index.html` desde la raíz de `main`. `main` siempre jugable: se trabaja en ramas y se fusiona cuando está probado. El build de Capacitor es un paso aparte.
+8. Todo lo nuevo (datos, campaña, tutorial) tiene que funcionar en el HTML único de la web, sin servidor. Guardar progreso siempre vía `Platform.storage`, para que la app lo herede.
 5. Todo original: criaturas, nombres y arte sin relación con Pokémon ni Nintendo. No introducir nombres, diseños ni sonidos de esa franquicia.
 6. Sin frameworks ni TypeScript por ahora. Si la campaña lo justifica, proponerlo antes (Vite sería el siguiente paso razonable), no imponerlo.
 7. Commits pequeños y en español, un tema por commit.
@@ -97,12 +100,11 @@ Juego de estrategia por turnos para celular, contra la CPU. Es web (un HTML gene
 - `core.autocrlf=true`: el árbol de trabajo tiene CRLF; el repo, LF.
 - Emulador disponible: `Medium_Phone_API_36.0`.
 
-## Fase 0 (empaquetado): terminada 2026-11-11
-Rama `capacitor-android` (subida a GitHub, sin fusionar en `main`). App probada en emulador: toque, splash, zonas seguras, atrás, rotación, segundo plano y partida guardada. APK de prueba con `npm run apk`.
-Pendiente de Andrés: fusionar en `main` (la demo solo cambia en fuentes incluidas y el Menú en dos filas) y pasar el APK a los amigos.
+## Fase 0 (empaquetado Android): terminada 2026-11-11, en pausa
+Rama `capacitor-android` (en GitHub). App probada en emulador: toque, splash, zonas seguras, atrás, rotación, segundo plano y partida guardada. APK de prueba con `npm run apk`.
 
-## Siguiente: Fase 1 de `ROADMAP.md` (motor dirigido por datos)
-Empezar con un plan aprobado. Criterio de salida: la partida normal se comporta igual (misma salida de `node test/run.js`).
+## Siguiente: Fase 0b de `ROADMAP.md` (web lista para testers)
+Fusionar `capacitor-android` en `main`, versión visible, botón de comentarios (formulario que crea Andrés) y prueba en Chrome Android, Safari iPhone y computador. Decidir antes si se hace instalable y sin conexión (PWA). Después, Fase 1 (motor dirigido por datos).
 
 ## Después (no empezar sin pedirlo)
 - Fases 2 a 7 de `ROADMAP.md`. Multijugador online (requiere servidor autoritativo; versión 2).
