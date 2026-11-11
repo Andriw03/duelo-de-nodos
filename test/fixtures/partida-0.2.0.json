@@ -1,0 +1,169 @@
+{
+ "v": 1,
+ "state": {
+  "turn": 13,
+  "current": 0,
+  "winner": null,
+  "winReason": "",
+  "awaitAttack": null,
+  "forcedAttack": false,
+  "firstPlayer": 0,
+  "figs": [
+   {
+    "id": 0,
+    "owner": 0,
+    "slot": 0,
+    "kind": "musgoso",
+    "loc": "bench",
+    "node": null,
+    "status": null,
+    "koLeft": 0,
+    "koAt": 0
+   },
+   {
+    "id": 1,
+    "owner": 0,
+    "slot": 1,
+    "kind": "zumbiza",
+    "loc": "board",
+    "node": 17,
+    "status": null,
+    "koLeft": 0,
+    "koAt": 0
+   },
+   {
+    "id": 2,
+    "owner": 0,
+    "slot": 2,
+    "kind": "pulpiza",
+    "loc": "bench",
+    "node": null,
+    "status": null,
+    "koLeft": 0,
+    "koAt": 0
+   },
+   {
+    "id": 3,
+    "owner": 0,
+    "slot": 3,
+    "kind": "lodocaiman",
+    "loc": "board",
+    "node": 28,
+    "status": null,
+    "koLeft": 0,
+    "koAt": 0
+   },
+   {
+    "id": 4,
+    "owner": 0,
+    "slot": 4,
+    "kind": "magmuz",
+    "loc": "board",
+    "node": 24,
+    "status": null,
+    "koLeft": 0,
+    "koAt": 0
+   },
+   {
+    "id": 5,
+    "owner": 0,
+    "slot": 5,
+    "kind": "tejonrock",
+    "loc": "board",
+    "node": 26,
+    "status": null,
+    "koLeft": 0,
+    "koAt": 0
+   },
+   {
+    "id": 6,
+    "owner": 1,
+    "slot": 0,
+    "kind": "erizarza",
+    "loc": "board",
+    "node": 2,
+    "status": null,
+    "koLeft": 0,
+    "koAt": 0
+   },
+   {
+    "id": 7,
+    "owner": 1,
+    "slot": 1,
+    "kind": "cetamar",
+    "loc": "bench",
+    "node": null,
+    "status": null,
+    "koLeft": 0,
+    "koAt": 0
+   },
+   {
+    "id": 8,
+    "owner": 1,
+    "slot": 2,
+    "kind": "tizonaje",
+    "loc": "bench",
+    "node": null,
+    "status": null,
+    "koLeft": 0,
+    "koAt": 0
+   },
+   {
+    "id": 9,
+    "owner": 1,
+    "slot": 3,
+    "kind": "corazamba",
+    "loc": "board",
+    "node": 0,
+    "status": null,
+    "koLeft": 0,
+    "koAt": 0
+   },
+   {
+    "id": 10,
+    "owner": 1,
+    "slot": 4,
+    "kind": "zumbiza",
+    "loc": "board",
+    "node": 4,
+    "status": null,
+    "koLeft": 0,
+    "koAt": 0
+   },
+   {
+    "id": 11,
+    "owner": 1,
+    "slot": 5,
+    "kind": "pulpiza",
+    "loc": "board",
+    "node": 12,
+    "status": null,
+    "koLeft": 0,
+    "koAt": 0
+   }
+  ]
+ },
+ "level": "normal",
+ "team": [
+  "musgoso",
+  "zumbiza",
+  "pulpiza",
+  "lodocaiman",
+  "magmuz",
+  "tejonrock"
+ ],
+ "cpuTeam": [
+  "erizarza",
+  "cetamar",
+  "tizonaje",
+  "corazamba",
+  "zumbiza",
+  "pulpiza"
+ ],
+ "log": [
+  {
+   "turn": 1,
+   "text": "Empiezas tú."
+  }
+ ]
+}
