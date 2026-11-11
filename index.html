@@ -218,6 +218,21 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing:
 .cycle-svg { display: block; width: 100%; max-width: 260px; margin: 4px auto 8px; }
 .cycle-svg text { font: 800 12px var(--font-body); fill: var(--ink); text-anchor: middle; dominant-baseline: central; }
 
+/* ---------- Tutorial ---------- */
+.guide-bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 0 10px 2px; padding: 0 0 0 12px; border-radius: 12px; background: var(--raise); color: var(--ink); font-size: 13px; font-weight: 800; flex: none; }
+.guide-bar[hidden] { display: none; }
+.guide-t { font-weight: 700; }
+.guide-odds { font-size: 12.5px; color: var(--muted); }
+.hl-guide { fill: none; stroke: #fff; stroke-width: 3; stroke-dasharray: 6 5; animation: spin 6s linear infinite, pulse 1.2s ease-in-out infinite; transform-box: fill-box; transform-origin: center; pointer-events: none; }
+.slot.guide { box-shadow: 0 0 0 3px #fff; animation: guidePulse 1.2s ease-in-out infinite; }
+@keyframes guidePulse { 50% { box-shadow: 0 0 0 6px rgba(255, 255, 255, .25); } }
+#msg.nudge { animation: nudge .35s ease-in-out; }
+@keyframes nudge { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+.lessons { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+.btn.lesson { width: 100%; justify-content: space-between; text-align: left; }
+.btn.lesson small { color: var(--muted); font-weight: 700; }
+@media (prefers-reduced-motion: reduce) { .hl-guide, .slot.guide, #msg.nudge { animation: none; } }
+
 </style>
 </head>
 <body>
@@ -252,6 +267,7 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing:
       <div id="turn-pill" class="pill" aria-live="polite"></div>
       <button type="button" id="btn-rules-g" class="btn icon" aria-label="Cómo jugar">?</button>
     </header>
+    <div id="guide-bar" class="guide-bar" hidden><span id="guide-title"></span><button type="button" id="btn-guide-exit" class="linkbtn">Salir</button></div>
     <div id="type-strip-g" class="type-strip" aria-label="Ciclo de tipos: cada tipo vence al siguiente"></div>
     <div id="bench-1" class="bench p1"></div>
     <div class="board-wrap"><svg id="board" role="img" aria-label="Tablero de 29 casillas"></svg></div>
@@ -282,7 +298,7 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing:
 </div>
 
 <script>
-window.DUEL_DATA = {"boards":{"clasico":{"id":"clasico","nombre":"Clásico","descripcion":"29 cruces: filas pares de 5, filas impares en las columnas 0, 2 y 4, y el centro unido en diagonal. Fila 0 = lado CPU (jugador 1), fila 6 = lado jugador (jugador 0).","width":360,"height":416,"nodes":[{"c":0,"r":0,"x":40,"y":34},{"c":1,"r":0,"x":110,"y":34},{"c":2,"r":0,"x":180,"y":34},{"c":3,"r":0,"x":250,"y":34},{"c":4,"r":0,"x":320,"y":34},{"c":0,"r":1,"x":40,"y":92},{"c":2,"r":1,"x":180,"y":92},{"c":4,"r":1,"x":320,"y":92},{"c":0,"r":2,"x":40,"y":150},{"c":1,"r":2,"x":110,"y":150},{"c":2,"r":2,"x":180,"y":150},{"c":3,"r":2,"x":250,"y":150},{"c":4,"r":2,"x":320,"y":150},{"c":0,"r":3,"x":40,"y":208},{"c":2,"r":3,"x":180,"y":208},{"c":4,"r":3,"x":320,"y":208},{"c":0,"r":4,"x":40,"y":266},{"c":1,"r":4,"x":110,"y":266},{"c":2,"r":4,"x":180,"y":266},{"c":3,"r":4,"x":250,"y":266},{"c":4,"r":4,"x":320,"y":266},{"c":0,"r":5,"x":40,"y":324},{"c":2,"r":5,"x":180,"y":324},{"c":4,"r":5,"x":320,"y":324},{"c":0,"r":6,"x":40,"y":382},{"c":1,"r":6,"x":110,"y":382},{"c":2,"r":6,"x":180,"y":382},{"c":3,"r":6,"x":250,"y":382},{"c":4,"r":6,"x":320,"y":382}],"_edges":"El orden importa: define el orden de vecinos, que usan el recorrido y la IA.","edges":[[0,1],[1,2],[2,3],[3,4],[8,9],[9,10],[10,11],[11,12],[16,17],[17,18],[18,19],[19,20],[24,25],[25,26],[26,27],[27,28],[0,5],[2,6],[4,7],[5,8],[6,10],[7,12],[8,13],[10,14],[12,15],[13,16],[14,18],[15,20],[16,21],[18,22],[20,23],[21,24],[22,26],[23,28],[14,9],[14,11],[14,17],[14,19]],"goals":[26,2],"entries":[[24,28],[0,4]],"marked":[],"links":[]}},"duels":{"libre":{"id":"libre","nombre":"Partida libre","_formato":"board: id de data/boards. player/rival.team: 'free' (lo elige el jugador), 'random' (equipo equilibrado al azar) o una lista fija de 6 criaturas. ai: 'choose' (lo elige el jugador) o facil/normal/dificil. rules: reglas especiales [{ type, ...parámetros }], ninguna por defecto. victory: type 'goal' (llegar a la meta rival) y turnLimit.","board":"clasico","player":{"team":"free"},"rival":{"team":"random"},"ai":"choose","rules":[],"victory":{"type":"goal","turnLimit":300}}}};
+window.DUEL_DATA = {"boards":{"clasico":{"id":"clasico","nombre":"Clásico","descripcion":"29 cruces: filas pares de 5, filas impares en las columnas 0, 2 y 4, y el centro unido en diagonal. Fila 0 = lado CPU (jugador 1), fila 6 = lado jugador (jugador 0).","width":360,"height":416,"nodes":[{"c":0,"r":0,"x":40,"y":34},{"c":1,"r":0,"x":110,"y":34},{"c":2,"r":0,"x":180,"y":34},{"c":3,"r":0,"x":250,"y":34},{"c":4,"r":0,"x":320,"y":34},{"c":0,"r":1,"x":40,"y":92},{"c":2,"r":1,"x":180,"y":92},{"c":4,"r":1,"x":320,"y":92},{"c":0,"r":2,"x":40,"y":150},{"c":1,"r":2,"x":110,"y":150},{"c":2,"r":2,"x":180,"y":150},{"c":3,"r":2,"x":250,"y":150},{"c":4,"r":2,"x":320,"y":150},{"c":0,"r":3,"x":40,"y":208},{"c":2,"r":3,"x":180,"y":208},{"c":4,"r":3,"x":320,"y":208},{"c":0,"r":4,"x":40,"y":266},{"c":1,"r":4,"x":110,"y":266},{"c":2,"r":4,"x":180,"y":266},{"c":3,"r":4,"x":250,"y":266},{"c":4,"r":4,"x":320,"y":266},{"c":0,"r":5,"x":40,"y":324},{"c":2,"r":5,"x":180,"y":324},{"c":4,"r":5,"x":320,"y":324},{"c":0,"r":6,"x":40,"y":382},{"c":1,"r":6,"x":110,"y":382},{"c":2,"r":6,"x":180,"y":382},{"c":3,"r":6,"x":250,"y":382},{"c":4,"r":6,"x":320,"y":382}],"_edges":"El orden importa: define el orden de vecinos, que usan el recorrido y la IA.","edges":[[0,1],[1,2],[2,3],[3,4],[8,9],[9,10],[10,11],[11,12],[16,17],[17,18],[18,19],[19,20],[24,25],[25,26],[26,27],[27,28],[0,5],[2,6],[4,7],[5,8],[6,10],[7,12],[8,13],[10,14],[12,15],[13,16],[14,18],[15,20],[16,21],[18,22],[20,23],[21,24],[22,26],[23,28],[14,9],[14,11],[14,17],[14,19]],"goals":[26,2],"entries":[[24,28],[0,4]],"marked":[],"links":[]}},"duels":{"libre":{"id":"libre","nombre":"Partida libre","_formato":"board: id de data/boards. player/rival.team: 'free' (lo elige el jugador), 'random' (equipo equilibrado al azar) o una lista fija de 6 criaturas. ai: 'choose' (lo elige el jugador) o facil/normal/dificil. rules: reglas especiales [{ type, ...parámetros }], ninguna por defecto. victory: type 'goal' (llegar a la meta rival) y turnLimit.","board":"clasico","player":{"team":"free"},"rival":{"team":"random"},"ai":"choose","rules":[],"victory":{"type":"goal","turnLimit":300}}},"tutorial":{"entrar":{"id":"entrar","orden":1,"titulo":"Entrar y moverse","duracion":"1 min","_figuras":"Jugador: 0 Zumbiza, 1 Corazamba. La CPU no tiene figuras (pasa sola).","board":"clasico","player":["zumbiza","corazamba"],"rival":[],"first":0,"setup":[],"steps":[{"info":true,"text":"¡Te damos la bienvenida! Ganas cuando una figura tuya llega a la META rival, arriba. Tus figuras esperan en la banca, abajo."},{"tap":{"fig":0},"text":"Toca a Zumbiza en tu banca."},{"act":{"type":"enter","fig":0,"to":24},"text":"Tus entradas se marcan en verde. Toca la de la izquierda para meter a Zumbiza al tablero."},{"info":true,"text":"Meter una figura usa tu turno. La CPU no tiene figuras, así que pasó. Ahora a avanzar: Zumbiza tiene 3 de movimiento (MP), así que recorre hasta 3 casillas por turno."},{"tap":{"fig":0},"text":"Toca a Zumbiza en el tablero."},{"act":{"type":"move","fig":0,"to":17},"text":"En verde ves hasta dónde llega. Toca la casilla marcada, camino al centro."},{"tap":{"fig":0},"text":"Cada turno tienes que meter, mover o atacar: no se puede pasar. Toca otra vez a Zumbiza."},{"act":{"type":"move","fig":0,"to":6},"text":"Avanza a la casilla marcada, junto a la META rival."},{"info":true,"text":"¡Bien! Ya sabes meter y mover figuras. Cómo entrar a la meta lo verás en la lección 5."}],"cpu":[],"fin":"Meter una figura usa el turno, y cada criatura avanza tantas casillas como su MP."},"atacar":{"id":"atacar","orden":2,"titulo":"Atacar","duracion":"2 min","_figuras":"Jugador: 0 Tizonaje. CPU: 1 y 2 Corazamba. spin: índice del segmento de la ruleta del atacante (ai) y del defensor (di); outcome y winner los comprueba test/tutorial.js.","board":"clasico","player":["tizonaje"],"rival":["corazamba","corazamba"],"first":0,"setup":[{"fig":0,"node":18},{"fig":1,"node":14},{"fig":2,"node":17}],"steps":[{"info":true,"text":"Cuando una figura tuya está junto a una rival, puede atacarla. Tizonaje tiene dos Corazambas al lado."},{"tap":{"fig":0},"text":"Toca a Tizonaje. Las rivales que puede atacar se marcan en rojo."},{"act":{"type":"attack","fig":0,"target":1},"spin":{"ai":0,"di":4,"outcome":"ko","winner":0},"text":"Toca la Corazamba de arriba y luego «Atacar». Antes de confirmar ves tus probabilidades."},{"info":true,"text":"¡Ganaste! Aguijón ígneo (blanco, 60) contra Fallo (rojo). En cada combate giran las dos ruletas y se comparan colores: Dorado › Morado › Blanco › Rojo. Si salen dos blancos, gana el mayor daño. La perdedora va a la enfermería."},{"tap":{"fig":0},"text":"La otra Corazamba se acercó. Toca a Tizonaje."},{"act":{"type":"attack","fig":0,"target":2},"spin":{"ai":0,"di":1,"outcome":"tie","winner":null},"text":"Ataca a la Corazamba marcada."},{"info":true,"text":"Salió Caparazón (azul). El azul anula el combate contra cualquier color: nadie gana ni pierde. Es la mejor defensa."}],"cpu":[{"type":"move","fig":2,"to":14},{"type":"end"},{"type":"move","fig":2,"to":10}],"fin":"Prioridad de colores: Azul anula · Dorado › Morado › Blanco › Rojo. Entre blancos o dorados gana el mayor daño."},"tipos":{"id":"tipos","orden":3,"titulo":"Tipos y ventaja","duracion":"1 min","_figuras":"Jugador: 0 Pulpiza (Agua). CPU: 1 Tizonaje (Fuego), 2 Chispabúho (Rayo).","board":"clasico","player":["pulpiza"],"rival":["tizonaje","chispabuho"],"first":0,"setup":[{"fig":0,"node":18},{"fig":1,"node":14},{"fig":2,"node":19}],"steps":[{"info":true,"text":"Cada criatura tiene un tipo. La franja de arriba muestra el ciclo: cada tipo vence al siguiente. Fuego › Planta › Tierra › Rayo › Agua › Fuego."},{"tap":{"fig":0},"text":"Toca a Pulpiza (Agua) y mira las marcas sobre las rivales."},{"info":true,"text":"▲ verde: tienes ventaja (Agua vence a Fuego: Tizonaje). ▼ rojo: la tiene el rival (Rayo vence a Agua: Chispabúho). Con ventaja, tus segmentos blancos hacen +10 de daño."},{"act":{"type":"attack","fig":0,"target":1},"spin":{"ai":0,"di":1,"outcome":"ko","winner":0},"text":"Ataca a Tizonaje, la que tiene ▲: tócala y luego «Atacar»."},{"info":true,"text":"Tentáculo hizo 50 + 10 por ventaja = 60, contra 40 de Pinza ardiente. Antes de atacar, fíjate en ▲ y ▼."}],"cpu":[{"type":"move","fig":2,"to":20}],"fin":"Ciclo de tipos: Fuego › Planta › Tierra › Rayo › Agua › Fuego. Con ventaja, tus blancos hacen +10."},"estados":{"id":"estados","orden":4,"titulo":"Estados y enfermería","duracion":"2 min","_figuras":"Jugador: 0 Erizarza, 1 Musgoso. CPU: 2 Lodocaimán. Empieza la CPU.","board":"clasico","player":["erizarza","musgoso"],"rival":["lodocaiman"],"first":1,"setup":[{"fig":0,"node":18},{"fig":2,"node":14}],"steps":[{"info":true,"text":"La CPU atacó y ganó con un segmento morado: Erizarza quedó envenenada ☠. El morado no manda a la enfermería, deja un estado. El veneno resta 20 a tus blancos por 3 turnos. También hay parálisis, sueño y congelación."},{"tap":{"fig":0},"text":"Toca a Erizarza."},{"act":{"type":"attack","fig":0,"target":2},"spin":{"ai":4,"di":0,"outcome":"ko","winner":2},"text":"Ataca a Lodocaimán. Esta vez saldrá mal, para que veas la enfermería."},{"info":true,"text":"Al perder contra un blanco o un dorado, la figura va a la ENFERMERÍA (✚ en tu banca). Vuelve a la banca después de 2 turnos tuyos."},{"tap":{"fig":1},"text":"Mientras tanto, juega con otra. Toca a Musgoso en tu banca."},{"act":{"type":"enter","fig":1,"to":24},"text":"Mételo por la entrada marcada."},{"tap":{"fig":1},"text":"Toca a Musgoso."},{"act":{"type":"move","fig":1,"to":21},"text":"Avanza a la casilla marcada."},{"info":true,"expect":{"fig":0,"loc":"bench"},"text":"Pasaron 2 turnos tuyos: Erizarza salió de la enfermería y está otra vez en la banca."}],"cpu":[{"type":"stay","fig":2},{"type":"attack","fig":2,"target":0,"spin":{"ai":2,"di":4,"outcome":"status","winner":2}},{"type":"move","fig":2,"to":10},{"type":"move","fig":2,"to":9},{"type":"move","fig":2,"to":8}],"fin":"Perder contra morado deja un estado; perder contra blanco o dorado manda a la enfermería por 2 turnos tuyos."},"ganar":{"id":"ganar","orden":5,"titulo":"Cómo ganar","duracion":"1 min","_figuras":"Jugador: 0 Tizonaje. CPU: 1 Corazamba (en la banca).","board":"clasico","player":["tizonaje"],"rival":["corazamba"],"first":0,"setup":[{"fig":0,"node":10}],"steps":[{"info":true,"text":"Ganas al pisar la META rival con cualquier figura. Recuerda: cada turno debes meter, mover o atacar; si ninguna figura puede moverse, atacar es obligatorio. A los 300 turnos gana quien tenga más figuras en el tablero."},{"tap":{"fig":0},"text":"Toca a Tizonaje."},{"act":{"type":"move","fig":0,"to":2},"text":"Tizonaje tiene 2 de movimiento y la META está a 2 casillas. ¡Entra!"}],"cpu":[],"fin":"¡Ya sabes jugar! Elige tu equipo y prueba contra la CPU."}}};
 </script>
 <script>
 /* ===================== LÓGICA PURA (sin DOM) ===================== */
@@ -990,7 +1006,135 @@ window.DUEL_DATA = {"boards":{"clasico":{"id":"clasico","nombre":"Clásico","des
 
 </script>
 <script>
-window.DUEL_CONFIG = {"version": "0.2.0", "feedbackUrl": ""};
+/* ===================== TUTORIAL: MOTOR DE PASOS (sin DOM) =====================
+   Una lección (data/tutorial/*.json) es una partida real del motor con:
+   - posición inicial fija ("player", "rival", "first", "setup"),
+   - pasos para el jugador ("steps"): "info" (texto y botón Siguiente), "tap" (tocar una figura)
+     o "act" (hacer una acción concreta: enter, move, attack o end),
+   - jugadas de la CPU en orden ("cpu"), en vez de la IA,
+   - resultados fijos de las ruletas ("spin": índices de segmento de atacante y defensor).
+   La interfaz pregunta aquí qué toques permite y qué ruleta usar; test/tutorial.js recorre
+   cada lección con el motor para comprobar que todo el guion es legal y se puede terminar. */
+(function (root) {
+  'use strict';
+  const D = root.Duel || (typeof require !== 'undefined' ? require('./logic.js') : null);
+
+  function loadLessons() {
+    let raw = null;
+    if (root.DUEL_DATA && root.DUEL_DATA.tutorial) raw = root.DUEL_DATA.tutorial;
+    else if (typeof require === 'function' && typeof __dirname === 'string') {
+      const fs = require('fs'), path = require('path');
+      const base = path.join(__dirname, '..', 'data', 'tutorial'); raw = {};
+      fs.readdirSync(base).filter(f => f.endsWith('.json')).forEach(f => { const j = JSON.parse(fs.readFileSync(path.join(base, f), 'utf8')); raw[j.id] = j; });
+    }
+    return Object.values(raw || {}).sort((a, b) => a.orden - b.orden);
+  }
+  const LESSONS = loadLessons();
+
+  // Partida inicial de una lección
+  function buildState(lesson) {
+    const s = D.newGame(lesson.player, lesson.rival, lesson.first || 0, {
+      id: 'tutorial-' + lesson.id, board: lesson.board || 'clasico', rules: [], victory: { type: 'goal', turnLimit: 300 }
+    });
+    (lesson.setup || []).forEach(p => {
+      const f = s.figs[p.fig];
+      if (!f) throw new Error('Lección ' + lesson.id + ': no existe la figura ' + p.fig);
+      if (p.node !== undefined) { f.loc = 'board'; f.node = p.node; }
+      if (p.status) f.status = { k: p.status, left: p.left || D.STATUS[p.status].dur, at: 0 };
+    });
+    const errs = D.validate(s);
+    if (errs.length) throw new Error('Lección ' + lesson.id + ': ' + errs.join('; '));
+    return s;
+  }
+
+  // ¿La acción a coincide con la esperada e? (los campos que e no fija no importan)
+  function sameAct(a, e) {
+    if (!a || !e || a.type !== e.type) return false;
+    for (const k of ['fig', 'to', 'target']) if (e[k] !== undefined && a[k] !== e[k]) return false;
+    return true;
+  }
+
+  function createGuide(lesson) {
+    const g = {
+      lesson, i: 0, cpuIdx: 0, pendingSpin: null, finished: false,
+      start() { return buildState(lesson); },
+      get step() { return lesson.steps[g.i] || null; },
+      get isLast() { return g.i >= lesson.steps.length - 1; },
+      text() { const st = g.step; return st ? st.text : ''; },
+      // Figuras y cruces que la interfaz debe resaltar en el paso actual
+      highlights() {
+        const st = g.step; const out = { figs: [], nodes: [], button: null };
+        if (!st) return out;
+        if (st.tap) out.figs.push(st.tap.fig);
+        if (st.act) {
+          if (st.act.fig !== undefined) out.figs.push(st.act.fig);
+          if (st.act.target !== undefined) out.figs.push(st.act.target);
+          if (st.act.to !== undefined) out.nodes.push(st.act.to);
+          if (st.act.type === 'end') out.button = 'end';
+        }
+        if (st.info) out.button = 'next';
+        return out;
+      },
+      // Toques permitidos: solo los que llevan a la acción del paso
+      allowsFig(id) {
+        const st = g.step; if (!st) return false;
+        if (st.tap) return st.tap.fig === id;
+        if (st.act) return st.act.fig === id || st.act.target === id;
+        return false;
+      },
+      allowsNode(n) { const st = g.step; return !!(st && st.act && st.act.to === n); },
+      // Acción que el jugador va a ejecutar: solo pasa la del paso. Si pasa, el guion avanza.
+      allowsAct(a) {
+        const st = g.step;
+        if (!st || !st.act || !sameAct(a, st.act)) return false;
+        g.pendingSpin = st.spin || null;
+        g.i++;
+        return true;
+      },
+      // Tocar la figura pedida en un paso "tap" lo completa
+      tapped(id) { const st = g.step; if (st && st.tap && st.tap.fig === id) { g.i++; return true; } return false; },
+      next() { const st = g.step; if (st && st.info) { g.i++; return true; } return false; },
+      get done() { return g.i >= lesson.steps.length; },
+      // Jugada de la CPU según el guion; sin guion, pasa (solo si no tiene jugadas)
+      cpuAction(s) {
+        const a = (lesson.cpu || [])[g.cpuIdx];
+        if (!a) return D.legalActions(s).length ? null : { type: 'pass' };
+        g.cpuIdx++;
+        const act = { ...a }; delete act.spin;
+        if (act.type === 'move' || act.type === 'enter') {
+          const legal = D.legalActions(s).find(x => sameAct(x, act));
+          if (legal) act.path = legal.path;
+        }
+        g.pendingSpin = a.spin || null;
+        return act;
+      },
+      // Resultado fijo de la ruleta para el combate que empieza (o null para sortear)
+      takeSpin(s, aId, dId) {
+        const sp = g.pendingSpin; g.pendingSpin = null;
+        if (!sp) return null;
+        const A = s.figs[aId], T = s.figs[dId];
+        return { ai: sp.ai, di: sp.di, wa: D.effectiveWheel(A, T, s), wd: D.effectiveWheel(T, A, s) };
+      }
+    };
+    return g;
+  }
+
+  /* ---------- Progreso (qué lecciones se completaron) ---------- */
+  const KEY = 'duelo-nodos-tutorial';
+  function readProgress(storage) {
+    try { const r = storage.get(KEY); const p = r ? JSON.parse(r) : {}; return { hechas: p.hechas || [], ofrecido: !!p.ofrecido }; }
+    catch (e) { return { hechas: [], ofrecido: false }; }
+  }
+  function writeProgress(storage, p) { storage.set(KEY, JSON.stringify(p)); }
+
+  const api = { LESSONS, buildState, createGuide, sameAct, readProgress, writeProgress, KEY };
+  root.DuelTutorial = api;
+  if (typeof module !== 'undefined' && module.exports) module.exports = api;
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+<script>
+window.DUEL_CONFIG = {"version": "0.3.0", "feedbackUrl": ""};
 /* ===================== PLATAFORMA (web / app nativa) =====================
    Única capa que conoce Capacitor. En la web (GitHub Pages) no existe window.Capacitor
    y todo cae en el comportamiento de siempre: localStorage y sin vibración.
@@ -1080,12 +1224,15 @@ window.DUEL_CONFIG = {"version": "0.2.0", "feedbackUrl": ""};
   const ui = {
     level: 'normal', team: [], cpuTeam: [], state: null,
     sel: null, info: null, confirm: null, busy: false, fast: false,
-    lastCpuMs: null, log: [], figEls: new Map(), msg: ''
+    lastCpuMs: null, log: [], figEls: new Map(), msg: '',
+    guide: null // tutorial en curso (DuelTutorial.createGuide) o null
   };
   /* ---------- Versión y comentarios (los inyecta build.py desde package.json y src/config.json) ---------- */
   const CFG = window.DUEL_CONFIG || { version: 'dev', feedbackUrl: '' };
   const feedbackUrl = CFG.feedbackUrl ? CFG.feedbackUrl.split('{version}').join(encodeURIComponent(CFG.version)) : '';
   function openFeedback() { if (feedbackUrl) window.open(feedbackUrl, '_blank', 'noopener'); }
+
+  const TUT = window.DuelTutorial;
 
   // Tablero de la partida en curso (la partida guarda su boardId; ver logic.js)
   const brd = () => D.boardOf(ui.state);
@@ -1352,6 +1499,12 @@ window.DUEL_CONFIG = {"version": "0.2.0", "feedbackUrl": ""};
       for (const [n] of ui.sel.dest) { const N = brd().nodes[n]; hl.appendChild(svgEl('circle', { class: 'hl-go', cx: N.x, cy: N.y, r: 16 })); hl.appendChild(svgEl('circle', { class: 'hl-go-ring', cx: N.x, cy: N.y, r: 19 })); }
     }
     targetIds().forEach(id => { const N = brd().nodes[s.figs[id].node]; hl.appendChild(svgEl('circle', { class: 'hl-hit', cx: N.x, cy: N.y, r: 27 })); });
+    if (ui.guide && canAct()) {
+      const h = ui.guide.highlights();
+      const ring = n => { const N = brd().nodes[n]; hl.appendChild(svgEl('circle', { class: 'hl-guide', cx: N.x, cy: N.y, r: 31 })); };
+      h.nodes.forEach(ring);
+      h.figs.forEach(id => { const f = s.figs[id]; if (f && f.loc === 'board') ring(f.node); });
+    }
   }
   // Figura de referencia para las marcas de ventaja: la seleccionada o la última tocada
   function advRef() {
@@ -1381,7 +1534,8 @@ window.DUEL_CONFIG = {"version": "0.2.0", "feedbackUrl": ""};
       ui.state.figs.filter(f => f.owner === o).sort((a, b) => a.slot - b.slot).forEach(f => {
         const c = D.creatureOf(f);
         const rel = advOf(f);
-        const b = el('button', 'slot ' + f.loc + (ui.sel && ui.sel.fig === f.id ? ' sel' : '') + (rel > 0 ? ' up' : rel < 0 ? ' down' : ''));
+        const guided = ui.guide && canAct() && f.loc === 'bench' && ui.guide.highlights().figs.includes(f.id);
+        const b = el('button', 'slot ' + f.loc + (ui.sel && ui.sel.fig === f.id ? ' sel' : '') + (rel > 0 ? ' up' : rel < 0 ? ' down' : '') + (guided ? ' guide' : ''));
         b.type = 'button';
         b.innerHTML = c.emoji + '<span class="tdot" style="background:' + D.TYPES[c.type].color + '"></span>';
         if (f.loc === 'ko') b.dataset.ko = f.koLeft;
@@ -1409,18 +1563,25 @@ window.DUEL_CONFIG = {"version": "0.2.0", "feedbackUrl": ""};
         const rel = typeRel(D.creatureOf(s.figs[ui.confirm.fig]).type, D.creatureOf(s.figs[ui.confirm.target]).type);
         msg = '¿Atacar a <b>' + esc(D.creatureOf(s.figs[ui.confirm.target]).name) + '</b>? Ganas ' + p(o.win) + ' · empate ' + p(o.tie) + ' · pierdes ' + p(o.lose) +
           (rel > 0 ? '<br>▲ Tienes ventaja de tipo (+10 a tus blancos).' : rel < 0 ? '<br>▼ El rival tiene ventaja de tipo (+10 a sus blancos).' : '');
-        acts = [{ label: 'Volver', onClick: () => { ui.confirm = null; refresh(); } }, { label: 'Atacar', primary: true, onClick: doAttack }];
+        acts = [{ kind: 'back', label: 'Volver', onClick: () => { ui.confirm = null; refresh(); } }, { kind: 'attack', label: 'Atacar', primary: true, onClick: doAttack }];
       } else if (s.awaitAttack !== null) {
         if (s.forcedAttack) msg = '<b>Ataque obligatorio:</b> toca un rival marcado en rojo.';
-        else { msg = 'Puedes atacar: toca un rival marcado en rojo.'; acts = [{ label: 'No atacar', onClick: () => commit({ type: 'end' }) }]; }
+        else { msg = 'Puedes atacar: toca un rival marcado en rojo.'; acts = [{ kind: 'end', label: 'No atacar', onClick: () => commit({ type: 'end' }) }]; }
       } else if (ui.sel) {
-        acts = [{ label: 'Cancelar', onClick: () => { ui.sel = null; ui.msg = ''; refresh(); } }];
+        acts = [{ kind: 'cancel', label: 'Cancelar', onClick: () => { ui.sel = null; ui.msg = ''; refresh(); } }];
         if (!msg) msg = ui.sel.dest.size && ui.sel.targets.length ? 'Toca una casilla verde para moverte o un rival en rojo para atacar sin moverte.'
           : ui.sel.dest.size ? 'Toca una casilla verde.'
           : ui.sel.targets.length ? (D.mustAttack(s) ? '<b>Ninguna figura puede moverse:</b> debes atacar. ' : 'No puede moverse, pero puede atacar. ') + 'Toca un rival en rojo.'
           : 'Esta figura no tiene jugadas. Elige otra.';
       } else if (!msg) msg = D.mustAttack(s) ? '<b>Ninguna figura puede moverse:</b> el ataque es obligatorio. Toca una figura tuya junto a un rival.'
           : 'Tu turno: mueve una figura o ataca con una que tenga un rival al lado.';
+    }
+    // Tutorial: el texto del paso reemplaza al mensaje y solo quedan los botones que sirven al paso
+    if (ui.guide && s.winner === null && !ui.busy && s.current === 0 && ui.guide.step) {
+      const g = ui.guide, st = g.step;
+      msg = '<span class="guide-t">' + esc(st.text) + '</span>' + (ui.confirm ? '<br><span class="guide-odds">' + msg + '</span>' : '');
+      acts = acts.filter(a => a.kind === 'attack' || a.kind === 'back' || (a.kind === 'end' && st.act && st.act.type === 'end'));
+      if (st.info) acts = [{ label: g.isLast ? 'Terminar' : 'Siguiente', primary: true, onClick: guideNext }];
     }
     $('#msg').innerHTML = msg || '';
     setActions(acts);
@@ -1436,7 +1597,7 @@ window.DUEL_CONFIG = {"version": "0.2.0", "feedbackUrl": ""};
     ui.log.length = Math.min(ui.log.length, 80);
   }
   function save() {
-    if (!ui.state) return;
+    if (!ui.state || ui.guide) return;
     if (ui.state.winner !== null) { store.del(); return; }
     store.set({ v: 1, state: ui.state, level: ui.level, team: ui.team, cpuTeam: ui.cpuTeam, log: ui.log.slice(0, 40) });
   }
@@ -1455,16 +1616,30 @@ window.DUEL_CONFIG = {"version": "0.2.0", "feedbackUrl": ""};
     ui.sel = { fig: id, dest, targets };
     P.haptic('tap');
   }
+  // Tutorial: ¿el toque (figura o cruce) es parte del paso actual? Si no, se ignora y se avisa.
+  function guideBlocks(kind, id) {
+    const g = ui.guide; if (!g || g.done || !canAct()) return false;
+    const ok = kind === 'fig' ? g.allowsFig(id) : g.allowsNode(id);
+    if (!ok) nudge();
+    return !ok;
+  }
+  // Tras un toque permitido: si el paso pedía tocar esa figura, se avanza
+  function guideAfterTap(id) { if (ui.guide && ui.sel && ui.sel.fig === id) ui.guide.tapped(id); }
+  function nudge() { const m = $('#msg'); m.classList.remove('nudge'); void m.offsetWidth; m.classList.add('nudge'); }
+
   function slotTapped(id) {
+    if (guideBlocks('fig', id)) return;
     const f = ui.state.figs[id];
     if (canAct() && f.owner === 0 && f.loc === 'bench' && ui.state.awaitAttack === null) {
       if (ui.sel && ui.sel.fig === id) { ui.sel = null; ui.msg = ''; } else selectFig(id);
     } else { ui.info = { fig: id }; }
+    guideAfterTap(id);
     refresh();
   }
   function nodeTapped(n) {
     const s = ui.state; const occ = D.occupancy(s); const fid = occ[n];
     const f = fid !== -1 ? s.figs[fid] : null;
+    if (guideBlocks(f ? 'fig' : 'node', f ? fid : n)) return;
     if (!canAct()) { if (f) { ui.info = { fig: fid }; renderBoard(); renderBenches(); renderFicha(); } return; }
     if (s.awaitAttack !== null) {
       if (f && targetIds().includes(fid)) { ui.confirm = { fig: s.awaitAttack, target: fid, stay: false }; ui.info = { fig: fid }; }
@@ -1476,7 +1651,7 @@ window.DUEL_CONFIG = {"version": "0.2.0", "feedbackUrl": ""};
       if (act) { commit(act); return; }
       if (f && ui.sel.targets.includes(fid)) { ui.confirm = { fig: ui.sel.fig, target: fid, stay: true }; ui.info = { fig: fid }; refresh(); return; }
     }
-    if (f && f.owner === 0) { if (ui.sel && ui.sel.fig === fid) { ui.sel = null; ui.msg = ''; } else selectFig(fid); }
+    if (f && f.owner === 0) { if (ui.sel && ui.sel.fig === fid) { ui.sel = null; ui.msg = ''; } else selectFig(fid); guideAfterTap(fid); }
     else if (f) { ui.info = { fig: fid }; }
     else { ui.sel = null; ui.msg = ''; }
     ui.confirm = null;
@@ -1496,6 +1671,7 @@ window.DUEL_CONFIG = {"version": "0.2.0", "feedbackUrl": ""};
 
   async function commit(act) {
     if (ui.busy) return;
+    if (ui.guide && !ui.guide.allowsAct(act)) { nudge(); return; }
     ui.busy = true; ui.sel = null; ui.confirm = null; ui.msg = '';
     if (act.type === 'enter' || act.type === 'move') await animateMove(act);
     const r = D.applyAction(ui.state, act);
@@ -1509,6 +1685,7 @@ window.DUEL_CONFIG = {"version": "0.2.0", "feedbackUrl": ""};
 
   async function doAttack() {
     const c = ui.confirm; if (!c || ui.busy) return;
+    if (ui.guide && !ui.guide.allowsAct({ type: 'attack', fig: c.fig, target: c.target })) { nudge(); return; }
     ui.confirm = null;
     if (c.stay) ui.state = D.applyAction(ui.state, { type: 'stay', fig: c.fig }).state;
     await runBattle(c.fig, c.target);
@@ -1519,7 +1696,7 @@ window.DUEL_CONFIG = {"version": "0.2.0", "feedbackUrl": ""};
   function runBattle(aId, dId) {
     ui.busy = true; refresh();
     const s = ui.state;
-    const sp = D.spinBattle(s, aId, dId, Math.random);
+    const sp = (ui.guide && ui.guide.takeSpin(s, aId, dId)) || D.spinBattle(s, aId, dId, Math.random);
     const preview = D.resolveBattle(s, aId, dId, sp.ai, sp.di);
     const A = s.figs[aId], Df = s.figs[dId];
     const top = A.owner === 1 ? A : Df, bot = A.owner === 1 ? Df : A;
@@ -1590,6 +1767,9 @@ window.DUEL_CONFIG = {"version": "0.2.0", "feedbackUrl": ""};
     }
   }
 
+  // En el tutorial la CPU sigue el guion de la lección; si no hay guion, juega la IA
+  const cpuPick = s => (ui.guide && ui.guide.cpuAction(s)) || AI.choose(s, ui.level);
+
   async function cpuTurn() {
     ui.busy = true; ui.sel = null; ui.confirm = null;
     const prev = ui.msg;
@@ -1597,7 +1777,7 @@ window.DUEL_CONFIG = {"version": "0.2.0", "feedbackUrl": ""};
     $('#msg').innerHTML = (prev ? prev + '<br>' : '') + 'La CPU está pensando…'; setActions([]);
     await wait(prev ? 900 : 500);
     let t0 = performance.now();
-    let act = AI.choose(ui.state, ui.level);
+    let act = cpuPick(ui.state);
     ui.lastCpuMs = performance.now() - t0;
     let moved = null;
     if (act.type === 'pass') {
@@ -1617,7 +1797,7 @@ window.DUEL_CONFIG = {"version": "0.2.0", "feedbackUrl": ""};
     }
     if (ui.state.awaitAttack !== null && ui.state.current === 1) {
       t0 = performance.now();
-      const a2 = AI.choose(ui.state, ui.level);
+      const a2 = cpuPick(ui.state);
       ui.lastCpuMs += performance.now() - t0;
       if (a2.type === 'attack') {
         const nA = D.creatureOf(ui.state.figs[a2.fig]).name, nT = D.creatureOf(ui.state.figs[a2.target]).name;
@@ -1632,6 +1812,7 @@ window.DUEL_CONFIG = {"version": "0.2.0", "feedbackUrl": ""};
   }
 
   async function gameOver() {
+    if (ui.guide) { finishLesson(); return; } // en el tutorial no se toca la partida guardada
     store.del();
     const s = ui.state;
     const title = s.winner === 0 ? '¡Ganaste!' : s.winner === 1 ? 'Ganó la CPU' : 'Empate';
@@ -1699,13 +1880,69 @@ window.DUEL_CONFIG = {"version": "0.2.0", "feedbackUrl": ""};
       { label: 'Prueba de ruletas', onClick: () => setTimeout(openWheelTest, 0) },
       { label: ui.fast ? 'Animación normal' : 'Animación rápida', onClick: () => { ui.fast = !ui.fast; } },
     ].concat(feedbackUrl ? [{ label: 'Enviar comentarios', onClick: openFeedback }] : []).concat(P.canVibrate ? [{ label: P.vibra ? 'Vibración: sí' : 'Vibración: no', onClick: () => P.setVibra(!P.vibra) }] : []).concat([
-      { label: 'Abandonar partida', danger: true, onClick: () => setTimeout(confirmQuit, 0) },
+      ui.guide ? { label: 'Salir del tutorial', danger: true, onClick: () => setTimeout(requestExitTutorial, 0) }
+        : { label: 'Abandonar partida', danger: true, onClick: () => setTimeout(confirmQuit, 0) },
       { label: 'Seguir jugando', primary: true }
     ]));
   }
   async function confirmQuit() {
     const v = await openModal('¿Abandonar la partida?', '<p>Se pierde la partida en curso y vuelves a elegir equipo.</p>', [{ label: 'Cancelar', value: 'no' }, { label: 'Abandonar', value: 'yes', danger: true }]);
     if (v === 'yes') { store.del(); ui.busy = false; showTeamScreen(); }
+  }
+
+  /* ---------- Tutorial ---------- */
+  function startLesson(L) {
+    ui.guide = TUT.createGuide(L);
+    ui.state = ui.guide.start();
+    ui.log = []; ui.sel = null; ui.info = null; ui.confirm = null; ui.busy = false;
+    $('#scr-team').hidden = true; $('#scr-game').hidden = false;
+    $('#guide-bar').hidden = false;
+    $('#guide-title').textContent = 'Tutorial · ' + L.orden + ' de ' + TUT.LESSONS.length + ': ' + L.titulo;
+    buildBoard(); say(''); afterAction();
+  }
+  function guideNext() {
+    ui.guide.next();
+    if (ui.guide.done) finishLesson(); else refresh();
+  }
+  async function finishLesson() {
+    const L = ui.guide.lesson; ui.busy = true; refresh();
+    const p = TUT.readProgress(P.storage);
+    if (!p.hechas.includes(L.id)) p.hechas.push(L.id);
+    p.ofrecido = true; TUT.writeProgress(P.storage, p);
+    P.haptic('win');
+    const next = TUT.LESSONS[TUT.LESSONS.indexOf(L) + 1];
+    const v = await openModal(next ? '¡Lección completada!' : '¡Terminaste el tutorial!', '<p>' + esc(L.fin) + '</p>',
+      next ? [{ label: 'Salir', value: 'exit' }, { label: 'Siguiente: ' + next.titulo, value: 'next', primary: true }]
+        : [{ label: 'Elegir equipo', value: 'exit', primary: true }]);
+    if (v === 'next') startLesson(next); else exitTutorial();
+  }
+  // Salir a pedido del jugador: no mientras la CPU juega o hay un combate (seguirían sobre otra partida)
+  function requestExitTutorial() { if (ui.busy) { nudge(); return; } exitTutorial(); }
+  function exitTutorial() {
+    ui.guide = null; ui.busy = false; ui.state = null;
+    $('#guide-bar').hidden = true;
+    showTeamScreen();
+  }
+  function openTutorialList() {
+    const p = TUT.readProgress(P.storage);
+    const html = '<p>Lecciones cortas con el tablero de verdad. Puedes salir cuando quieras.</p><div class="lessons">' +
+      TUT.LESSONS.map((L, i) => '<button type="button" class="btn lesson" data-i="' + i + '"><span>' + L.orden + '. ' + esc(L.titulo) + '</span><small>' +
+        (p.hechas.includes(L.id) ? '✓ hecha' : esc(L.duracion)) + '</small></button>').join('') + '</div>';
+    openModal('Tutorial', html, [{ label: 'Cerrar', primary: true }]);
+    document.querySelectorAll('#modal-body .lesson').forEach(b => b.addEventListener('click', () => { closeModal(); startLesson(TUT.LESSONS[+b.dataset.i]); }));
+  }
+  // "Cómo jugar" con acceso al tutorial (no durante el turno de la CPU o un combate)
+  function openRules() {
+    openModal('Cómo jugar', rulesHTML(), (ui.busy ? [] : [{ label: 'Tutorial', onClick: () => setTimeout(openTutorialList, 0) }]).concat([{ label: 'Cerrar', primary: true }]));
+  }
+  // Primera vez que se abre el juego (sin partida guardada): ofrecer el tutorial una sola vez
+  async function offerTutorial() {
+    const p = TUT.readProgress(P.storage);
+    if (p.ofrecido || store.get()) return;
+    p.ofrecido = true; TUT.writeProgress(P.storage, p);
+    const v = await openModal('¿Aprender a jugar?', '<p>' + TUT.LESSONS.length + ' lecciones cortas, unos 6 minutos, con el tablero de verdad. Puedes salir cuando quieras y repetirlas desde «Cómo jugar».</p>',
+      [{ label: 'Saltar', value: 'skip' }, { label: 'Empezar', value: 'go', primary: true }]);
+    if (v === 'go') startLesson(TUT.LESSONS[0]);
   }
 
   /* ---------- Botón "atrás" (Android) ---------- */
@@ -1723,8 +1960,9 @@ window.DUEL_CONFIG = {"version": "0.2.0", "feedbackUrl": ""};
     $('#btn-random').addEventListener('click', () => { ui.team = D.randomBalancedTeam(); renderTeam(); });
     $('#btn-play').addEventListener('click', () => { if (ui.team.length === 6) startGame(ui.team); });
     $('#btn-continue').addEventListener('click', () => { const sv = store.get(); if (sv && sv.state && Array.isArray(sv.state.figs) && sv.state.figs.length === 12 && !D.validate(sv.state).length) resumeGame(sv); else { store.del(); renderTeam(); } });
-    $('#btn-rules-t').addEventListener('click', () => openModal('Cómo jugar', rulesHTML()));
-    $('#btn-rules-g').addEventListener('click', () => openModal('Cómo jugar', rulesHTML()));
+    $('#btn-rules-t').addEventListener('click', openRules);
+    $('#btn-rules-g').addEventListener('click', openRules);
+    $('#btn-guide-exit').addEventListener('click', requestExitTutorial);
     $('#btn-menu').addEventListener('click', openMenu);
     $('#version-t').textContent = 'Versión ' + CFG.version + (feedbackUrl ? ' ·' : '');
     $('#btn-feedback-t').hidden = !feedbackUrl;
@@ -1732,8 +1970,13 @@ window.DUEL_CONFIG = {"version": "0.2.0", "feedbackUrl": ""};
     ui.team = ['tizonaje', 'pulpiza', 'erizarza', 'tejonrock', 'zumbiza', 'musgoso'];
     renderTeam();
     P.hideSplash();
+    offerTutorial();
   }
-  window.DuelUI = { get state() { return ui.state; }, get busy() { return ui.busy; }, setFast(v) { ui.fast = v; } };
+  window.DuelUI = {
+    get state() { return ui.state; }, get busy() { return ui.busy; }, setFast(v) { ui.fast = v; },
+    // solo lectura, para pruebas: lección y paso del tutorial en curso
+    get guide() { return ui.guide && { lesson: ui.guide.lesson.id, step: ui.guide.i, done: ui.guide.done }; }
+  };
   const start = () => P.restore([SAVE_KEY]).then(init);
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
 })();

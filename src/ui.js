@@ -22,12 +22,15 @@
   const ui = {
     level: 'normal', team: [], cpuTeam: [], state: null,
     sel: null, info: null, confirm: null, busy: false, fast: false,
-    lastCpuMs: null, log: [], figEls: new Map(), msg: ''
+    lastCpuMs: null, log: [], figEls: new Map(), msg: '',
+    guide: null // tutorial en curso (DuelTutorial.createGuide) o null
   };
   /* ---------- Versión y comentarios (los inyecta build.py desde package.json y src/config.json) ---------- */
   const CFG = window.DUEL_CONFIG || { version: 'dev', feedbackUrl: '' };
   const feedbackUrl = CFG.feedbackUrl ? CFG.feedbackUrl.split('{version}').join(encodeURIComponent(CFG.version)) : '';
   function openFeedback() { if (feedbackUrl) window.open(feedbackUrl, '_blank', 'noopener'); }
+
+  const TUT = window.DuelTutorial;
 
   // Tablero de la partida en curso (la partida guarda su boardId; ver logic.js)
   const brd = () => D.boardOf(ui.state);
@@ -294,6 +297,12 @@
       for (const [n] of ui.sel.dest) { const N = brd().nodes[n]; hl.appendChild(svgEl('circle', { class: 'hl-go', cx: N.x, cy: N.y, r: 16 })); hl.appendChild(svgEl('circle', { class: 'hl-go-ring', cx: N.x, cy: N.y, r: 19 })); }
     }
     targetIds().forEach(id => { const N = brd().nodes[s.figs[id].node]; hl.appendChild(svgEl('circle', { class: 'hl-hit', cx: N.x, cy: N.y, r: 27 })); });
+    if (ui.guide && canAct()) {
+      const h = ui.guide.highlights();
+      const ring = n => { const N = brd().nodes[n]; hl.appendChild(svgEl('circle', { class: 'hl-guide', cx: N.x, cy: N.y, r: 31 })); };
+      h.nodes.forEach(ring);
+      h.figs.forEach(id => { const f = s.figs[id]; if (f && f.loc === 'board') ring(f.node); });
+    }
   }
   // Figura de referencia para las marcas de ventaja: la seleccionada o la última tocada
   function advRef() {
@@ -323,7 +332,8 @@
       ui.state.figs.filter(f => f.owner === o).sort((a, b) => a.slot - b.slot).forEach(f => {
         const c = D.creatureOf(f);
         const rel = advOf(f);
-        const b = el('button', 'slot ' + f.loc + (ui.sel && ui.sel.fig === f.id ? ' sel' : '') + (rel > 0 ? ' up' : rel < 0 ? ' down' : ''));
+        const guided = ui.guide && canAct() && f.loc === 'bench' && ui.guide.highlights().figs.includes(f.id);
+        const b = el('button', 'slot ' + f.loc + (ui.sel && ui.sel.fig === f.id ? ' sel' : '') + (rel > 0 ? ' up' : rel < 0 ? ' down' : '') + (guided ? ' guide' : ''));
         b.type = 'button';
         b.innerHTML = c.emoji + '<span class="tdot" style="background:' + D.TYPES[c.type].color + '"></span>';
         if (f.loc === 'ko') b.dataset.ko = f.koLeft;
@@ -351,18 +361,25 @@
         const rel = typeRel(D.creatureOf(s.figs[ui.confirm.fig]).type, D.creatureOf(s.figs[ui.confirm.target]).type);
         msg = '¿Atacar a <b>' + esc(D.creatureOf(s.figs[ui.confirm.target]).name) + '</b>? Ganas ' + p(o.win) + ' · empate ' + p(o.tie) + ' · pierdes ' + p(o.lose) +
           (rel > 0 ? '<br>▲ Tienes ventaja de tipo (+10 a tus blancos).' : rel < 0 ? '<br>▼ El rival tiene ventaja de tipo (+10 a sus blancos).' : '');
-        acts = [{ label: 'Volver', onClick: () => { ui.confirm = null; refresh(); } }, { label: 'Atacar', primary: true, onClick: doAttack }];
+        acts = [{ kind: 'back', label: 'Volver', onClick: () => { ui.confirm = null; refresh(); } }, { kind: 'attack', label: 'Atacar', primary: true, onClick: doAttack }];
       } else if (s.awaitAttack !== null) {
         if (s.forcedAttack) msg = '<b>Ataque obligatorio:</b> toca un rival marcado en rojo.';
-        else { msg = 'Puedes atacar: toca un rival marcado en rojo.'; acts = [{ label: 'No atacar', onClick: () => commit({ type: 'end' }) }]; }
+        else { msg = 'Puedes atacar: toca un rival marcado en rojo.'; acts = [{ kind: 'end', label: 'No atacar', onClick: () => commit({ type: 'end' }) }]; }
       } else if (ui.sel) {
-        acts = [{ label: 'Cancelar', onClick: () => { ui.sel = null; ui.msg = ''; refresh(); } }];
+        acts = [{ kind: 'cancel', label: 'Cancelar', onClick: () => { ui.sel = null; ui.msg = ''; refresh(); } }];
         if (!msg) msg = ui.sel.dest.size && ui.sel.targets.length ? 'Toca una casilla verde para moverte o un rival en rojo para atacar sin moverte.'
           : ui.sel.dest.size ? 'Toca una casilla verde.'
           : ui.sel.targets.length ? (D.mustAttack(s) ? '<b>Ninguna figura puede moverse:</b> debes atacar. ' : 'No puede moverse, pero puede atacar. ') + 'Toca un rival en rojo.'
           : 'Esta figura no tiene jugadas. Elige otra.';
       } else if (!msg) msg = D.mustAttack(s) ? '<b>Ninguna figura puede moverse:</b> el ataque es obligatorio. Toca una figura tuya junto a un rival.'
           : 'Tu turno: mueve una figura o ataca con una que tenga un rival al lado.';
+    }
+    // Tutorial: el texto del paso reemplaza al mensaje y solo quedan los botones que sirven al paso
+    if (ui.guide && s.winner === null && !ui.busy && s.current === 0 && ui.guide.step) {
+      const g = ui.guide, st = g.step;
+      msg = '<span class="guide-t">' + esc(st.text) + '</span>' + (ui.confirm ? '<br><span class="guide-odds">' + msg + '</span>' : '');
+      acts = acts.filter(a => a.kind === 'attack' || a.kind === 'back' || (a.kind === 'end' && st.act && st.act.type === 'end'));
+      if (st.info) acts = [{ label: g.isLast ? 'Terminar' : 'Siguiente', primary: true, onClick: guideNext }];
     }
     $('#msg').innerHTML = msg || '';
     setActions(acts);
@@ -378,7 +395,7 @@
     ui.log.length = Math.min(ui.log.length, 80);
   }
   function save() {
-    if (!ui.state) return;
+    if (!ui.state || ui.guide) return;
     if (ui.state.winner !== null) { store.del(); return; }
     store.set({ v: 1, state: ui.state, level: ui.level, team: ui.team, cpuTeam: ui.cpuTeam, log: ui.log.slice(0, 40) });
   }
@@ -397,16 +414,30 @@
     ui.sel = { fig: id, dest, targets };
     P.haptic('tap');
   }
+  // Tutorial: ¿el toque (figura o cruce) es parte del paso actual? Si no, se ignora y se avisa.
+  function guideBlocks(kind, id) {
+    const g = ui.guide; if (!g || g.done || !canAct()) return false;
+    const ok = kind === 'fig' ? g.allowsFig(id) : g.allowsNode(id);
+    if (!ok) nudge();
+    return !ok;
+  }
+  // Tras un toque permitido: si el paso pedía tocar esa figura, se avanza
+  function guideAfterTap(id) { if (ui.guide && ui.sel && ui.sel.fig === id) ui.guide.tapped(id); }
+  function nudge() { const m = $('#msg'); m.classList.remove('nudge'); void m.offsetWidth; m.classList.add('nudge'); }
+
   function slotTapped(id) {
+    if (guideBlocks('fig', id)) return;
     const f = ui.state.figs[id];
     if (canAct() && f.owner === 0 && f.loc === 'bench' && ui.state.awaitAttack === null) {
       if (ui.sel && ui.sel.fig === id) { ui.sel = null; ui.msg = ''; } else selectFig(id);
     } else { ui.info = { fig: id }; }
+    guideAfterTap(id);
     refresh();
   }
   function nodeTapped(n) {
     const s = ui.state; const occ = D.occupancy(s); const fid = occ[n];
     const f = fid !== -1 ? s.figs[fid] : null;
+    if (guideBlocks(f ? 'fig' : 'node', f ? fid : n)) return;
     if (!canAct()) { if (f) { ui.info = { fig: fid }; renderBoard(); renderBenches(); renderFicha(); } return; }
     if (s.awaitAttack !== null) {
       if (f && targetIds().includes(fid)) { ui.confirm = { fig: s.awaitAttack, target: fid, stay: false }; ui.info = { fig: fid }; }
@@ -418,7 +449,7 @@
       if (act) { commit(act); return; }
       if (f && ui.sel.targets.includes(fid)) { ui.confirm = { fig: ui.sel.fig, target: fid, stay: true }; ui.info = { fig: fid }; refresh(); return; }
     }
-    if (f && f.owner === 0) { if (ui.sel && ui.sel.fig === fid) { ui.sel = null; ui.msg = ''; } else selectFig(fid); }
+    if (f && f.owner === 0) { if (ui.sel && ui.sel.fig === fid) { ui.sel = null; ui.msg = ''; } else selectFig(fid); guideAfterTap(fid); }
     else if (f) { ui.info = { fig: fid }; }
     else { ui.sel = null; ui.msg = ''; }
     ui.confirm = null;
@@ -438,6 +469,7 @@
 
   async function commit(act) {
     if (ui.busy) return;
+    if (ui.guide && !ui.guide.allowsAct(act)) { nudge(); return; }
     ui.busy = true; ui.sel = null; ui.confirm = null; ui.msg = '';
     if (act.type === 'enter' || act.type === 'move') await animateMove(act);
     const r = D.applyAction(ui.state, act);
@@ -451,6 +483,7 @@
 
   async function doAttack() {
     const c = ui.confirm; if (!c || ui.busy) return;
+    if (ui.guide && !ui.guide.allowsAct({ type: 'attack', fig: c.fig, target: c.target })) { nudge(); return; }
     ui.confirm = null;
     if (c.stay) ui.state = D.applyAction(ui.state, { type: 'stay', fig: c.fig }).state;
     await runBattle(c.fig, c.target);
@@ -461,7 +494,7 @@
   function runBattle(aId, dId) {
     ui.busy = true; refresh();
     const s = ui.state;
-    const sp = D.spinBattle(s, aId, dId, Math.random);
+    const sp = (ui.guide && ui.guide.takeSpin(s, aId, dId)) || D.spinBattle(s, aId, dId, Math.random);
     const preview = D.resolveBattle(s, aId, dId, sp.ai, sp.di);
     const A = s.figs[aId], Df = s.figs[dId];
     const top = A.owner === 1 ? A : Df, bot = A.owner === 1 ? Df : A;
@@ -532,6 +565,9 @@
     }
   }
 
+  // En el tutorial la CPU sigue el guion de la lección; si no hay guion, juega la IA
+  const cpuPick = s => (ui.guide && ui.guide.cpuAction(s)) || AI.choose(s, ui.level);
+
   async function cpuTurn() {
     ui.busy = true; ui.sel = null; ui.confirm = null;
     const prev = ui.msg;
@@ -539,7 +575,7 @@
     $('#msg').innerHTML = (prev ? prev + '<br>' : '') + 'La CPU está pensando…'; setActions([]);
     await wait(prev ? 900 : 500);
     let t0 = performance.now();
-    let act = AI.choose(ui.state, ui.level);
+    let act = cpuPick(ui.state);
     ui.lastCpuMs = performance.now() - t0;
     let moved = null;
     if (act.type === 'pass') {
@@ -559,7 +595,7 @@
     }
     if (ui.state.awaitAttack !== null && ui.state.current === 1) {
       t0 = performance.now();
-      const a2 = AI.choose(ui.state, ui.level);
+      const a2 = cpuPick(ui.state);
       ui.lastCpuMs += performance.now() - t0;
       if (a2.type === 'attack') {
         const nA = D.creatureOf(ui.state.figs[a2.fig]).name, nT = D.creatureOf(ui.state.figs[a2.target]).name;
@@ -574,6 +610,7 @@
   }
 
   async function gameOver() {
+    if (ui.guide) { finishLesson(); return; } // en el tutorial no se toca la partida guardada
     store.del();
     const s = ui.state;
     const title = s.winner === 0 ? '¡Ganaste!' : s.winner === 1 ? 'Ganó la CPU' : 'Empate';
@@ -641,13 +678,69 @@
       { label: 'Prueba de ruletas', onClick: () => setTimeout(openWheelTest, 0) },
       { label: ui.fast ? 'Animación normal' : 'Animación rápida', onClick: () => { ui.fast = !ui.fast; } },
     ].concat(feedbackUrl ? [{ label: 'Enviar comentarios', onClick: openFeedback }] : []).concat(P.canVibrate ? [{ label: P.vibra ? 'Vibración: sí' : 'Vibración: no', onClick: () => P.setVibra(!P.vibra) }] : []).concat([
-      { label: 'Abandonar partida', danger: true, onClick: () => setTimeout(confirmQuit, 0) },
+      ui.guide ? { label: 'Salir del tutorial', danger: true, onClick: () => setTimeout(requestExitTutorial, 0) }
+        : { label: 'Abandonar partida', danger: true, onClick: () => setTimeout(confirmQuit, 0) },
       { label: 'Seguir jugando', primary: true }
     ]));
   }
   async function confirmQuit() {
     const v = await openModal('¿Abandonar la partida?', '<p>Se pierde la partida en curso y vuelves a elegir equipo.</p>', [{ label: 'Cancelar', value: 'no' }, { label: 'Abandonar', value: 'yes', danger: true }]);
     if (v === 'yes') { store.del(); ui.busy = false; showTeamScreen(); }
+  }
+
+  /* ---------- Tutorial ---------- */
+  function startLesson(L) {
+    ui.guide = TUT.createGuide(L);
+    ui.state = ui.guide.start();
+    ui.log = []; ui.sel = null; ui.info = null; ui.confirm = null; ui.busy = false;
+    $('#scr-team').hidden = true; $('#scr-game').hidden = false;
+    $('#guide-bar').hidden = false;
+    $('#guide-title').textContent = 'Tutorial · ' + L.orden + ' de ' + TUT.LESSONS.length + ': ' + L.titulo;
+    buildBoard(); say(''); afterAction();
+  }
+  function guideNext() {
+    ui.guide.next();
+    if (ui.guide.done) finishLesson(); else refresh();
+  }
+  async function finishLesson() {
+    const L = ui.guide.lesson; ui.busy = true; refresh();
+    const p = TUT.readProgress(P.storage);
+    if (!p.hechas.includes(L.id)) p.hechas.push(L.id);
+    p.ofrecido = true; TUT.writeProgress(P.storage, p);
+    P.haptic('win');
+    const next = TUT.LESSONS[TUT.LESSONS.indexOf(L) + 1];
+    const v = await openModal(next ? '¡Lección completada!' : '¡Terminaste el tutorial!', '<p>' + esc(L.fin) + '</p>',
+      next ? [{ label: 'Salir', value: 'exit' }, { label: 'Siguiente: ' + next.titulo, value: 'next', primary: true }]
+        : [{ label: 'Elegir equipo', value: 'exit', primary: true }]);
+    if (v === 'next') startLesson(next); else exitTutorial();
+  }
+  // Salir a pedido del jugador: no mientras la CPU juega o hay un combate (seguirían sobre otra partida)
+  function requestExitTutorial() { if (ui.busy) { nudge(); return; } exitTutorial(); }
+  function exitTutorial() {
+    ui.guide = null; ui.busy = false; ui.state = null;
+    $('#guide-bar').hidden = true;
+    showTeamScreen();
+  }
+  function openTutorialList() {
+    const p = TUT.readProgress(P.storage);
+    const html = '<p>Lecciones cortas con el tablero de verdad. Puedes salir cuando quieras.</p><div class="lessons">' +
+      TUT.LESSONS.map((L, i) => '<button type="button" class="btn lesson" data-i="' + i + '"><span>' + L.orden + '. ' + esc(L.titulo) + '</span><small>' +
+        (p.hechas.includes(L.id) ? '✓ hecha' : esc(L.duracion)) + '</small></button>').join('') + '</div>';
+    openModal('Tutorial', html, [{ label: 'Cerrar', primary: true }]);
+    document.querySelectorAll('#modal-body .lesson').forEach(b => b.addEventListener('click', () => { closeModal(); startLesson(TUT.LESSONS[+b.dataset.i]); }));
+  }
+  // "Cómo jugar" con acceso al tutorial (no durante el turno de la CPU o un combate)
+  function openRules() {
+    openModal('Cómo jugar', rulesHTML(), (ui.busy ? [] : [{ label: 'Tutorial', onClick: () => setTimeout(openTutorialList, 0) }]).concat([{ label: 'Cerrar', primary: true }]));
+  }
+  // Primera vez que se abre el juego (sin partida guardada): ofrecer el tutorial una sola vez
+  async function offerTutorial() {
+    const p = TUT.readProgress(P.storage);
+    if (p.ofrecido || store.get()) return;
+    p.ofrecido = true; TUT.writeProgress(P.storage, p);
+    const v = await openModal('¿Aprender a jugar?', '<p>' + TUT.LESSONS.length + ' lecciones cortas, unos 6 minutos, con el tablero de verdad. Puedes salir cuando quieras y repetirlas desde «Cómo jugar».</p>',
+      [{ label: 'Saltar', value: 'skip' }, { label: 'Empezar', value: 'go', primary: true }]);
+    if (v === 'go') startLesson(TUT.LESSONS[0]);
   }
 
   /* ---------- Botón "atrás" (Android) ---------- */
@@ -665,8 +758,9 @@
     $('#btn-random').addEventListener('click', () => { ui.team = D.randomBalancedTeam(); renderTeam(); });
     $('#btn-play').addEventListener('click', () => { if (ui.team.length === 6) startGame(ui.team); });
     $('#btn-continue').addEventListener('click', () => { const sv = store.get(); if (sv && sv.state && Array.isArray(sv.state.figs) && sv.state.figs.length === 12 && !D.validate(sv.state).length) resumeGame(sv); else { store.del(); renderTeam(); } });
-    $('#btn-rules-t').addEventListener('click', () => openModal('Cómo jugar', rulesHTML()));
-    $('#btn-rules-g').addEventListener('click', () => openModal('Cómo jugar', rulesHTML()));
+    $('#btn-rules-t').addEventListener('click', openRules);
+    $('#btn-rules-g').addEventListener('click', openRules);
+    $('#btn-guide-exit').addEventListener('click', requestExitTutorial);
     $('#btn-menu').addEventListener('click', openMenu);
     $('#version-t').textContent = 'Versión ' + CFG.version + (feedbackUrl ? ' ·' : '');
     $('#btn-feedback-t').hidden = !feedbackUrl;
@@ -674,8 +768,13 @@
     ui.team = ['tizonaje', 'pulpiza', 'erizarza', 'tejonrock', 'zumbiza', 'musgoso'];
     renderTeam();
     P.hideSplash();
+    offerTutorial();
   }
-  window.DuelUI = { get state() { return ui.state; }, get busy() { return ui.busy; }, setFast(v) { ui.fast = v; } };
+  window.DuelUI = {
+    get state() { return ui.state; }, get busy() { return ui.busy; }, setFast(v) { ui.fast = v; },
+    // solo lectura, para pruebas: lección y paso del tutorial en curso
+    get guide() { return ui.guide && { lesson: ui.guide.lesson.id, step: ui.guide.i, done: ui.guide.done }; }
+  };
   const start = () => P.restore([SAVE_KEY]).then(init);
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
 })();

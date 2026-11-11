@@ -39,9 +39,9 @@ def config_js():
 
 
 def data_js():
-    """window.DUEL_DATA con data/boards/*.json y data/duels/*.json (la web no tiene servidor: van dentro del HTML)."""
+    """window.DUEL_DATA con data/boards, data/duels y data/tutorial (*.json) (la web no tiene servidor: van dentro del HTML)."""
     datos = {}
-    for carpeta in ('boards', 'duels'):
+    for carpeta in ('boards', 'duels', 'tutorial'):
         datos[carpeta] = {}
         for f in sorted((RAIZ / 'data' / carpeta).glob('*.json')):
             j = json.loads(f.read_text(encoding='utf-8'))
@@ -77,7 +77,7 @@ def main():
 
     s = leer('shell.html')
     for marca, contenido in [('/*FONTS*/', fonts_css), ('/*CSS*/', leer('style.css')), ('/*DATA*/', data_js()),
-                             ('/*LOGIC*/', leer('logic.js')), ('/*AI*/', leer('ai.js')),
+                             ('/*LOGIC*/', leer('logic.js')), ('/*AI*/', leer('ai.js')), ('/*TUTORIAL*/', leer('tutorial.js')),
                              ('<!--CAPACITOR-->\n', capacitor + '\n' if capacitor else ''),
                              ('/*CONFIG*/', config_js()),
                              ('/*PLATFORM*/', leer('platform.js')), ('/*UI*/', leer('ui.js'))]:
