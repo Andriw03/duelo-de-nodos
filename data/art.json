@@ -1,0 +1,65 @@
+{
+  "_formato": "id de criatura -> archivos en art/web (los genera scripts/procesar-arte.py). build.py incrusta token y ficha-web.",
+  "criaturas": {
+    "tizonaje": {
+      "token": "art/web/tizonaje-token.webp",
+      "ficha": "art/web/tizonaje-ficha.webp",
+      "ficha-web": "art/web/tizonaje-ficha-web.webp"
+    },
+    "magmuz": {
+      "token": "art/web/magmuz-token.webp",
+      "ficha": "art/web/magmuz-ficha.webp",
+      "ficha-web": "art/web/magmuz-ficha-web.webp"
+    },
+    "pavorasa": {
+      "token": "art/web/pavorasa-token.webp",
+      "ficha": "art/web/pavorasa-ficha.webp",
+      "ficha-web": "art/web/pavorasa-ficha-web.webp"
+    },
+    "pulpiza": {
+      "token": "art/web/pulpiza-token.webp",
+      "ficha": "art/web/pulpiza-ficha.webp",
+      "ficha-web": "art/web/pulpiza-ficha-web.webp"
+    },
+    "cetamar": {
+      "token": "art/web/cetamar-token.webp",
+      "ficha": "art/web/cetamar-ficha.webp",
+      "ficha-web": "art/web/cetamar-ficha-web.webp"
+    },
+    "lodocaiman": {
+      "token": "art/web/lodocaiman-token.webp",
+      "ficha": "art/web/lodocaiman-ficha.webp",
+      "ficha-web": "art/web/lodocaiman-ficha-web.webp"
+    },
+    "erizarza": {
+      "token": "art/web/erizarza-token.webp",
+      "ficha": "art/web/erizarza-ficha.webp",
+      "ficha-web": "art/web/erizarza-ficha-web.webp"
+    },
+    "musgoso": {
+      "token": "art/web/musgoso-token.webp",
+      "ficha": "art/web/musgoso-ficha.webp",
+      "ficha-web": "art/web/musgoso-ficha-web.webp"
+    },
+    "tejonrock": {
+      "token": "art/web/tejonrock-token.webp",
+      "ficha": "art/web/tejonrock-ficha.webp",
+      "ficha-web": "art/web/tejonrock-ficha-web.webp"
+    },
+    "corazamba": {
+      "token": "art/web/corazamba-token.webp",
+      "ficha": "art/web/corazamba-ficha.webp",
+      "ficha-web": "art/web/corazamba-ficha-web.webp"
+    },
+    "zumbiza": {
+      "token": "art/web/zumbiza-token.webp",
+      "ficha": "art/web/zumbiza-ficha.webp",
+      "ficha-web": "art/web/zumbiza-ficha-web.webp"
+    },
+    "chispabuho": {
+      "token": "art/web/chispabuho-token.webp",
+      "ficha": "art/web/chispabuho-ficha.webp",
+      "ficha-web": "art/web/chispabuho-ficha-web.webp"
+    }
+  }
+}

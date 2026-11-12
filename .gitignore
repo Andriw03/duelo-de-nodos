@@ -10,3 +10,9 @@ android/app/build/
 
 # APK y AAB generados (npm run apk)
 dist/
+
+# Arte fuente (PNG/JPG grandes con fondo magenta): se guarda fuera del repo.
+# Solo se versiona lo procesado en art/web/ (scripts/procesar-arte.py).
+art/source/
+# Hoja de revisión grande (se regenera con scripts/procesar-arte.py)
+art/web/hoja.png
