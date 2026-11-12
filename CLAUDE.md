@@ -143,7 +143,7 @@ Rama `capacitor-android` (en GitHub). App probada en emulador: toque, splash, zo
 - Verificado: `npm test` (huella intacta y 5 lecciones), las 5 jugadas en el navegador con clics, toque equivocado bloqueado, salir a mitad sin tocar la partida guardada, teléfono 375 px sin scroll horizontal.
 - Falta (Andrés): probar con 2–3 personas que no conozcan el juego y anotar dónde se traban.
 
-## Arte de criaturas e íconos: terminado 2026-11-11, rama `arte-criaturas` (sin publicar)
+## Arte de criaturas e íconos: terminado 2026-11-11, rama `arte-criaturas`, publicado como 0.4.0
 - 12 criaturas procesadas (3 venían en JPG: `magmuz`, `tejonrock`, `tizonaje`; recortan bien). Recorte por color conectado al borde + huecos casi idénticos al fondo; la flor de Erizarza se conserva.
 - Peso del HTML: 183 KB → 575 KB (arte 287 KB en WebP, 384 KB en base64). Ficha web a 256 px y calidad 74 para quedar bajo el tope de 600 KB.
 - Verificado: `npm test` idéntico; en el navegador a 375 px sin scroll horizontal; figuras de 38×38 px en el tablero (prueba de 40 px); íconos de estado en tablero y ficha; patrones distinguibles en escala de grises; respaldo con emoji si una imagen falla.
