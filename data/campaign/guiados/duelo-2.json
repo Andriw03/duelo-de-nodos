@@ -1,0 +1,24 @@
+{
+  "id": "duelo-2",
+  "orden": 2,
+  "titulo": "Duelo 2: Teo",
+  "_texto": "Textos del 'Pasos guiados' del guion (Duelo 2). Figuras: jugador 0 Tizonaje (Fuego); Teo 1 Erizarza (Planta). Tu morado envenena a Erizarza; cuando Teo ataca, gana tu blanco y Erizarza cae al remiendo.",
+  "board": "clasico",
+  "player": ["tizonaje"],
+  "rival": ["erizarza"],
+  "first": 0,
+  "setup": [{ "fig": 0, "node": 18 }, { "fig": 1, "node": 14 }],
+  "steps": [
+    { "paso": 1, "tap": { "fig": 0 } },
+    { "paso": 1, "act": { "type": "attack", "fig": 0, "target": 1 }, "spin": { "ai": 2, "di": 4, "outcome": "status", "winner": 0 } },
+    { "paso": 2, "info": true },
+    { "paso": 3, "info": true },
+    { "paso": 4, "info": true },
+    { "paso": 5, "info": true }
+  ],
+  "cpu": [
+    { "type": "stay", "fig": 1 },
+    { "type": "attack", "fig": 1, "target": 0, "spin": { "ai": 4, "di": 0, "outcome": "ko", "winner": 0 } }
+  ],
+  "fin": ""
+}

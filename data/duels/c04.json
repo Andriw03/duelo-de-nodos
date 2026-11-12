@@ -1,0 +1,12 @@
+{
+  "id": "c04",
+  "nombre": "Madre Lino (campaña, duelo 4, jefa)",
+  "_equipo": "Equipo rival propuesto por Claude (linaje Planta). Revisar.",
+  "_pendiente": "Regla de tablero 'Hebras enredadas' (docs/biblia.md, Jefes): se agrega en la Fase 4.",
+  "board": "clasico",
+  "player": { "team": "campaign" },
+  "rival": { "team": ["musgoso", "erizarza", "musgoso", "erizarza", "musgoso", "erizarza"] },
+  "ai": "normal",
+  "rules": [],
+  "victory": { "type": "goal", "turnLimit": 300 }
+}

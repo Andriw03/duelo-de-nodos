@@ -1,0 +1,11 @@
+{
+  "id": "c03",
+  "nombre": "Sira, hiladora (campaña, duelo 3)",
+  "_equipo": "Equipo rival propuesto por Claude (linaje Planta, biblia: control de entradas, veneno y sueño). Revisar.",
+  "board": "clasico",
+  "player": { "team": "campaign" },
+  "rival": { "team": ["erizarza", "musgoso", "erizarza", "musgoso", "erizarza", "erizarza"] },
+  "ai": "facil",
+  "rules": [],
+  "victory": { "type": "goal", "turnLimit": 300 }
+}

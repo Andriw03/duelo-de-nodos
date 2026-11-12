@@ -1,0 +1,49 @@
+{
+  "_formato": "Capítulos y duelos en orden (desbloqueo lineal). antes/despues: escenas de data/campaign/escenas.json; reintento: escena si se pierde (jefes). guiado: duelo guiado de data/campaign/guiados; duelo: configuración de data/duels. recompensa.figuras se suman a las disponibles. fondos: escena -> art/web/fondos/<id>.webp (si falta, el del capítulo). expresiones: escena -> { personaje: expresión }.",
+  "capitulos": [
+    { "id": "prologo", "titulo": "Prólogo: Hebra", "fondo": "hebra" },
+    { "id": "arco-1", "titulo": "Arco 1: Neolítico", "linaje": "planta", "fondo": "neolitico" },
+    { "id": "arco-2", "titulo": "Arco 2: Edad Antigua", "linaje": "tierra" },
+    { "id": "arco-3", "titulo": "Arco 3: Edad Media", "linaje": "rayo" },
+    { "id": "arco-4", "titulo": "Arco 4: Edad Moderna", "linaje": "agua" },
+    { "id": "arco-5", "titulo": "Arco 5: Edad Contemporánea", "linaje": "fuego" },
+    { "id": "final", "titulo": "Final: Taller de Tarjetas" }
+  ],
+  "duelos": [
+    { "id": "d01", "num": 1, "capitulo": "prologo", "rival": "maru", "titulo": "Maru", "subtitulo": "Tutorial guiado",
+      "antes": ["escena-0", "escena-0b", "duelo-1-antes"], "guiado": "duelo-1", "despues": ["duelo-1-despues"],
+      "recompensa": { "figuras": ["tizonaje", "magmuz", "pavorasa"], "texto": "Equipo inicial de Fuego" } },
+    { "id": "d02", "num": 2, "capitulo": "prologo", "rival": "teo", "titulo": "Teo, vecino de Hebra", "subtitulo": "Combate y estados",
+      "antes": ["duelo-2-antes"], "guiado": "duelo-2", "despues": ["duelo-2-despues"],
+      "recompensa": { "figuras": ["zumbiza"], "texto": "Primera figura de reserva" } },
+    { "id": "d03", "num": 3, "capitulo": "arco-1", "rival": "sira", "titulo": "Sira, hiladora",
+      "antes": ["escena-1", "escena-2", "duelo-3-antes"], "duelo": "c03", "despues": ["duelo-3-despues"],
+      "recompensa": { "figuras": ["erizarza", "musgoso"], "texto": "Figuras de Planta" } },
+    { "id": "d04", "num": 4, "capitulo": "arco-1", "rival": "madre-lino", "titulo": "Madre Lino", "jefe": true,
+      "antes": ["escena-3"], "duelo": "c04", "despues": ["duelo-4-despues"], "reintento": "duelo-4-reintento",
+      "recompensa": { "sello": "lino", "texto": "Sello de Lino" },
+      "aviso": "Su regla de tablero, Hebras enredadas, llega en la Fase 4: por ahora se juega sin ella." },
+    { "id": "d05", "num": 5, "capitulo": "arco-2", "rival": "nuri", "titulo": "Nuri, aprendiz de pesas", "disponible": false },
+    { "id": "d06", "num": 6, "capitulo": "arco-2", "rival": "senora-de-las-pesas", "titulo": "Señora de las Pesas", "jefe": true, "disponible": false },
+    { "id": "d07", "num": 7, "capitulo": "arco-3", "rival": "gerda", "titulo": "Gerda, mercader de la feria", "disponible": false },
+    { "id": "d08", "num": 8, "capitulo": "arco-3", "rival": "maese-pedal", "titulo": "Maese Pedal", "jefe": true, "disponible": false },
+    { "id": "d09", "num": 9, "capitulo": "arco-4", "rival": "lucio", "titulo": "Lucio, grumete del puerto", "disponible": false },
+    { "id": "d10", "num": 10, "capitulo": "arco-4", "rival": "capitan-lanzadera", "titulo": "Capitán Lanzadera", "jefe": true, "disponible": false },
+    { "id": "d11", "num": 11, "capitulo": "arco-5", "rival": "nolan", "titulo": "Nolan, fogonero", "disponible": false },
+    { "id": "d12", "num": 12, "capitulo": "arco-5", "rival": "dama-caldera", "titulo": "Dama Caldera", "jefe": true, "disponible": false },
+    { "id": "d13", "num": 13, "capitulo": "final", "rival": "kael", "titulo": "Kael", "disponible": false },
+    { "id": "d14", "num": 14, "capitulo": "final", "rival": "orsolo-venn", "titulo": "Orsolo Venn, el Patrón", "jefe": true, "disponible": false }
+  ],
+  "fondos": {
+    "escena-3": "neolitico-granero", "duelo-4-reintento": "neolitico-granero", "duelo-4-despues": "neolitico-granero"
+  },
+  "expresiones": {
+    "escena-0b": { "tamsin": "neutral" },
+    "duelo-1-despues": { "maru": "riendo" },
+    "duelo-2-despues": { "teo": "derrotado" },
+    "duelo-3-despues": { "sira": "sonriendo" },
+    "duelo-4-despues": { "madre-lino": "satisfecha", "jugador": "determinada" },
+    "escena-2": { "jugador": "curiosa" },
+    "escena-3": { "jugador": "curiosa" }
+  }
+}

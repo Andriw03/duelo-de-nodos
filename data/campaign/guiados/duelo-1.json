@@ -1,0 +1,29 @@
+{
+  "id": "duelo-1",
+  "orden": 1,
+  "titulo": "Duelo 1: Maru",
+  "_texto": "Cada paso usa el texto del 'Pasos guiados' del guion (campo paso = número del paso en docs/guion.md, Duelo 1). Figuras: jugador 0 Zumbiza, 1 Corazamba; Maru 2 Corazamba.",
+  "board": "clasico",
+  "player": ["zumbiza", "corazamba"],
+  "rival": ["corazamba"],
+  "first": 0,
+  "setup": [],
+  "steps": [
+    { "paso": 1, "tap": { "fig": 0 } },
+    { "paso": 1, "act": { "type": "enter", "fig": 0, "to": 24 } },
+    { "paso": 2, "tap": { "fig": 0 } },
+    { "paso": 2, "act": { "type": "move", "fig": 0, "to": 17 } },
+    { "paso": 3, "info": true },
+    { "paso": 4, "info": true },
+    { "paso": 5, "tap": { "fig": 0 } },
+    { "paso": 5, "act": { "type": "move", "fig": 0, "to": 6 } },
+    { "paso": 5, "tap": { "fig": 0 } },
+    { "paso": 5, "act": { "type": "move", "fig": 0, "to": 2 } }
+  ],
+  "cpu": [
+    { "type": "enter", "fig": 2, "to": 4 },
+    { "type": "move", "fig": 2, "to": 7 },
+    { "type": "move", "fig": 2, "to": 12 }
+  ],
+  "fin": ""
+}
