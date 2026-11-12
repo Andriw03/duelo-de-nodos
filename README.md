@@ -15,6 +15,7 @@ Juego de estrategia por turnos para celular, contra la CPU. Tablero de 29 nodos,
 - `android/`: proyecto nativo generado por Capacitor (se versiona). `capacitor.config.json`: configuración de la app.
 - `test/`: simulaciones CPU contra CPU en node.
 - `scripts/apk.js`: genera el APK de prueba.
+- `scripts/procesar-arte.py`: procesa el arte de las criaturas (ver abajo). `art/web/`: arte listo para el juego. `data/art.json`: qué archivo usa cada criatura.
 
 ## Web
 ```bash
@@ -27,6 +28,15 @@ npm test                # las cuatro pruebas de abajo; correr después de tocar 
 - `node test/tutorial.js`: recorre las 5 lecciones con el motor; falla si una jugada del guion es ilegal o una lección no se puede terminar.
 
 Se publica fusionando en `main`: GitHub Pages sirve `index.html` (puede tardar unos 10 minutos en verse por la caché).
+
+### Arte de las criaturas
+1. Guardar cada criatura en `art/source/<id>.png` (o `.jpg`), con fondo magenta `#FF00FF` plano; `id` es el de `src/logic.js` (por ejemplo `tejonrock`). `art/source/` no se sube al repo: guarda una copia aparte.
+2. Procesar (solo necesita Pillow):
+```bash
+python scripts/procesar-arte.py
+```
+   Quita el fondo, recorta y genera en `art/web/` el token (128 px), la ficha (512 px) y la ficha web (256 px) en WebP, más `prueba-40.png` (las criaturas a 40 px, como se ven en el tablero) y `hoja.png` (para revisar bordes y estilo). Escribe `data/art.json` e informa el peso de cada archivo.
+3. `python build.py`: incrusta el token y la ficha web en el HTML e informa el peso (tope 600 KB). Si una criatura no tiene arte, se ve su emoji.
 
 ### Versión y comentarios
 - La versión visible en el juego (pantalla de equipo y menú) sale de `"version"` en `package.json`. Subirla en cada publicación.

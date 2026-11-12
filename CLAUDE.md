@@ -20,6 +20,9 @@ Juego de estrategia por turnos para celular, contra la CPU. Es web (un HTML gene
 - `src/ui.js`, `src/style.css`, `src/shell.html`: interfaz. `shell.html` tiene los marcadores `/*FONTS*/`, `/*CSS*/`, `/*LOGIC*/`, `/*AI*/`, `<!--CAPACITOR-->`, `/*CONFIG*/`, `/*PLATFORM*/`, `/*UI*/`.
 - `/*CONFIG*/` → `window.DUEL_CONFIG = {version, feedbackUrl}`: la versión sale de `package.json` (única fuente) y `feedbackUrl` de `src/config.json` (`{version}` dentro del link se reemplaza; solo `https://`; vacío = sin botón de comentarios).
 - `src/platform.js`: **única capa que conoce Capacitor** (`window.Platform`): guardado con respaldo nativo, vibración, botón atrás, splash, minimizar. En la web cae a `localStorage` y no hace nada nuevo. `ui.js` solo habla con `Platform`, nunca con Capacitor.
+- Arte de criaturas: `art/source/<id>.png|jpg` (fondo magenta, **no se versiona**) → `scripts/procesar-arte.py` (Pillow) → `art/web/<id>-token.webp` (128), `<id>-ficha.webp` (512, no va al HTML), `<id>-ficha-web.webp` (256) + `prueba-40.png` + `hoja.png` (ignorada) y `data/art.json`. `build.py` incrusta token y ficha-web como `window.DUEL_ART` (marcador `/*ART*/`) y avisa si el HTML pasa de 600 KB. Ni `logic.js` ni los tests leen `data/art.json`. En `ui.js`, `creatureImg(c, 'token'|'ficha')` y `<image>` en el tablero; si falta el arte o la imagen falla, vuelve el emoji.
+- Íconos propios en SVG (`<symbol>` en `shell.html`): estados `st-poison`, `st-para`, `st-sleep`, `st-freeze` (reemplazan ☠ ϟ z ❄; el campo `icon` de `logic.js` ya no se usa en la interfaz) y tipos `ty-fuego`… `ty-agua`. Se usan con `icon(id)` en `ui.js`.
+- Patrones de segmento (accesibilidad): rojo rayas, dorado puntos, morado cuadrícula, azul ondas, blanco liso; en el canvas (`segPattern`) y en las leyendas (`.sq.seg-<t>` en `style.css`).
 - `src/fonts.css` + `src/fonts/`: Lilita One y Nunito (woff2, subconjunto latino, OFL). Nunito es variable (un archivo, pesos 200–1000).
 - `build.py`: une `src/` en un HTML. **`index.html` es el build que publica GitHub Pages: no se edita a mano.**
   - `python3 build.py` → `index.html` con fuentes en base64 (archivo único, funciona sin conexión).
@@ -139,6 +142,12 @@ Rama `capacitor-android` (en GitHub). App probada en emulador: toque, splash, zo
 - Se ofrece una vez al abrir el juego sin partida guardada; se repite desde "Cómo jugar" → "Tutorial" (no durante el turno de la CPU). "Salir" siempre visible (no durante animaciones).
 - Verificado: `npm test` (huella intacta y 5 lecciones), las 5 jugadas en el navegador con clics, toque equivocado bloqueado, salir a mitad sin tocar la partida guardada, teléfono 375 px sin scroll horizontal.
 - Falta (Andrés): probar con 2–3 personas que no conozcan el juego y anotar dónde se traban.
+
+## Arte de criaturas e íconos: terminado 2026-11-11, rama `arte-criaturas` (sin publicar)
+- 12 criaturas procesadas (3 venían en JPG: `magmuz`, `tejonrock`, `tizonaje`; recortan bien). Recorte por color conectado al borde + huecos casi idénticos al fondo; la flor de Erizarza se conserva.
+- Peso del HTML: 183 KB → 575 KB (arte 287 KB en WebP, 384 KB en base64). Ficha web a 256 px y calidad 74 para quedar bajo el tope de 600 KB.
+- Verificado: `npm test` idéntico; en el navegador a 375 px sin scroll horizontal; figuras de 38×38 px en el tablero (prueba de 40 px); íconos de estado en tablero y ficha; patrones distinguibles en escala de grises; respaldo con emoji si una imagen falla.
+- Pendiente (Andrés): revisar `art/web/prueba-40.png` y `hoja.png`. Los retratos (`ari-*.png`) van en `art/retratos/`, no en `art/source/` (el script los ignora con aviso).
 
 ## Siguiente: Fase 3 de `ROADMAP.md` (estructura de campaña)
 La biblia y el guion ya están en `docs/`. Pendiente de la 0b: link del formulario, prueba en iPhone y testers.
