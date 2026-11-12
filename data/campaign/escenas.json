@@ -1,0 +1,1996 @@
+{
+ "_fuente": "Generado desde docs/guion.md por scripts/guion-a-escenas.py. No editar a mano: corregir el guion y volver a generar.",
+ "escenas": {
+  "escena-0": {
+   "titulo": "El telar apagado",
+   "capitulo": "Prólogo: Hebra (duelos 1 y 2)",
+   "lineas": [
+    {
+     "quien": "narracion",
+     "nombre": "Narración",
+     "texto": "Hace tres semanas el telar de Hebra dejó de responder. Esta mañana se deshilachó otro hilo."
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "Anoche pasé la lanzadera tres veces. Nada. Ni un tirón."
+    },
+    {
+     "quien": "maru",
+     "nombre": "Maru",
+     "texto": "Revisé poleas, pesas y peine. Todo está en orden. El telar no está roto: está callado.",
+     "accion": "saliendo de debajo del bastidor, con grasa en la nariz"
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "Los telares no se quedan callados."
+    },
+    {
+     "quien": "maru",
+     "nombre": "Maru",
+     "texto": "Este sí. Y el de la panadera también, y el de la plaza. Hebra fue la primera en apagarse, y no creo que sea la última."
+    },
+    {
+     "quien": "teo",
+     "nombre": "Teo",
+     "texto": "¡Buenos días! ¿Alguien arregló el telar? No, ya veo. Qué caras de lunes.",
+     "accion": "asomándose por la ventana"
+    },
+    {
+     "quien": "teo",
+     "nombre": "Teo",
+     "texto": "Dicen que en la ciudad un señor vende telares que nunca fallan. Con tarjetas, parece."
+    },
+    {
+     "quien": "maru",
+     "nombre": "Maru",
+     "texto": "Dicen muchas cosas. Cuando algo promete no fallar nunca, yo desconfío."
+    },
+    {
+     "quien": "tamsin",
+     "nombre": "Tamsin",
+     "texto": "Desconfiar está bien, Maru. Pero también hay que mirar.",
+     "accion": "desde la puerta, apoyada en su bastón"
+    },
+    {
+     "quien": "tamsin",
+     "nombre": "Tamsin",
+     "texto": "{jugador}, ven. Hay algo que debi enseñarte hace años."
+    }
+   ],
+   "escenario": "Amanecer en Hebra. El telar del taller cuelga quieto y los hilos van perdiendo color."
+  },
+  "escena-0b": {
+   "titulo": "El Gran Telar",
+   "capitulo": "Prólogo: Hebra (duelos 1 y 2)",
+   "lineas": [
+    {
+     "quien": "tamsin",
+     "nombre": "Tamsin",
+     "texto": "Este telar no es el único. Hay otro, muy grande, que no tiene dueño. Teje las épocas del mundo: cada época es una tela y cada duelo, un cruce de hilos."
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "¿Duelo? ¿Como los juegos de tablero de la plaza?"
+    },
+    {
+     "quien": "tamsin",
+     "nombre": "Tamsin",
+     "texto": "Parecidos. Cuando dos Tejedores se desafían con respeto, el Telar se tensa y aparece el tablero. Hoy esos duelos ya casi no se juegan, y por eso las telas se aflojan."
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "¿Y lo de hace veinte años? Mi mamá decía que algo se rasgó."
+    },
+    {
+     "quien": "tamsin",
+     "nombre": "Tamsin",
+     "texto": "Un duelo sin respeto. Desde entonces las épocas se deshilachan. Hebra solo fue la primera en notarlo.",
+     "accion": "tras una pausa"
+    },
+    {
+     "quien": "tamsin",
+     "nombre": "Tamsin",
+     "texto": "Este carrete guarda un hilo del principio. Si lo sigues, llegarás a las épocas donde el Telar se debilita. Pero antes debes saber jugar."
+    },
+    {
+     "quien": "maru",
+     "nombre": "Maru",
+     "texto": "O sea que me toca enseñar. Perfecto. Siempre quise ser maestra de algo que no sea tuercas.",
+     "accion": "cruzándose de brazos"
+    }
+   ],
+   "escenario": "El fondo del taller. Tamsin abre un cofre largo y saca un carrete de hilo pardo."
+  },
+  "duelo-1": {
+   "titulo": "Maru (tutorial guiado)",
+   "capitulo": "Prólogo: Hebra (duelos 1 y 2)",
+   "lineas": [],
+   "recompensa": "equipo inicial de Fuego."
+  },
+  "duelo-1-antes": {
+   "titulo": "Maru (tutorial guiado)",
+   "capitulo": "Prólogo: Hebra (duelos 1 y 2)",
+   "lineas": [
+    {
+     "quien": "maru",
+     "nombre": "Maru",
+     "texto": "Regla uno: el tablero es el telar. Tiene 29 cruces donde se encuentran urdimbre y trama. Los de los extremos son los rodillos: el tuyo y el mío."
+    },
+    {
+     "quien": "maru",
+     "nombre": "Maru",
+     "texto": "Gana quien llegue al rodillo del otro. Así de simple. Lo difícil es el camino."
+    },
+    {
+     "quien": "maru",
+     "nombre": "Maru",
+     "texto": "Empecemos por lo básico. Tendrás que meter una figura por un lizó, que es una entrada junto a tu rodillo."
+    }
+   ]
+  },
+  "duelo-1-pasos": {
+   "titulo": "Maru (tutorial guiado)",
+   "capitulo": "Prólogo: Hebra (duelos 1 y 2)",
+   "lineas": [],
+   "pasos": [
+    {
+     "titulo": "Entrar",
+     "texto": "Toca uno de tus lizos y coloca tu primera figura. Al meterla no avanza más: queda en la entrada."
+    },
+    {
+     "titulo": "Moverse",
+     "texto": "Ahora tócala y elige un cruce libre hacia el rodillo rival. Cada paso es un movimiento."
+    },
+    {
+     "titulo": "El camino corto",
+     "texto": "El carril central es la calada: el camino más corto, pero el más expuesto."
+    },
+    {
+     "titulo": "Acción obligatoria",
+     "texto": "En tu turno no puedes pasar: debes entrar, moverte o atacar. Si ninguna figura puede moverse, el ataque es obligatorio."
+    },
+    {
+     "titulo": "Ganar",
+     "texto": "Lleva una figura hasta el rodillo de Maru para cortar su tejido."
+    }
+   ]
+  },
+  "duelo-1-despues": {
+   "titulo": "Maru (tutorial guiado)",
+   "capitulo": "Prólogo: Hebra (duelos 1 y 2)",
+   "lineas": [
+    {
+     "quien": "maru",
+     "nombre": "Maru",
+     "texto": "Mira nomás. Aprendiste en cinco minutos lo que a mí me costó una semana.",
+     "accion": "viendo cómo su figura llega al borde"
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "Tuve una buena maestra."
+    },
+    {
+     "quien": "maru",
+     "nombre": "Maru",
+     "texto": "No exageres. Falta lo bueno: pelear.",
+     "accion": "sonrojada"
+    },
+    {
+     "quien": "tamsin",
+     "nombre": "Tamsin",
+     "texto": "Antes, esto es para ti. *(le entrega un estuche de seis figuras de Fuego)* Mi equipo de cuando era aprendiz. Fuego es rápido y de golpe alto. Úsalo bien."
+    }
+   ]
+  },
+  "duelo-2": {
+   "titulo": "Teo, vecino de Hebra (combate y estados)",
+   "capitulo": "Prólogo: Hebra (duelos 1 y 2)",
+   "lineas": [],
+   "recompensa": "primera figura de reserva."
+  },
+  "duelo-2-antes": {
+   "titulo": "Teo, vecino de Hebra (combate y estados)",
+   "capitulo": "Prólogo: Hebra (duelos 1 y 2)",
+   "lineas": [
+    {
+     "quien": "teo",
+     "nombre": "Teo",
+     "texto": "¿Duelo? ¡Yo! Siempre quise probar. No tenías otro rival, ¿verdad? Perdón por ser el único libre."
+    },
+    {
+     "quien": "maru",
+     "nombre": "Maru",
+     "texto": "Teo no sabe jugar, pero juega con ganas. Aprovecha para aprender el combate.",
+     "accion": "a {jugador}"
+    },
+    {
+     "quien": "teo",
+     "nombre": "Teo",
+     "texto": "¡Eso! ¿Cómo se pelea?"
+    }
+   ]
+  },
+  "duelo-2-pasos": {
+   "titulo": "Teo, vecino de Hebra (combate y estados)",
+   "capitulo": "Prólogo: Hebra (duelos 1 y 2)",
+   "lineas": [],
+   "pasos": [
+    {
+     "titulo": "Atacar",
+     "texto": "Toca tu figura y elige atacar. Cada ataque gira la ruleta."
+    },
+    {
+     "titulo": "La ruleta",
+     "texto": "Los colores deciden el golpe. El azul anula el combate contra cualquier color. Después, de mayor a menor: dorado, morado, blanco, rojo."
+    },
+    {
+     "titulo": "Los tipos",
+     "texto": "La franja de arriba muestra el ciclo: Fuego vence a Planta, Planta a Tierra, Tierra a Rayo, Rayo a Agua y Agua a Fuego. Al tocar una figura, los rivales marcan ▲ si ella tiene ventaja y ▼ si la tiene el rival."
+    },
+    {
+     "titulo": "Estados",
+     "texto": "Si gana un morado, el rival recibe un estado: veneno o parálisis duran 3 turnos suyos, sueño 2 y congelación 3. Sueño y congelación se rompen al ser atacados."
+    },
+    {
+     "titulo": "El remiendo",
+     "texto": "Si gana blanco o dorado, la figura rival cae al remiendo y pierde 2 de sus turnos."
+    }
+   ]
+  },
+  "duelo-2-despues": {
+   "titulo": "Teo, vecino de Hebra (combate y estados)",
+   "capitulo": "Prólogo: Hebra (duelos 1 y 2)",
+   "lineas": [
+    {
+     "quien": "teo",
+     "nombre": "Teo",
+     "texto": "¿Eso era el remiendo? Me quedo remendado y tranquilo. ¿Se puede repetir?",
+     "accion": "mirando su figura en el remiendo"
+    },
+    {
+     "quien": "maru",
+     "nombre": "Maru",
+     "texto": "Después. Hay cosas más importantes que tus derrotas, Teo."
+    },
+    {
+     "quien": "teo",
+     "nombre": "Teo",
+     "texto": "Toma, es de la reserva de mi abuelo. Dijo que algún día serviría. Hoy parece buen día.",
+     "accion": "entregándole una figura pequeña"
+    },
+    {
+     "quien": "tamsin",
+     "nombre": "Tamsin",
+     "texto": "{jugador}, el hilo empieza en la época más antigua que el Telar recuerda. Allí estará la primera tela.",
+     "accion": "desenrollando el carrete en el suelo"
+    },
+    {
+     "quien": "maru",
+     "nombre": "Maru",
+     "texto": "Ve tranquilo. Yo me quedo con el telar de Hebra. Si encuentro algo, te aviso."
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "Volveré con el hilo.",
+     "accion": "tomando el carrete"
+    }
+   ]
+  },
+  "escena-1": {
+   "titulo": "La primera tela",
+   "capitulo": "Arco 1: Neolítico, Planta (duelos 3 y 4)",
+   "lineas": [
+    {
+     "quien": "narracion",
+     "nombre": "Narración",
+     "texto": "El hilo del carrete termina en un campo de lino en flor. Nadie parece sorprendido de ver a un forastero."
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "Es más pequeño que el de Hebra. Y no tiene marco.",
+     "accion": "mirando el telar de cintura de una anciana"
+    },
+    {
+     "quien": "anciana",
+     "nombre": "Anciana",
+     "texto": "El marco somos nosotros. Tú tensas con el cuerpo y el telar obedece. Si respiras mal, el tejido sale chueco."
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "¿Y si el telar deja de obedecer?"
+    },
+    {
+     "quien": "anciana",
+     "nombre": "Anciana",
+     "texto": "Entonces alguien dejó de escuchar. Vas bien encaminado, forastero: aquí todo se arregla escuchando."
+    }
+   ],
+   "escenario": "Un campo abierto junto a una aldea de casas bajas. Mujeres y hombres tejen sentados, con el telar atado a la cintura y a un poste."
+  },
+  "escena-2": {
+   "titulo": "Kael",
+   "capitulo": "Arco 1: Neolítico, Planta (duelos 3 y 4)",
+   "lineas": [
+    {
+     "quien": "kael",
+     "nombre": "Kael",
+     "texto": "¡Gracias, buena gente! Una muestra de cada color, como pidió el Taller. Sus hilos serán parte de algo grande."
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "¿El Taller?"
+    },
+    {
+     "quien": "kael",
+     "nombre": "Kael",
+     "texto": "Taller de Tarjetas. Soy Kael, aprendiz de Orsolo Venn. Tú traes un carrete del Gran Telar, ¿verdad? Lo huelo de lejos.",
+     "accion": "girándose, sorprendido y complacido"
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "¿Para qué recoges hilos?"
+    },
+    {
+     "quien": "kael",
+     "nombre": "Kael",
+     "texto": "Para que ninguna tela se vuelva a deshilachar. El Patrón tiene un plan. Cuando acabe, nadie tendrá que arreglar nada."
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "Eso suena bien. Demasiado bien."
+    },
+    {
+     "quien": "kael",
+     "nombre": "Kael",
+     "texto": "Siempre dicen eso los que no han visto una tarjeta funcionando. Nos veremos de nuevo, {jugador} de Hebra. Quizá para entonces ya hayas cambiado de opinión.",
+     "accion": "sonriendo"
+    },
+    {
+     "quien": "narracion",
+     "nombre": "Narración",
+     "texto": "",
+     "accion": "Kael se aleja con prisa. {jugador} nunca le dijo su nombre."
+    }
+   ],
+   "escenario": "A un lado del sendero, un joven de abrigo gris recoge madejas de varias casas y las guarda en una caja de madera con ranuras."
+  },
+  "duelo-3": {
+   "titulo": "Sira, hiladora",
+   "capitulo": "Arco 1: Neolítico, Planta (duelos 3 y 4)",
+   "lineas": [],
+   "recompensa": "figuras de Planta."
+  },
+  "duelo-3-antes": {
+   "titulo": "Sira, hiladora",
+   "capitulo": "Arco 1: Neolítico, Planta (duelos 3 y 4)",
+   "lineas": [
+    {
+     "quien": "sira",
+     "nombre": "Sira",
+     "texto": "¿Eres el forastero que busca a Madre Lino? Para llegar a ella hay que cruzar los campos, y los campos tienen guardianes. Hoy me toca a mí.",
+     "accion": "sentada junto a un huso que gira solo, de puro hábito"
+    },
+    {
+     "quien": "sira",
+     "nombre": "Sira",
+     "texto": "No es un castigo. Quien no sabe esperar un duelo, no sabe esperar un tejido."
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "opciones": [
+      {
+       "texto": "¿Si gano, me dejas pasar?",
+       "respuesta": {
+        "quien": "sira",
+        "nombre": "Sira",
+        "texto": "Si ganas, te dejo pasar y te regalo mis mejores hilos."
+       }
+      },
+      {
+       "texto": "Te gano rápido.",
+       "respuesta": {
+        "quien": "sira",
+        "nombre": "Sira",
+        "texto": "Ay, qué prisa. Aquí la prisa se paga con nudos."
+       }
+      }
+     ]
+    },
+    {
+     "quien": "sira",
+     "nombre": "Sira",
+     "texto": "Mi equipo es de Planta. Quema bien con Fuego, así que ya sabes por qué te dejaron ese estuche."
+    }
+   ]
+  },
+  "duelo-3-despues": {
+   "titulo": "Sira, hiladora",
+   "capitulo": "Arco 1: Neolítico, Planta (duelos 3 y 4)",
+   "lineas": [
+    {
+     "quien": "sira",
+     "nombre": "Sira",
+     "texto": "Pasaste el campo en menos de lo que tarda el lino en secarse. Eso no siempre es bueno, pero hoy sí.",
+     "accion": "soltando una risa"
+    },
+    {
+     "quien": "sira",
+     "nombre": "Sira",
+     "texto": "Toma estas figuras. Son de Planta; hoy te vencen con Fuego, pero el ciclo gira y mañana les tocará vencer a otros."
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "¿A quién?"
+    },
+    {
+     "quien": "sira",
+     "nombre": "Sira",
+     "texto": "A lo que está debajo de nosotros. Ya lo verás.",
+     "accion": "señalando el suelo"
+    }
+   ]
+  },
+  "escena-3": {
+   "titulo": "Madre Lino",
+   "capitulo": "Arco 1: Neolítico, Planta (duelos 3 y 4)",
+   "lineas": [
+    {
+     "quien": "madre-lino",
+     "nombre": "Madre Lino",
+     "texto": "Bienvenido, hijo del carrete. Llevo esperando a alguien que escuche."
+    },
+    {
+     "quien": "madre-lino",
+     "nombre": "Madre Lino",
+     "texto": "Esta es la primera tela. Guarda el primer hilo del Gran Telar. Lo cuido desde hace tantas lunas que ya no las cuento."
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "Un joven de gris pasó por aquí pidiendo muestras. ¿Le diste el primer hilo?"
+    },
+    {
+     "quien": "madre-lino",
+     "nombre": "Madre Lino",
+     "texto": "No. Le di lino y paciencia. Se llevó solo el lino."
+    },
+    {
+     "quien": "madre-lino",
+     "nombre": "Madre Lino",
+     "texto": "Quieres el Sello de Lino. Es mi manera de saber si alguien aprendió a esperar. Lo demás se decide en el tablero."
+    },
+    {
+     "quien": "madre-lino",
+     "nombre": "Madre Lino",
+     "texto": "Te aviso de mi regla: cuatro cruces del borde están enredados. Quien termine su acción en uno quedará quieto hasta su siguiente turno. Podrá atacar, pero no moverse."
+    },
+    {
+     "quien": "madre-lino",
+     "nombre": "Madre Lino",
+     "texto": "Mi abuela decía que un nudo viejo se suelta con calor. Te lo cuento porque a ti te sobra."
+    }
+   ],
+   "escenario": "Un granero alto. En el centro, un telar enorme que no se mueve: sus hilos están enredados en nudos tan viejos como la tela."
+  },
+  "duelo-4": {
+   "titulo": "Madre Lino (jefa)",
+   "capitulo": "Arco 1: Neolítico, Planta (duelos 3 y 4)",
+   "lineas": [],
+   "nota": "Regla de tablero: Hebras enredadas. Antes y después se muestran tal cual; durante el duelo no hay diálogo.",
+   "recompensa": "Sello de Lino."
+  },
+  "duelo-4-reintento": {
+   "titulo": "Madre Lino (jefa)",
+   "capitulo": "Arco 1: Neolítico, Planta (duelos 3 y 4)",
+   "lineas": [
+    {
+     "quien": "madre-lino",
+     "nombre": "Madre Lino",
+     "texto": "Los nudos no se pelean, hijo. Se entienden. Respira y vuelve a empezar."
+    }
+   ]
+  },
+  "duelo-4-despues": {
+   "titulo": "Madre Lino (jefa)",
+   "capitulo": "Arco 1: Neolítico, Planta (duelos 3 y 4)",
+   "lineas": [
+    {
+     "quien": "madre-lino",
+     "nombre": "Madre Lino",
+     "texto": "Esperaste. Y cuando llegaba el momento, no dudaste. Es todo lo que pido.",
+     "accion": "sonriendo, mientras un nudo se afloja solo"
+    },
+    {
+     "quien": "madre-lino",
+     "nombre": "Madre Lino",
+     "texto": "Aquí está el Sello de Lino. Es pequeño, pero pesa más de lo que parece."
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "¿Y el primer hilo?"
+    },
+    {
+     "quien": "madre-lino",
+     "nombre": "Madre Lino",
+     "texto": "Sigue aquí. Mientras alguien lo cuide, el Telar tiene cimiento. El joven de gris volverá; los que prometen no fallar siempre vuelven."
+    },
+    {
+     "quien": "madre-lino",
+     "nombre": "Madre Lino",
+     "texto": "La siguiente tela está donde la tierra se hace piedra. Allí los hilos pesan y el trabajo se hace en comunidad. Ve despacio, hijo."
+    },
+    {
+     "quien": "narracion",
+     "nombre": "Narración",
+     "texto": "",
+     "accion": "El carrete tiembla y tira hacia un nuevo hilo."
+    }
+   ]
+  },
+  "escena-4": {
+   "titulo": "La ciudad de los talleres",
+   "capitulo": "Arco 2: Edad Antigua, Tierra (duelos 5 y 6)",
+   "lineas": [
+    {
+     "quien": "narracion",
+     "nombre": "Narración",
+     "texto": "El carrete deja a {jugador} a las puertas de una ciudad ruidosa. Aquí nadie teje solo: cada telar tiene tres o cuatro manos."
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "¿Para qué son esas piedras que cuelgan?"
+    },
+    {
+     "quien": "tejedora",
+     "nombre": "Tejedora",
+     "texto": "Son pesas. Mantienen la urdimbre firme mientras trabajamos. Sin pesas, el hilo se enreda y se afloja."
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "Entonces sostienen la tela entera."
+    },
+    {
+     "quien": "tejedora",
+     "nombre": "Tejedora",
+     "texto": "Y la tela sostiene la casa. Aquí todo se mide con peso."
+    }
+   ],
+   "escenario": "Calles de piedra y adobe con talleres abiertos a la calle. En cada puerta cuelga un telar vertical; de los hilos de la urdimbre pende una hilera de pesas de arcilla."
+  },
+  "escena-5": {
+   "titulo": "Las marcas",
+   "capitulo": "Arco 2: Edad Antigua, Tierra (duelos 5 y 6)",
+   "lineas": [
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "¿Kael? ¿Qué haces aquí?"
+    },
+    {
+     "quien": "kael",
+     "nombre": "Kael",
+     "texto": "Estas marcas son del Taller. Las conozco. Pero este muro es mucho más viejo que el Taller.",
+     "accion": "sin girarse"
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "¿Quién las puso?"
+    },
+    {
+     "quien": "kael",
+     "nombre": "Kael",
+     "texto": "No lo sé. El Patrón dijo que su plan empezaba en nuestra época. Si ya había marcas aquí, o alguien se nos adelantó, o el plan es mucho más antiguo de lo que me contó."
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "Puedes preguntarle."
+    },
+    {
+     "quien": "kael",
+     "nombre": "Kael",
+     "texto": "Lo haré. Después. *(se aleja)* No me sigas, {jugador}.",
+     "accion": "tras un silencio"
+    }
+   ],
+   "escenario": "En un muro del callejón, bajo el hollín, hay una hilera de pequeñas perforaciones en línea, como los agujeros de una tarjeta. Kael las está mirando."
+  },
+  "duelo-5": {
+   "titulo": "Nuri, aprendiz de pesas",
+   "capitulo": "Arco 2: Edad Antigua, Tierra (duelos 5 y 6)",
+   "lineas": [],
+   "recompensa": "figuras de Tierra."
+  },
+  "duelo-5-antes": {
+   "titulo": "Nuri, aprendiz de pesas",
+   "capitulo": "Arco 2: Edad Antigua, Tierra (duelos 5 y 6)",
+   "lineas": [
+    {
+     "quien": "nuri",
+     "nombre": "Nuri",
+     "texto": "¿Tú eres el forastero del carrete? Dicen que traes Fuego y que quemas hasta el barro.",
+     "accion": "trepando a un banco para verte mejor"
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "Solo si me dejan."
+    },
+    {
+     "quien": "nuri",
+     "nombre": "Nuri",
+     "texto": "Aquí nada se quema fácil, forastero. Mi equipo es de Tierra: firme, lento y terco. Vence a Rayo, pero cede ante Planta."
+    },
+    {
+     "quien": "nuri",
+     "nombre": "Nuri",
+     "texto": "Esas te sirven contra mí... si sabes usarlas.",
+     "accion": "señalando tus figuras de Planta"
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "opciones": [
+      {
+       "texto": "Sé usarlas.",
+       "respuesta": {
+        "quien": "nuri",
+        "nombre": "Nuri",
+        "texto": "Eso dicen todos hasta que pierden un turno."
+       }
+      },
+      {
+       "texto": "Enseñame cómo se hace aquí.",
+       "respuesta": {
+        "quien": "nuri",
+        "nombre": "Nuri",
+        "texto": "Eso me gusta. Empecemos."
+       }
+      }
+     ]
+    }
+   ]
+  },
+  "duelo-5-despues": {
+   "titulo": "Nuri, aprendiz de pesas",
+   "capitulo": "Arco 2: Edad Antigua, Tierra (duelos 5 y 6)",
+   "lineas": [
+    {
+     "quien": "nuri",
+     "nombre": "Nuri",
+     "texto": "Perdí, pero fue limpio. Mi maestra dice que se aprende más de un duelo perdido que de diez ganados.",
+     "accion": "cruzándose de brazos, sin enojo"
+    },
+    {
+     "quien": "nuri",
+     "nombre": "Nuri",
+     "texto": "Toma, son figuras de Tierra. Son lentas, pero cuando te plantan delante, no pasa nadie."
+    },
+    {
+     "quien": "nuri",
+     "nombre": "Nuri",
+     "texto": "Mi maestra te espera en la sala de las pesas. Un consejo: no la subestimes por su edad."
+    }
+   ]
+  },
+  "escena-6": {
+   "titulo": "La Señora de las Pesas",
+   "capitulo": "Arco 2: Edad Antigua, Tierra (duelos 5 y 6)",
+   "lineas": [
+    {
+     "quien": "senora-de-las-pesas",
+     "nombre": "Señora de las Pesas",
+     "texto": "Entra, forastero. No hagas ruido: las pesas oyen."
+    },
+    {
+     "quien": "senora-de-las-pesas",
+     "nombre": "Señora de las Pesas",
+     "texto": "Ya conocí al joven de gris. Preguntó por las marcas. Le dije que los muros recuerdan lo que los hombres olvidan."
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "¿Sabe quién las puso?"
+    },
+    {
+     "quien": "senora-de-las-pesas",
+     "nombre": "Señora de las Pesas",
+     "texto": "Alguien que tuvo prisa. Los que tienen prisa ponen marcas; los que tienen paciencia ponen cimientos."
+    },
+    {
+     "quien": "senora-de-las-pesas",
+     "nombre": "Señora de las Pesas",
+     "texto": "Te explico mi regla. Cada seis turnos cae una pesa y bloquea un cruce libre de la calada, hasta dos a la vez. Ese camino directo que tanto te gusta, no dura para siempre."
+    },
+    {
+     "quien": "senora-de-las-pesas",
+     "nombre": "Señora de las Pesas",
+     "texto": "Los lizos de entrada nunca se bloquean. Eso es justicia, no regalo."
+    },
+    {
+     "quien": "senora-de-las-pesas",
+     "nombre": "Señora de las Pesas",
+     "texto": "Aprovecha pronto la calada o aprende a rodear con tus lizos. Yo tengo todo el día."
+    }
+   ],
+   "escenario": "Una sala larga y fresca. Decenas de pesas cuelgan del techo, cada una atada a un hilo. En el centro, de pie junto a un telar enorme, una mujer de mirada serena."
+  },
+  "duelo-6": {
+   "titulo": "Señora de las Pesas (jefa)",
+   "capitulo": "Arco 2: Edad Antigua, Tierra (duelos 5 y 6)",
+   "lineas": [],
+   "recompensa": "Sello de Pesa."
+  },
+  "duelo-6-reintento": {
+   "titulo": "Señora de las Pesas (jefa)",
+   "capitulo": "Arco 2: Edad Antigua, Tierra (duelos 5 y 6)",
+   "lineas": [
+    {
+     "quien": "senora-de-las-pesas",
+     "nombre": "Señora de las Pesas",
+     "texto": "Una pesa no cae por maldad: cae porque pesa. Mira dónde estará antes de que llegue."
+    }
+   ]
+  },
+  "duelo-6-despues": {
+   "titulo": "Señora de las Pesas (jefa)",
+   "capitulo": "Arco 2: Edad Antigua, Tierra (duelos 5 y 6)",
+   "lineas": [
+    {
+     "quien": "senora-de-las-pesas",
+     "nombre": "Señora de las Pesas",
+     "texto": "Constancia. No te apuraste y tampoco te detuviste. Ese es el equilibrio que busco.",
+     "accion": "dejando que una pesa baje despacio hasta el suelo"
+    },
+    {
+     "quien": "senora-de-las-pesas",
+     "nombre": "Señora de las Pesas",
+     "texto": "Toma el Sello de Pesa. Hoy no cuelga de ningún hilo, así que llévalo con cuidado."
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "Las marcas del muro..."
+    },
+    {
+     "quien": "senora-de-las-pesas",
+     "nombre": "Señora de las Pesas",
+     "texto": "Siguen ahí, y habrá más a tu paso. Alguien quiere que todo esté escrito de antemano. Pero un muro marcado no es un muro decidido."
+    },
+    {
+     "quien": "senora-de-las-pesas",
+     "nombre": "Señora de las Pesas",
+     "texto": "Sigue el hilo. La tela que viene es rápida, tanto que a veces corre sin mirar."
+    }
+   ]
+  },
+  "interludio-2": {
+   "titulo": "Interludio en Hebra (tras el Arco 2)",
+   "capitulo": "Arco 2: Edad Antigua, Tierra (duelos 5 y 6)",
+   "lineas": [
+    {
+     "quien": "maru",
+     "nombre": "Maru",
+     "texto": "¡{jugador}! Anoche el telar hizo un ruido. Solo uno, como un suspiro. Pero hizo un ruido.",
+     "accion": "corriendo hacia él"
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "¿Significa que funciona?"
+    },
+    {
+     "quien": "maru",
+     "nombre": "Maru",
+     "texto": "Significa que se está acordando. Dos épocas arregladas, y ya respira."
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "Tengo dos sellos. Lino y Pesa."
+    },
+    {
+     "quien": "maru",
+     "nombre": "Maru",
+     "texto": "Qué lindos. Pesan menos de lo que pensaba.",
+     "accion": "mirándolos de cerca"
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "¿Dónde está Tamsin?"
+    },
+    {
+     "quien": "maru",
+     "nombre": "Maru",
+     "texto": "En su cuarto. Pregunté por el Desgarro y cambió de tema. Cuatro veces."
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "Lo averiguaremos. Hoy parto de nuevo.",
+     "accion": "mirando la puerta cerrada"
+    }
+   ],
+   "escenario": "El carrete devuelve a {jugador} al taller. La luz es distinta: más fría, más lenta."
+  },
+  "escena-7": {
+   "titulo": "La feria",
+   "capitulo": "Arco 3: Edad Media, Rayo (duelos 7 y 8)",
+   "lineas": [
+    {
+     "quien": "narracion",
+     "nombre": "Narración",
+     "texto": "La tela siguiente corre rápido. Aquí los hilos llegan de lejos y se van más lejos todavía."
+    },
+    {
+     "quien": "pregonero",
+     "nombre": "Pregonero",
+     "texto": "¡Seda de tierras lejanas, lana del norte, tintes que no destiñan! ¡Quien sepa tejer, que se anote en el gremio!"
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "Hay mucha gente. Parece que nadie se detiene."
+    },
+    {
+     "quien": "mercader",
+     "nombre": "Mercader",
+     "texto": "Detenerse es perder. Aquí el tiempo se compra y se vende. Si te sobra, véndelo."
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "Entonces tengo algo que vender: una pregunta."
+    },
+    {
+     "quien": "mercader",
+     "nombre": "Mercader",
+     "texto": "Esas son las más caras."
+    }
+   ],
+   "escenario": "Una plaza de mercado en día de feria. Toldos de colores, carros con fardos de tela, puestos de tintes y un pregonero que no para de gritar. Al fondo, un gran edificio de madera con el emblema de un pedal."
+  },
+  "escena-8": {
+   "titulo": "Kael en el gremio",
+   "capitulo": "Arco 3: Edad Media, Rayo (duelos 7 y 8)",
+   "lineas": [
+    {
+     "quien": "kael",
+     "nombre": "Kael",
+     "texto": "Hablaba con un maestro. Quieren los patrones del gremio, todos, para guardarlos en tarjetas. Dicen que no. Y creo que tienen razón."
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "¿Tú piensas eso?"
+    },
+    {
+     "quien": "kael",
+     "nombre": "Kael",
+     "texto": "Pregunté al Patrón por las marcas del muro de la época anterior. Me dijo que eran pruebas. *(frunce el ceño)* Las pruebas no se hacen en muros de hace siglos."
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "Entonces ven conmigo. No tienes que defender nada."
+    },
+    {
+     "quien": "kael",
+     "nombre": "Kael",
+     "texto": "Todavía no. Antes necesito entender qué está construyendo. Si me equivoco contigo, te lo diré de frente.",
+     "accion": "negando con la cabeza"
+    }
+   ],
+   "escenario": "Frente al edificio del gremio, Kael discute en voz baja con un hombre de delantal. Al ver a {jugador}, se aparta."
+  },
+  "duelo-7": {
+   "titulo": "Gerda, mercader de la feria",
+   "capitulo": "Arco 3: Edad Media, Rayo (duelos 7 y 8)",
+   "lineas": [],
+   "recompensa": "figuras de Rayo."
+  },
+  "duelo-7-antes": {
+   "titulo": "Gerda, mercader de la feria",
+   "capitulo": "Arco 3: Edad Media, Rayo (duelos 7 y 8)",
+   "lineas": [
+    {
+     "quien": "gerda",
+     "nombre": "Gerda",
+     "texto": "Un duelo. Quince minutos, tres rondas, y me dices si te conviene. Mi equipo es de Rayo. Rápido, nervioso, y vence a Agua. Cede ante Tierra.",
+     "accion": "sin dejar de contar monedas"
+    },
+    {
+     "quien": "gerda",
+     "nombre": "Gerda",
+     "texto": "Tus figuras de Tierra son buenas contra mí, forastero. Qué casualidad que las tengas."
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "No es casualidad."
+    },
+    {
+     "quien": "gerda",
+     "nombre": "Gerda",
+     "texto": "Nada lo es en una feria. Todo se prepara con tiempo. Empecemos.",
+     "accion": "sonriendo"
+    }
+   ]
+  },
+  "duelo-7-despues": {
+   "titulo": "Gerda, mercader de la feria",
+   "capitulo": "Arco 3: Edad Media, Rayo (duelos 7 y 8)",
+   "lineas": [
+    {
+     "quien": "gerda",
+     "nombre": "Gerda",
+     "texto": "Figuras de Rayo. Se mueven por cualquier hueco, y si no hay hueco, lo abren. No te las cobro: perdí por buena gente.",
+     "accion": "entregándole un estuche"
+    },
+    {
+     "quien": "gerda",
+     "nombre": "Gerda",
+     "texto": "Un consejo gratis, que es el único que no cobro: Maese Pedal no es mal tipo. Solo teme que le roben el oficio."
+    }
+   ]
+  },
+  "escena-9": {
+   "titulo": "Maese Pedal",
+   "capitulo": "Arco 3: Edad Media, Rayo (duelos 7 y 8)",
+   "lineas": [
+    {
+     "quien": "maese-pedal",
+     "nombre": "Maese Pedal",
+     "texto": "¿Eres tú el del carrete? Déjame verlo. *(lo examina de cerca)* Lo reconozco. Lo llevaba una aprendiz que pasó por aquí hace veinte años. Tamsin."
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "Es mi maestra. Vive en Hebra.",
+     "accion": "sorprendido"
+    },
+    {
+     "quien": "maese-pedal",
+     "nombre": "Maese Pedal",
+     "texto": "Entonces sigue viva. Me alegro. Estuvo en el Desgarro, muchacho. La vi salir de aquí rumbo al Telar la víspera. Después todo se rasgó."
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "No me lo dijo.",
+     "accion": "bajando la voz"
+    },
+    {
+     "quien": "maese-pedal",
+     "nombre": "Maese Pedal",
+     "texto": "Los que cargan culpa no suelen decirlo. Que no te sorprenda y que no la juzgues antes de tiempo."
+    },
+    {
+     "quien": "maese-pedal",
+     "nombre": "Maese Pedal",
+     "texto": "Mi gremio guarda sus patrones. Eso no es codicia: es memoria. Un oficio que se escribe en tarjetas deja de ser de quien lo hace."
+    },
+    {
+     "quien": "maese-pedal",
+     "nombre": "Maese Pedal",
+     "texto": "Ahora, mi regla. Hay dos pares de cruces enlazados por pedales. Quien termina su acción en uno puede pasar al otro sin gastar movimiento. Los atajos son de quien los conoce."
+    },
+    {
+     "quien": "maese-pedal",
+     "nombre": "Maese Pedal",
+     "texto": "Una figura de Tierra firme sobre un cruce del par lo traba. Lo digo sin trampa: el oficio se transmite, no se esconde."
+    }
+   ],
+   "escenario": "En el gremio, junto a un telar de pedal que ocupa media sala. Un hombre ancho, con las manos manchadas de tinte, repasa un cuaderno de patrones."
+  },
+  "duelo-8": {
+   "titulo": "Maese Pedal (jefe)",
+   "capitulo": "Arco 3: Edad Media, Rayo (duelos 7 y 8)",
+   "lineas": [],
+   "recompensa": "Sello de Pedal."
+  },
+  "duelo-8-reintento": {
+   "titulo": "Maese Pedal (jefe)",
+   "capitulo": "Arco 3: Edad Media, Rayo (duelos 7 y 8)",
+   "lineas": [
+    {
+     "quien": "maese-pedal",
+     "nombre": "Maese Pedal",
+     "texto": "El tiempo es de quien lo aprovecha. Quien tiene un atajo que no conoce, no tiene un atajo. Otra vez."
+    }
+   ]
+  },
+  "duelo-8-despues": {
+   "titulo": "Maese Pedal (jefe)",
+   "capitulo": "Arco 3: Edad Media, Rayo (duelos 7 y 8)",
+   "lineas": [
+    {
+     "quien": "maese-pedal",
+     "nombre": "Maese Pedal",
+     "texto": "Controlaste los atajos en vez de tenerles miedo. Así lo hace un maestro.",
+     "accion": "cerrando su cuaderno"
+    },
+    {
+     "quien": "maese-pedal",
+     "nombre": "Maese Pedal",
+     "texto": "El Sello de Pedal. Lévalo y no dejes que nadie lo guarde en una tarjeta."
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "¿Qué hago con lo de Tamsin?"
+    },
+    {
+     "quien": "maese-pedal",
+     "nombre": "Maese Pedal",
+     "texto": "Pregúntaselo. Los maestros también necesitan que les pregunten."
+    },
+    {
+     "quien": "maese-pedal",
+     "nombre": "Maese Pedal",
+     "texto": "Sigue el hilo. La siguiente época lleva lo que aquí apenas se insinúa: gente que viaja lejos para traer cosas nuevas."
+    }
+   ]
+  },
+  "interludio-3": {
+   "titulo": "Interludio en Hebra (tras el Arco 3)",
+   "capitulo": "Arco 3: Edad Media, Rayo (duelos 7 y 8)",
+   "lineas": [
+    {
+     "quien": "maru",
+     "nombre": "Maru",
+     "texto": "Teo compró una tarjeta. A un vendedor que pasó por la plaza. La puso en su telar y el telar despertó.",
+     "accion": "sin girarse"
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "¿Despertó?"
+    },
+    {
+     "quien": "maru",
+     "nombre": "Maru",
+     "texto": "Tejiendo perfecto. Una tela igualita a la anterior, y a la anterior. Sin un hilo fuera de lugar."
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "Eso no es despertar. Es repetir."
+    },
+    {
+     "quien": "maru",
+     "nombre": "Maru",
+     "texto": "Mi telar lleva tres semanas callado. El de Teo teje. ¿Y si Orsolo tiene razón? ¿Y si equivocarse no sirve para nada?",
+     "accion": "volviéndose, con los ojos cansados"
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "Se equivoca todo el que decide. Por eso sirve."
+    },
+    {
+     "quien": "maru",
+     "nombre": "Maru",
+     "texto": "Quizá. Pero yo también quiero que Hebra vuelva a tejer.",
+     "accion": "callada un momento"
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "Y va a volver. Con las manos, no con tarjetas."
+    },
+    {
+     "quien": "maru",
+     "nombre": "Maru",
+     "texto": "Eso suena bonito. Ve. Necesito pensar."
+    }
+   ],
+   "escenario": "{jugador} regresa de noche. En la ventana del taller hay luz. Maru está sentada frente a un telar que ronronea apenas."
+  },
+  "escena-10": {
+   "titulo": "El puerto",
+   "capitulo": "Arco 4: Edad Moderna, Agua (duelos 9 y 10)",
+   "lineas": [
+    {
+     "quien": "narracion",
+     "nombre": "Narración",
+     "texto": "El hilo termina frente al mar. Hay olor a sal, a brea y a tinta fresca."
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "¿Qué dibujan?"
+    },
+    {
+     "quien": "dibujante",
+     "nombre": "Dibujante",
+     "texto": "Máquinas que tejen solas. Ninguna funciona todavía, pero cada semana un boceto se acerca más."
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "¿Y qué pasará con los tejedores?"
+    },
+    {
+     "quien": "dibujante",
+     "nombre": "Dibujante",
+     "texto": "Eso lo preguntaremos cuando funcionen.",
+     "accion": "encogiéndose de hombros"
+    },
+    {
+     "quien": "narracion",
+     "nombre": "Narración",
+     "texto": "{jugador} mira los bocetos. Ve en uno una línea de agujeros, como los del muro. El mismo patrón."
+    }
+   ],
+   "escenario": "Un puerto de muelles de madera, grúas y velas remendadas. En una nave abierta, aprendices dibujan en papel máquinas de tejer con engranajes y una lanzadera que cruza sola."
+  },
+  "duelo-9": {
+   "titulo": "Lucio, grumete del puerto",
+   "capitulo": "Arco 4: Edad Moderna, Agua (duelos 9 y 10)",
+   "lineas": [],
+   "recompensa": "figuras de Agua."
+  },
+  "duelo-9-antes": {
+   "titulo": "Lucio, grumete del puerto",
+   "capitulo": "Arco 4: Edad Moderna, Agua (duelos 9 y 10)",
+   "lineas": [
+    {
+     "quien": "lucio",
+     "nombre": "Lucio",
+     "texto": "¿Buscas al Capitán? Para llegar a él hay que pasar por mí. Es tradición. No me mires así, que yo no la inventé.",
+     "accion": "limpiando una cuerda"
+    },
+    {
+     "quien": "lucio",
+     "nombre": "Lucio",
+     "texto": "Mi equipo es de Agua. Vence a Fuego, así que tus figuras iniciales sufren hoy. Cede ante Rayo."
+    },
+    {
+     "quien": "lucio",
+     "nombre": "Lucio",
+     "texto": "Y tú acabas de ganar un estuche entero de Rayo. Qué curioso.",
+     "accion": "guiñando un ojo"
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "opciones": [
+      {
+       "texto": "El hilo sabe lo que hace.",
+       "respuesta": {
+        "quien": "lucio",
+        "nombre": "Lucio",
+        "texto": "Entonces que el hilo juegue mejor que tú."
+       }
+      },
+      {
+       "texto": "Las casualidades existen.",
+       "respuesta": {
+        "quien": "lucio",
+        "nombre": "Lucio",
+        "texto": "Yo también eso digo. Pero me cuesta creerlo."
+       }
+      }
+     ]
+    }
+   ]
+  },
+  "duelo-9-despues": {
+   "titulo": "Lucio, grumete del puerto",
+   "capitulo": "Arco 4: Edad Moderna, Agua (duelos 9 y 10)",
+   "lineas": [
+    {
+     "quien": "lucio",
+     "nombre": "Lucio",
+     "texto": "Me ganaste con mis propias olas. El Capitán dice que perder es parte de navegar. Yo digo que perder duele, pero ya se me pasa.",
+     "accion": "rascándose la nuca"
+    },
+    {
+     "quien": "lucio",
+     "nombre": "Lucio",
+     "texto": "Quédate con estas figuras de Agua. Son flexibles: se acomodan a cualquier corriente."
+    },
+    {
+     "quien": "lucio",
+     "nombre": "Lucio",
+     "texto": "El Capitán guarda una bitácora vieja. Dicen que habla de algo grave. Pregúntale con respeto."
+    }
+   ]
+  },
+  "escena-11": {
+   "titulo": "El Capitán Lanzadera",
+   "capitulo": "Arco 4: Edad Moderna, Agua (duelos 9 y 10)",
+   "lineas": [
+    {
+     "quien": "capitan-lanzadera",
+     "nombre": "Capitán Lanzadera",
+     "texto": "Pasa, muchacho. Hace tiempo que no recibo a alguien con un carrete del Telar."
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "Maese Pedal me habló del Desgarro. Dijo que usted podría saber más."
+    },
+    {
+     "quien": "capitan-lanzadera",
+     "nombre": "Capitán Lanzadera",
+     "texto": "Tengo una bitácora. Lo registré como registro las tormentas: sin adornos."
+    },
+    {
+     "quien": "capitan-lanzadera",
+     "nombre": "Capitán Lanzadera",
+     "texto": "El duelo fue entre dos Tejedores que fueron compañeros. Tamsin y Orsolo Venn. Lo que apostaron fue la época de Orsolo. Él perdió. Y al tirar de ese hilo, la tela entre dos épocas se rasgó.",
+     "accion": "abriendo el cuaderno"
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "Tamsin. Orsolo. Los dos.",
+     "accion": "en voz baja"
+    },
+    {
+     "quien": "capitan-lanzadera",
+     "nombre": "Capitán Lanzadera",
+     "texto": "No te lo cuento para que odies a nadie. El mar tiene una regla: quien culpa a una sola ola no entiende la tormenta."
+    },
+    {
+     "quien": "capitan-lanzadera",
+     "nombre": "Capitán Lanzadera",
+     "texto": "Te daré mi sello, pero primero lo ganas. Mi regla es breve: cada cuatro turnos, la lanzadera cruza un flanco entero. Las figuras que estén allí no pueden atacar mientras dure."
+    },
+    {
+     "quien": "capitan-lanzadera",
+     "nombre": "Capitán Lanzadera",
+     "texto": "Cambia de flanco o apóyate en Rayo. Yo prefiero que no seas marinero, sino ola."
+    }
+   ],
+   "escenario": "La cabina de un barco anclado. Mapas de rutas y cuadernos viejos cubren la mesa. El Capitán, de barba cana, dibuja una lanzadera que cruza de lado a lado."
+  },
+  "escena-11b": {
+   "titulo": "Kael lee la bitácora",
+   "capitulo": "Arco 4: Edad Moderna, Agua (duelos 9 y 10)",
+   "lineas": [
+    {
+     "quien": "kael",
+     "nombre": "Kael",
+     "texto": "Lo escuché todo desde la puerta. Perdóname, no debí."
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "Dime qué piensas."
+    },
+    {
+     "quien": "kael",
+     "nombre": "Kael",
+     "texto": "Que el Patrón nunca me dijo que su época había desaparecido. Dice “todo lo que se pierde, se puede evitar”. Ahora entiendo por qué.",
+     "accion": "mirando el mar"
+    },
+    {
+     "quien": "kael",
+     "nombre": "Kael",
+     "texto": "Esto no cambia mi lealtad. Pero ya no estoy seguro de a quién se la debo."
+    }
+   ],
+   "escenario": "Al salir de la cabina, Kael espera en la pasarela, con el sombrero entre las manos."
+  },
+  "duelo-10": {
+   "titulo": "Capitán Lanzadera (jefe)",
+   "capitulo": "Arco 4: Edad Moderna, Agua (duelos 9 y 10)",
+   "lineas": [],
+   "recompensa": "Sello de Lanzadera."
+  },
+  "duelo-10-reintento": {
+   "titulo": "Capitán Lanzadera (jefe)",
+   "capitulo": "Arco 4: Edad Moderna, Agua (duelos 9 y 10)",
+   "lineas": [
+    {
+     "quien": "capitan-lanzadera",
+     "nombre": "Capitán Lanzadera",
+     "texto": "Cuando la lanzadera cruza, no se pelea. Se espera. Vuelve a probar."
+    }
+   ]
+  },
+  "duelo-10-despues": {
+   "titulo": "Capitán Lanzadera (jefe)",
+   "capitulo": "Arco 4: Edad Moderna, Agua (duelos 9 y 10)",
+   "lineas": [
+    {
+     "quien": "capitan-lanzadera",
+     "nombre": "Capitán Lanzadera",
+     "texto": "Te adaptaste al ritmo, que es lo único que se aprende en el mar.",
+     "accion": "cerrando la bitácora"
+    },
+    {
+     "quien": "capitan-lanzadera",
+     "nombre": "Capitán Lanzadera",
+     "texto": "El Sello de Lanzadera. No se entrega a quien manda, sino a quien escucha las olas."
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "¿Qué hago con lo que sé?"
+    },
+    {
+     "quien": "capitan-lanzadera",
+     "nombre": "Capitán Lanzadera",
+     "texto": "Habla con Tamsin. Con respeto, sin acusar. La verdad se cuenta mejor cuando se pregunta bien."
+    },
+    {
+     "quien": "capitan-lanzadera",
+     "nombre": "Capitán Lanzadera",
+     "texto": "La época que viene es de humo y vapor. Quien llega sin cuidado, sale quemado."
+    }
+   ]
+  },
+  "interludio-4": {
+   "titulo": "Interludio en Hebra (tras el Arco 4)",
+   "capitulo": "Arco 4: Edad Moderna, Agua (duelos 9 y 10)",
+   "lineas": [
+    {
+     "quien": "nota-de-maru",
+     "nombre": "Nota de Maru",
+     "texto": "*«{jugador}: me fui a la ciudad a ver una tarjeta funcionando. No sé si te enfade. Necesito saber si Orsolo tiene razón o si me equivoco yo. Vuelvo cuando entienda. No me sigas. —M.»*"
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "“No me sigas”. Lo mismo que Kael.",
+     "accion": "leyendo en voz alta"
+    },
+    {
+     "quien": "tamsin",
+     "nombre": "Tamsin",
+     "texto": "Se fue ayer. Intenté detenerla. No puedo detener a nadie con tantas cosas guardadas.",
+     "accion": "desde la puerta, con voz baja"
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "Ya sé lo del Desgarro. Orsolo y tú."
+    },
+    {
+     "quien": "tamsin",
+     "nombre": "Tamsin",
+     "texto": "Entonces la última época la veremos juntos. Ahí te diré todo.",
+     "accion": "tras un largo silencio"
+    }
+   ],
+   "escenario": "{jugador} vuelve al taller. El telar sigue callado. Sobre el bastidor hay una nota de Maru y una llave inglesa olvidada."
+  },
+  "escena-12": {
+   "titulo": "La fábrica",
+   "capitulo": "Arco 5: Edad Contemporánea, Fuego (duelos 11 y 12)",
+   "lineas": [
+    {
+     "quien": "narracion",
+     "nombre": "Narración",
+     "texto": "Por primera vez, Tamsin viajó con el carrete. Dijo que esta vez le tocaba mirar."
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "Todo parece tan rápido. Tan igual."
+    },
+    {
+     "quien": "tamsin",
+     "nombre": "Tamsin",
+     "texto": "Así empieza todo plan de Orsolo: con una máquina que funciona."
+    },
+    {
+     "quien": "obrero",
+     "nombre": "Obrero",
+     "texto": "¡Cuidado, que quema! ¿Buscan el salón de calderas? Por la escalera de hierro, y no se asomen.",
+     "accion": "pasando con un carro"
+    }
+   ],
+   "escenario": "Chimeneas, vapor y una sirena que marca los turnos. Dentro de la fábrica, decenas de telares mecánicos golpean al mismo ritmo. Tamsin camina junto a {jugador}, sin bastón, mirando todo con ojos cansados."
+  },
+  "duelo-11": {
+   "titulo": "Nolan, fogonero",
+   "capitulo": "Arco 5: Edad Contemporánea, Fuego (duelos 11 y 12)",
+   "lineas": [],
+   "recompensa": "figuras de Fuego."
+  },
+  "duelo-11-antes": {
+   "titulo": "Nolan, fogonero",
+   "capitulo": "Arco 5: Edad Contemporánea, Fuego (duelos 11 y 12)",
+   "lineas": [
+    {
+     "quien": "nolan",
+     "nombre": "Nolan",
+     "texto": "Perdón por el desorden. La sirena me interrumpió el almuerzo.",
+     "accion": "con la cara llena de hollín, limpiándose en un trapo que ya estaba sucio"
+    },
+    {
+     "quien": "nolan",
+     "nombre": "Nolan",
+     "texto": "Mi equipo es de Fuego. Vence a Planta, pero cede ante Agua. Dicen que traes Agua. Qué injusto, ¿no?"
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "Ya me lo dijo Lucio."
+    },
+    {
+     "quien": "nolan",
+     "nombre": "Nolan",
+     "texto": "Seguro lo dijo con más estilo. Ven, déjame ganarte aunque sea una ronda para sentirme mejor."
+    }
+   ]
+  },
+  "duelo-11-despues": {
+   "titulo": "Nolan, fogonero",
+   "capitulo": "Arco 5: Edad Contemporánea, Fuego (duelos 11 y 12)",
+   "lineas": [
+    {
+     "quien": "nolan",
+     "nombre": "Nolan",
+     "texto": "Ni una. Qué modesto soy. Toma estas figuras de Fuego, para que no te quedes sin hogar en la fría.",
+     "accion": "riendo, mientras se quita una chispa del hombro"
+    },
+    {
+     "quien": "nolan",
+     "nombre": "Nolan",
+     "texto": "Dama Caldera te espera arriba. Es dura, pero justa. Yo en tu lugar iría con Agua."
+    }
+   ]
+  },
+  "escena-13": {
+   "titulo": "Lo que Tamsin guardaba",
+   "capitulo": "Arco 5: Edad Contemporánea, Fuego (duelos 11 y 12)",
+   "lineas": [
+    {
+     "quien": "tamsin",
+     "nombre": "Tamsin",
+     "texto": "{jugador}, voy a decirlo ahora, antes de que lo oigas de otra boca."
+    },
+    {
+     "quien": "tamsin",
+     "nombre": "Tamsin",
+     "texto": "Orsolo y yo éramos compañeros. Queríamos lo mismo: que los tejidos no se perdieran. Pero él quería asegurarlos y yo, dejarlos libres."
+    },
+    {
+     "quien": "tamsin",
+     "nombre": "Tamsin",
+     "texto": "Discutimos hasta decidir con un duelo. Apostamos algo que no se debe apostar: la época de él."
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "¿Y aceptaste?"
+    },
+    {
+     "quien": "tamsin",
+     "nombre": "Tamsin",
+     "texto": "Acepté. Por orgullo. Gané. Y su época se deshilachó en mis manos. Los hilos que sostuvieron ese tiempo nunca volvieron."
+    },
+    {
+     "quien": "tamsin",
+     "nombre": "Tamsin",
+     "texto": "Orsolo quiso recuperarla. Yo cerré el Telar y huyí a Hebra. Si me hubiera quedado, quizá el Desgarro no habría llegado tan lejos."
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "¿Por qué me mandaste a las épocas sin decirme?",
+     "accion": "tras un silencio"
+    },
+    {
+     "quien": "tamsin",
+     "nombre": "Tamsin",
+     "texto": "Porque si te lo decía, ibas a ir por mí y no por ellas. Y porque era mi cobardía, no la tuya."
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "opciones": [
+      {
+       "texto": "Te perdono, pero lo arreglamos juntos.",
+       "respuesta": {
+        "quien": "tamsin",
+        "nombre": "Tamsin",
+        "texto": "Eso es más de lo que merezco.",
+        "accion": "los ojos húmedos"
+       }
+      },
+      {
+       "texto": "Estoy enojado, pero sigo contigo.",
+       "respuesta": {
+        "quien": "tamsin",
+        "nombre": "Tamsin",
+        "texto": "Tienes derecho. Seguimos igual."
+       }
+      }
+     ]
+    }
+   ],
+   "escenario": "En un descansillo de la escalera, entre dos calderas silenciosas. Tamsin se detiene."
+  },
+  "escena-14": {
+   "titulo": "Dama Caldera",
+   "capitulo": "Arco 5: Edad Contemporánea, Fuego (duelos 11 y 12)",
+   "lineas": [
+    {
+     "quien": "dama-caldera",
+     "nombre": "Dama Caldera",
+     "texto": "Cuatro sellos en tu bolsa. Falta el mío."
+    },
+    {
+     "quien": "dama-caldera",
+     "nombre": "Dama Caldera",
+     "texto": "Mi fábrica mueve a cientos de personas. Sin ella, muchas casas no comerían. Con ella, muchos oficios se pierden. Las dos cosas son verdad."
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "Entonces, ¿qué se hace?"
+    },
+    {
+     "quien": "dama-caldera",
+     "nombre": "Dama Caldera",
+     "texto": "Se mide. Se mide el calor, el peso, el riesgo. Pero se decide con las manos, no con los números."
+    },
+    {
+     "quien": "dama-caldera",
+     "nombre": "Dama Caldera",
+     "texto": "Mi regla es sencilla: hay tres cruces con vapor. Quien termine su acción en uno queda envenenado, el de tres turnos que ya conoces. Las figuras de Agua son inmunes."
+    },
+    {
+     "quien": "dama-caldera",
+     "nombre": "Dama Caldera",
+     "texto": "Es una trampa a la vista: donde se ve el peligro, se sabe qué evitar. Veamos si miras."
+    }
+   ],
+   "escenario": "Un salón con tres calderas enormes. Dama Caldera, de delantal grueso y ojos vivos, revisa manómetros y no levanta la vista."
+  },
+  "duelo-12": {
+   "titulo": "Dama Caldera (jefa)",
+   "capitulo": "Arco 5: Edad Contemporánea, Fuego (duelos 11 y 12)",
+   "lineas": [],
+   "recompensa": "Sello de Caldera."
+  },
+  "duelo-12-reintento": {
+   "titulo": "Dama Caldera (jefa)",
+   "capitulo": "Arco 5: Edad Contemporánea, Fuego (duelos 11 y 12)",
+   "lineas": [
+    {
+     "quien": "dama-caldera",
+     "nombre": "Dama Caldera",
+     "texto": "El vapor no perdona la prisa. Mide antes de entrar. Otra vez."
+    }
+   ]
+  },
+  "duelo-12-despues": {
+   "titulo": "Dama Caldera (jefa)",
+   "capitulo": "Arco 5: Edad Contemporánea, Fuego (duelos 11 y 12)",
+   "lineas": [
+    {
+     "quien": "dama-caldera",
+     "nombre": "Dama Caldera",
+     "texto": "Mediste el riesgo y aún así avanzaste. Eso no es temeridad: es oficio.",
+     "accion": "apagando una válvula"
+    },
+    {
+     "quien": "dama-caldera",
+     "nombre": "Dama Caldera",
+     "texto": "Aquí tienes el Sello de Caldera. Cuida de que ninguna fábrica, ni la mía, te haga olvidar para qué sirve."
+    }
+   ]
+  },
+  "escena-15": {
+   "titulo": "El Patrón",
+   "capitulo": "Arco 5: Edad Contemporánea, Fuego (duelos 11 y 12)",
+   "lineas": [
+    {
+     "quien": "orsolo-venn",
+     "nombre": "Orsolo Venn",
+     "texto": "Cinco épocas, cinco sellos. Te felicito, {jugador} de Hebra. Pocos llegan hasta aquí sin que nadie los lleve de la mano."
+    },
+    {
+     "quien": "tamsin",
+     "nombre": "Tamsin",
+     "texto": "Orsolo.",
+     "accion": "dando un paso adelante"
+    },
+    {
+     "quien": "orsolo-venn",
+     "nombre": "Orsolo Venn",
+     "texto": "Tamsin. *(una pausa corta)* Veinte años. Te ves igual de segura que entonces."
+    },
+    {
+     "quien": "tamsin",
+     "nombre": "Tamsin",
+     "texto": "No lo estoy."
+    },
+    {
+     "quien": "orsolo-venn",
+     "nombre": "Orsolo Venn",
+     "texto": "Mejor. Entonces escucha. Mañana programaré el Telar entero. Cada hilo, cada cruce, cada resultado, grabado en una tarjeta. Nadie volverá a perder lo que yo perdí."
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "Tampoco nadie podrá ganar nada."
+    },
+    {
+     "quien": "orsolo-venn",
+     "nombre": "Orsolo Venn",
+     "texto": "Es el precio. Y lo pago con gusto."
+    },
+    {
+     "quien": "orsolo-venn",
+     "nombre": "Orsolo Venn",
+     "texto": "Mi Taller se abre con cinco sellos. Los llevas tú, y no puedo tomarlos: el Telar quiere que se entreguen o se ganen. Ven y juega. Si ganas, decide el hilo. Si pierdo, decide la tarjeta."
+    },
+    {
+     "quien": "kael",
+     "nombre": "Kael",
+     "texto": "Maestro...",
+     "accion": "sin levantar la vista"
+    },
+    {
+     "quien": "orsolo-venn",
+     "nombre": "Orsolo Venn",
+     "texto": "Kael. Ya hablaremos."
+    },
+    {
+     "quien": "narracion",
+     "nombre": "Narración",
+     "texto": "",
+     "accion": "El Patrón se aleja por la pasarela. Kael se queda un segundo, mira a {jugador} y lo sigue."
+    }
+   ],
+   "escenario": "Al salir al patio, la sirena calla de golpe. En lo alto de una pasarela de hierro, un hombre de abrigo gris acero ajusta unos guantes. A su lado está Kael, con la mirada baja."
+  },
+  "interludio-5": {
+   "titulo": "Interludio en Hebra (tras el Arco 5)",
+   "capitulo": "Arco 5: Edad Contemporánea, Fuego (duelos 11 y 12)",
+   "lineas": [
+    {
+     "quien": "maru",
+     "nombre": "Maru",
+     "texto": "¿Saben cuántas veces repitió la misma tela una máquina de tarjetas mientras yo miraba? Cuarenta. Perfectas. Iguales. Vacías.",
+     "accion": "sin mirar"
+    },
+    {
+     "quien": "maru",
+     "nombre": "Maru",
+     "texto": "Me equivoqué, {jugador}. Pensé que tener un telar callado era peor. No es peor: es distinto, y se puede arreglar."
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "No tienes que disculparte."
+    },
+    {
+     "quien": "maru",
+     "nombre": "Maru",
+     "texto": "Sí tengo. Pero primero te sirvo. *(levanta un pequeño peine de metal)* Las tarjetas se leen con un peine. Este lo ajusté para que no lea nada. Con él abrirás la puerta del Taller sin forzarla."
+    },
+    {
+     "quien": "tamsin",
+     "nombre": "Tamsin",
+     "texto": "Hiciste en una semana lo que yo no logré en veinte años."
+    },
+    {
+     "quien": "maru",
+     "nombre": "Maru",
+     "texto": "No exageres. Vamos. El Taller no se va a abrir solo.",
+     "accion": "sonriendo, cansada"
+    }
+   ],
+   "escenario": "{jugador} y Tamsin llegan de noche al taller. En la ventana hay luz y se oye un golpeteo metálico. Maru está en el suelo, rodeada de piezas, con un tarjetero abierto a su lado."
+  },
+  "escena-16": {
+   "titulo": "La puerta del Taller",
+   "capitulo": "Final: Taller de Tarjetas (duelos 13 y 14)",
+   "lineas": [
+    {
+     "quien": "maru",
+     "nombre": "Maru",
+     "texto": "Cuando diga, pones los sellos. Uno a uno, de menor a mayor... o como tú quieras, que el orden no importa.",
+     "accion": "introduciendo el peine en la ranura"
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "Siento que cada uno me mira.",
+     "accion": "coloca Lino, Pesa, Pedal, Lanzadera y Caldera"
+    },
+    {
+     "quien": "tamsin",
+     "nombre": "Tamsin",
+     "texto": "Es que cada uno te conoce. Te vieron esperar, sostener, aprovechar, adaptarte y medir."
+    },
+    {
+     "quien": "narracion",
+     "nombre": "Narración",
+     "texto": "",
+     "accion": "La puerta se abre con un suspiro largo. Dentro, miles de tarjetas perforadas cuelgan del techo como cortinas."
+    },
+    {
+     "quien": "maru",
+     "nombre": "Maru",
+     "texto": "Yo me quedo en la entrada. Si algo se traba, lo destrabo. Ustedes, adelante."
+    }
+   ],
+   "escenario": "Un edificio alto de ladrillo, sin ventanas. En la puerta hay una ranura larga y cinco huecos para sellos. {jugador}, Maru y Tamsin se detienen frente a ella."
+  },
+  "duelo-13": {
+   "titulo": "Kael",
+   "capitulo": "Final: Taller de Tarjetas (duelos 13 y 14)",
+   "lineas": [],
+   "recompensa": "Kael se une; acceso al Patrón."
+  },
+  "duelo-13-antes": {
+   "titulo": "Kael",
+   "capitulo": "Final: Taller de Tarjetas (duelos 13 y 14)",
+   "lineas": [
+    {
+     "quien": "kael",
+     "nombre": "Kael",
+     "texto": "Sabía que ibas a llegar. Y el Patrón también.",
+     "accion": "de pie al fondo de la sala, sin el abrigo gris"
+    },
+    {
+     "quien": "kael",
+     "nombre": "Kael",
+     "texto": "Me mandó detenerte. Esa es mi tarea. Pero hace cinco épocas que me hago preguntas, y ya no sé de quién son mis respuestas."
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "No tienes que pelear."
+    },
+    {
+     "quien": "kael",
+     "nombre": "Kael",
+     "texto": "Sí tengo. No por él: por mí. Quiero decidir con mis manos, al menos una vez. Si me ganas, me voy contigo. Si te gano, igual te dejo pasar."
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "¿Y entonces para qué pelear?"
+    },
+    {
+     "quien": "kael",
+     "nombre": "Kael",
+     "texto": "Para saber cómo se siente. Mi equipo es mixto: de todo un poco, como las épocas.",
+     "accion": "sonriendo"
+    }
+   ]
+  },
+  "duelo-13-despues": {
+   "titulo": "Kael",
+   "capitulo": "Final: Taller de Tarjetas (duelos 13 y 14)",
+   "lineas": [
+    {
+     "quien": "kael",
+     "nombre": "Kael",
+     "texto": "Perdí. Y lo curioso es que me sentí libre. Lo escribiré en algún sitio que no sea una tarjeta.",
+     "accion": "ofreciéndole la mano"
+    },
+    {
+     "quien": "kael",
+     "nombre": "Kael",
+     "texto": "Me uno a ti. Conozco el camino hasta el Patrón y las cinco tarjetas que usa. Te las diré, pero te advierto: no son tramposas. Solo son ciertas."
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "Gracias, Kael."
+    },
+    {
+     "quien": "kael",
+     "nombre": "Kael",
+     "texto": "No me agradezcas. Regálame una promesa: si ganas, no lo trates como a un monstruo."
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "No lo es."
+    }
+   ]
+  },
+  "escena-17": {
+   "titulo": "El centro del Taller",
+   "capitulo": "Final: Taller de Tarjetas (duelos 13 y 14)",
+   "lineas": [
+    {
+     "quien": "orsolo-venn",
+     "nombre": "Orsolo Venn",
+     "texto": "Pasaron las cinco pruebas y me trajeron los sellos. Qué aplicados. Ahora, mi parte del trato."
+    },
+    {
+     "quien": "orsolo-venn",
+     "nombre": "Orsolo Venn",
+     "texto": "Mi regla es la suma de todo lo que ya viviste. Cada cinco turnos, el tablero cambia de ley: Hebras, Pesas, Pedales, Lanzadera, Caldera. En ese orden. Siempre en ese orden."
+    },
+    {
+     "quien": "orsolo-venn",
+     "nombre": "Orsolo Venn",
+     "texto": "La próxima ley se mostrará como una tarjeta a la vista. No te sorprenderá. Mi mundo no tiene sorpresas."
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "Y aun así puedo ganarte."
+    },
+    {
+     "quien": "orsolo-venn",
+     "nombre": "Orsolo Venn",
+     "texto": "Puedes. Y eso lo cambia todo. *(una pausa)* Juguemos."
+    }
+   ],
+   "escenario": "Una sala circular. En el centro hay un telar con un gran tarjetero. Las tarjetas giran despacio. El Patrón está de pie junto a él, con las manos a la espalda."
+  },
+  "duelo-14": {
+   "titulo": "Orsolo Venn, el Patrón (jefe final)",
+   "capitulo": "Final: Taller de Tarjetas (duelos 13 y 14)",
+   "lineas": [],
+   "recompensa": "final y modo libre extendido."
+  },
+  "duelo-14-reintento": {
+   "titulo": "Orsolo Venn, el Patrón (jefe final)",
+   "capitulo": "Final: Taller de Tarjetas (duelos 13 y 14)",
+   "lineas": [
+    {
+     "quien": "orsolo-venn",
+     "nombre": "Orsolo Venn",
+     "texto": "Una tarjeta no se equivoca. Tú sí. Y por eso aún puedes intentarlo otra vez."
+    }
+   ]
+  },
+  "duelo-14-despues": {
+   "titulo": "Orsolo Venn, el Patrón (jefe final)",
+   "capitulo": "Final: Taller de Tarjetas (duelos 13 y 14)",
+   "lineas": [
+    {
+     "quien": "orsolo-venn",
+     "nombre": "Orsolo Venn",
+     "texto": "No lo escribí. No podía saberlo. Y aun así ocurrió.",
+     "accion": "mirando cómo una tarjeta se queda detenida a medio giro"
+    },
+    {
+     "quien": "orsolo-venn",
+     "nombre": "Orsolo Venn",
+     "texto": "Pasé veinte años buscando un telar donde nadie perdiera. Hoy perdí, y no hay tarjeta que lo borre. Qué curioso: duele, pero se siente real."
+    },
+    {
+     "quien": "tamsin",
+     "nombre": "Tamsin",
+     "texto": "Orsolo. Perdóname por haber aceptado ese duelo.",
+     "accion": "acercándose"
+    },
+    {
+     "quien": "orsolo-venn",
+     "nombre": "Orsolo Venn",
+     "texto": "No te perdono. Todavía no. Pero tampoco quiero seguir cargando esto.",
+     "accion": "tras una pausa larga"
+    },
+    {
+     "quien": "orsolo-venn",
+     "nombre": "Orsolo Venn",
+     "texto": "Un resultado escrito de antemano también es perder. Lo sabía y no quería saberlo."
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "El Telar está esperando. Con tus tarjetas no se puede reparar. Ayuda a retejerlo."
+    },
+    {
+     "quien": "orsolo-venn",
+     "nombre": "Orsolo Venn",
+     "texto": "Mis tarjetas dirán lo que necesiten decir. Pero esta vez las leerá alguien que elija.",
+     "accion": "asintiendo"
+    }
+   ]
+  },
+  "escena-18": {
+   "titulo": "Las épocas se vuelven a tejer",
+   "capitulo": "Final: Taller de Tarjetas (duelos 13 y 14)",
+   "lineas": [
+    {
+     "quien": "narracion",
+     "nombre": "Narración",
+     "texto": "Los hilos rasgados se buscan entre sí. Donde había un hueco, aparece un cruce."
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "Lo está haciendo solo."
+    },
+    {
+     "quien": "tamsin",
+     "nombre": "Tamsin",
+     "texto": "No solo. Lo hacen todos los que alguna vez decidieron algo."
+    },
+    {
+     "quien": "orsolo-venn",
+     "nombre": "Orsolo Venn",
+     "texto": "Para lo que falte. Que quede libre.",
+     "accion": "ofreciendo una tarjeta en blanco"
+    },
+    {
+     "quien": "kael",
+     "nombre": "Kael",
+     "texto": "Yo la guardo. Algo me dice que servirá para un duelo sin reglas especiales."
+    }
+   ],
+   "escenario": "El Gran Telar del Tiempo aparece en la sala como una trama inmensa de luz. Los cinco sellos flotan hacia él. Cada época se ilumina por turno: Neolítico, Edad Antigua, Edad Media, Edad Moderna, Edad Contemporánea."
+  },
+  "epilogo": {
+   "titulo": "Epílogo: Hebra",
+   "capitulo": "Epílogo: Hebra",
+   "lineas": [
+    {
+     "quien": "maru",
+     "nombre": "Maru",
+     "texto": "{jugador}. Hizo un ruido.",
+     "accion": "con las manos en el aire, sin atreverse a tocar"
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "Hizo muchos."
+    },
+    {
+     "quien": "teo",
+     "nombre": "Teo",
+     "texto": "¡El de la panadera también despertó! ¿Quién arregló qué? Da igual: ¿hay duelo hoy?",
+     "accion": "asomándose por la ventana"
+    },
+    {
+     "quien": "tamsin",
+     "nombre": "Tamsin",
+     "texto": "Hay duelo. Con respeto. Como debe ser.",
+     "accion": "en la puerta, con el bastón en la mano y una sonrisa nueva"
+    },
+    {
+     "quien": "kael",
+     "nombre": "Kael",
+     "texto": "Yo tomo apuntes. Para que nadie olvide cómo empezó.",
+     "accion": "sentado en un banco, anotando en un cuaderno"
+    },
+    {
+     "quien": "maru",
+     "nombre": "Maru",
+     "texto": "¿Y ahora qué?",
+     "accion": "a {jugador}"
+    },
+    {
+     "quien": "jugador",
+     "nombre": "{jugador}",
+     "texto": "Ahora cada uno decide. A mano.",
+     "accion": "tomando el carrete"
+    },
+    {
+     "quien": "narracion",
+     "nombre": "Narración",
+     "texto": "El telar de Hebra vuelve a cantar. Fin."
+    }
+   ],
+   "escenario": "Amanecer en Hebra. El telar del taller cuelga quieto un segundo. Después, un tirón suave. Después, otro."
+  }
+ }
+}
