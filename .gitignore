@@ -14,5 +14,7 @@ dist/
 # Arte fuente (PNG/JPG grandes con fondo magenta): se guarda fuera del repo.
 # Solo se versiona lo procesado en art/web/ (scripts/procesar-arte.py).
 art/source/
+art/retratos/
+art/fondos/
 # Hoja de revisión grande (se regenera con scripts/procesar-arte.py)
 art/web/hoja.png

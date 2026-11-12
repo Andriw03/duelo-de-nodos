@@ -1,7 +1,10 @@
-"""Procesa el arte de las criaturas: quita el fondo magenta, recorta y exporta WebP con transparencia.
+"""Procesa el arte del juego: quita el fondo magenta, recorta y exporta WebP.
 
-    python scripts/procesar-arte.py            (en Windows: python, no python3)
+    python scripts/procesar-arte.py                      todo (criaturas, retratos y fondos)
+    python scripts/procesar-arte.py retratos fondos      solo lo indicado
+    (en Windows: python, no python3)
 
+CRIATURAS
 Entrada:  art/source/<id>.png o .jpg   (id = el de logic.js; fondo magenta #FF00FF plano)
 Salida:   art/web/<id>-token.webp      128 px, para el tablero, la banca y las tarjetas
           art/web/<id>-ficha.webp      512 px, original de alta resolución (no va dentro del HTML)
@@ -9,6 +12,13 @@ Salida:   art/web/<id>-token.webp      128 px, para el tablero, la banca y las t
           art/web/prueba-40.png        las 12 a 40 px sobre #0e1322 (prueba de 40 px)
           art/web/hoja.png             las 12 juntas, para revisar el estilo y los bordes
           data/art.json                id -> archivos (lo lee build.py, no el motor)
+RETRATOS
+Entrada:  art/retratos/<personaje>-<expresion>.png  (fondo magenta)
+Salida:   art/web/retratos/<mismo nombre>.webp      lado mayor 512 px, con transparencia
+FONDOS
+Entrada:  art/fondos/<id>.png
+Salida:   art/web/fondos/<id>.webp                  hasta 1080 px de ancho (nunca se agranda)
+Retratos y fondos NO van dentro del HTML: el juego los carga como archivos (ver build.py).
 Requiere solo Pillow.
 
 Recorte: se borra lo que se parece al color del fondo Y está conectado con el borde de la imagen,
@@ -25,6 +35,10 @@ from PIL import Image, ImageDraw, ImageFilter
 RAIZ = pathlib.Path(__file__).resolve().parent.parent
 FUENTE = RAIZ / 'art' / 'source'
 SALIDA = RAIZ / 'art' / 'web'
+RETRATOS = RAIZ / 'art' / 'retratos'
+FONDOS = RAIZ / 'art' / 'fondos'
+LADO_RETRATO = 512
+ANCHO_FONDO = 1080
 TAM = {'token': 128, 'ficha': 512, 'ficha-web': 256}
 CALIDAD = {'token': 85, 'ficha': 82, 'ficha-web': 74}
 MAX_TRABAJO = 1024     # lado mayor con el que se trabaja (las fuentes miden ~1500 px)
@@ -120,7 +134,7 @@ def cuadrar(im):
     return cuad
 
 
-def main():
+def criaturas():
     if not FUENTE.is_dir():
         sys.exit('No existe ' + str(FUENTE))
     SALIDA.mkdir(parents=True, exist_ok=True)
@@ -177,6 +191,58 @@ def main():
         {'_formato': 'id de criatura -> archivos en art/web (los genera scripts/procesar-arte.py). build.py incrusta token y ficha-web.',
          'criaturas': art}, ensure_ascii=False, indent=2) + '\n', encoding='utf-8', newline='\n')
     print('Listo: %d criaturas -> art/web/ y data/art.json. Revisa art/web/prueba-40.png y art/web/hoja.png.' % len(art))
+
+
+def imagenes(carpeta):
+    return [f for f in sorted(carpeta.iterdir()) if f.suffix.lower() in ('.png', '.jpg', '.jpeg', '.webp')] if carpeta.is_dir() else []
+
+
+def retratos():
+    """Retratos de personajes: sin fondo, recortados a lo visible, lado mayor 512 px."""
+    destino = SALIDA / 'retratos'; destino.mkdir(parents=True, exist_ok=True)
+    total = 0; n = 0
+    for f in imagenes(RETRATOS):
+        try:
+            im = quitar_fondo(Image.open(f))
+        except ValueError as e:
+            print('ERROR %s: %s' % (f.name, e)); continue
+        caja = im.getchannel('A').point(lambda a: 255 if a > 16 else 0).getbbox()
+        im = im.crop(caja)
+        k = LADO_RETRATO / max(im.size)
+        if k < 1:
+            im = im.resize((round(im.width * k), round(im.height * k)), Image.LANCZOS)
+        salida = destino / (f.stem.lower() + '.webp')
+        im.save(salida, 'WEBP', quality=80, method=6)
+        peso = salida.stat().st_size; total += peso; n += 1
+        print('retrato  %-32s %4dx%-4d %6.1fK' % (salida.name, im.width, im.height, peso / 1024))
+    print('Retratos: %d, %.0f KB en total.' % (n, total / 1024))
+
+
+def fondos():
+    """Fondos de escena: hasta 1080 px de ancho, sin transparencia (no se agrandan)."""
+    destino = SALIDA / 'fondos'; destino.mkdir(parents=True, exist_ok=True)
+    total = 0; n = 0
+    for f in imagenes(FONDOS):
+        im = Image.open(f).convert('RGB')
+        if im.width > ANCHO_FONDO:
+            im = im.resize((ANCHO_FONDO, round(im.height * ANCHO_FONDO / im.width)), Image.LANCZOS)
+        elif im.width < ANCHO_FONDO:
+            print('AVISO: %s mide %d px de ancho (menos de %d); se deja así para no perder nitidez.' % (f.name, im.width, ANCHO_FONDO))
+        salida = destino / (f.stem.lower() + '.webp')
+        im.save(salida, 'WEBP', quality=72, method=6)
+        peso = salida.stat().st_size; total += peso; n += 1
+        print('fondo    %-32s %4dx%-4d %6.1fK' % (salida.name, im.width, im.height, peso / 1024))
+    print('Fondos: %d, %.0f KB en total.' % (n, total / 1024))
+
+
+def main():
+    pedidos = [a.lower() for a in sys.argv[1:]] or ['criaturas', 'retratos', 'fondos']
+    tareas = {'criaturas': criaturas, 'retratos': retratos, 'fondos': fondos}
+    for p in pedidos:
+        if p not in tareas:
+            sys.exit('No conozco "%s". Opciones: criaturas, retratos, fondos.' % p)
+    for p in pedidos:
+        tareas[p]()
 
 
 if __name__ == '__main__':
