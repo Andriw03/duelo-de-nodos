@@ -15,17 +15,20 @@ Juego de estrategia por turnos para celular, contra la CPU. Tablero de 29 nodos,
 - `android/`: proyecto nativo generado por Capacitor (se versiona). `capacitor.config.json`: configuración de la app.
 - `test/`: simulaciones CPU contra CPU en node.
 - `scripts/apk.js`: genera el APK de prueba.
-- `scripts/procesar-arte.py`: procesa el arte de las criaturas (ver abajo). `art/web/`: arte listo para el juego. `data/art.json`: qué archivo usa cada criatura.
+- `data/campaign/`: campaña (`campana.json` capítulos y duelos, `personajes.json`, `guiados/` duelos guiados, `escenas.json` generado desde `docs/guion.md`). `src/campana.js` (lógica, sin DOM) y `src/campana-ui.js` (mapa, diálogo, equipo).
+- `scripts/guion-a-escenas.py`: convierte `docs/guion.md` en `data/campaign/escenas.json`.
+- `scripts/procesar-arte.py`: procesa el arte de las criaturas, retratos y fondos (ver abajo). `art/web/`: arte listo para el juego. `data/art.json`: qué archivo usa cada criatura.
 
 ## Web
 ```bash
 python3 build.py        # index.html con las fuentes incrustadas (en Windows: python build.py)
-npm test                # las cuatro pruebas de abajo; correr después de tocar logic.js, ai.js o data/
+npm test                # las pruebas de abajo; correr después de tocar logic.js, ai.js o data/
 ```
 - `node test/run.js`: simulaciones CPU contra CPU (resultados por nivel).
 - `node test/golden.js`: huella de cada jugada de esas partidas; detecta cualquier cambio de comportamiento. `--update` solo si el cambio de juego es deliberado.
 - `node test/reglas.js`: tableros, configuración de duelo, partidas guardadas antiguas y ganchos para reglas de jefe.
 - `node test/tutorial.js`: recorre las 5 lecciones con el motor; falla si una jugada del guion es ilegal o una lección no se puede terminar.
+- `node test/campana.js`: escenas del guion completas, personajes, retratos y fondos existentes, duelos jugables, duelos guiados, progreso y código de exportación.
 
 Se publica fusionando en `main`: GitHub Pages sirve `index.html` (puede tardar unos 10 minutos en verse por la caché).
 
@@ -37,6 +40,18 @@ python scripts/procesar-arte.py
 ```
    Quita el fondo, recorta y genera en `art/web/` el token (128 px), la ficha (512 px) y la ficha web (256 px) en WebP, más `prueba-40.png` (las criaturas a 40 px, como se ven en el tablero) y `hoja.png` (para revisar bordes y estilo). Escribe `data/art.json` e informa el peso de cada archivo.
 3. `python build.py`: incrusta el token y la ficha web en el HTML e informa el peso (tope 600 KB). Si una criatura no tiene arte, se ve su emoji.
+
+### Retratos, fondos y diálogos de la campaña
+- Retratos en `art/retratos/<personaje>-<expresion>.png` (fondo magenta) y fondos en `art/fondos/<id>.png`; ninguna de las dos carpetas se sube al repo.
+```bash
+python scripts/procesar-arte.py retratos fondos
+```
+  Genera `art/web/retratos/*.webp` (lado mayor 512 px, sin fondo) y `art/web/fondos/*.webp` (hasta 1080 px de ancho, sin agrandar). **No van dentro del HTML**: el juego los carga como archivos (si faltan, círculo con la inicial y fondo liso). `personajes.json` dice qué archivo usa cada expresión.
+- Diálogos: se escriben en `docs/guion.md` y se convierten con
+```bash
+python scripts/guion-a-escenas.py
+```
+  (avisa de cualquier línea que no entienda; "Ari" pasa a ser el nombre que elige el jugador).
 
 ### Versión y comentarios
 - La versión visible en el juego (pantalla de equipo y menú) sale de `"version"` en `package.json`. Subirla en cada publicación.
@@ -58,7 +73,7 @@ Otros comandos:
 ```bash
 npm run sync            # build de www/ + npx cap sync android (después de cambiar src/)
 npm run android         # abre el proyecto en Android Studio (para correr en emulador o depurar)
-npm test                # run.js + golden.js + reglas.js + tutorial.js
+npm test                # run.js + golden.js + reglas.js + tutorial.js + campana.js
 ```
 
 `www/`, `dist/`, `node_modules/` y las carpetas de build de Android no se versionan.

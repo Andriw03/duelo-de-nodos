@@ -16,6 +16,8 @@ Juego de estrategia por turnos para celular, contra la CPU. Es web (un HTML gene
 - `data/duels/*.json`: configuración de duelo (`board`, `player.team`/`rival.team` = `free`/`random`/lista fija, `ai`, `rules`, `victory` = `{type: 'goal', turnLimit}`). Hoy solo existe `libre` (la partida de siempre). `newGame(team0, team1, primero, duelo)`.
 - `data/tutorial/*.json` + `src/tutorial.js` (`window.DuelTutorial`, sin DOM): lecciones como partidas reales con posición fija, pasos (`info`, `tap`, `act`), jugadas de la CPU en orden (`cpu`) y ruletas fijas (`spin`: índices de segmento; `outcome`/`winner` los comprueba el test). Figuras: las del jugador son 0, 1…, las de la CPU siguen la numeración. El modo guiado está en `ui.js` (`ui.guide`): bloquea toques fuera del paso, resalta, usa el guion de la CPU y las ruletas fijas, y **no guarda** (nunca pisa la partida guardada). Progreso en `Platform.storage`, clave `duelo-nodos-tutorial` (`hechas`, `ofrecido`).
 - En el navegador los datos llegan como `window.DUEL_DATA` (marcador `/*DATA*/`, lo arma `build.py`); en node `logic.js` lee `data/` del disco.
+- Campaña: `data/campaign/campana.json` (capítulos, 14 duelos, escenas antes/después/reintento, recompensas, fondos y expresiones por escena), `personajes.json` (id → nombre, color, expresiones → archivo de retrato), `guiados/duelo-1|2.json` (duelos guiados con el motor del tutorial; el texto de cada paso sale del "Pasos guiados" del guion con `paso: N`), `escenas.json` (**generado** por `scripts/guion-a-escenas.py` desde `docs/guion.md`: no editar a mano). Duelos jugables en `data/duels/c03.json`, `c04.json`.
+- `src/campana.js` (`window.DuelCampana`, sin DOM): progreso en `Platform.storage` clave `duelo-nodos-campana` (`jugador`, `ganados`, `sellos`, `figuras`, `equipo`), desbloqueo lineal, recompensas, equipo de 6 **con repetidas** de las figuras desbloqueadas, código de exportación `HT1.` + base64, escenas con `{jugador}`. `src/campana-ui.js` (`window.DuelCampanaUI`): mapa (`#scr-camp`), diálogo (`#dialogo`), armado de equipo y menú exportar/importar/borrar. `ui.js` expone `DuelUI.api` y lanza los duelos (`startCampaignDuel`, `startCampaignGuided`); la partida guardada recuerda `campana` (id del duelo) para retomarla.
 - `src/ai.js`: IA de la CPU (niveles `facil`, `normal`, `dificil`).
 - `src/ui.js`, `src/style.css`, `src/shell.html`: interfaz. `shell.html` tiene los marcadores `/*FONTS*/`, `/*CSS*/`, `/*LOGIC*/`, `/*AI*/`, `<!--CAPACITOR-->`, `/*CONFIG*/`, `/*PLATFORM*/`, `/*UI*/`.
 - `/*CONFIG*/` → `window.DUEL_CONFIG = {version, feedbackUrl}`: la versión sale de `package.json` (única fuente) y `feedbackUrl` de `src/config.json` (`{version}` dentro del link se reemplaza; solo `https://`; vacío = sin botón de comentarios).
@@ -31,7 +33,7 @@ Juego de estrategia por turnos para celular, contra la CPU. Es web (un HTML gene
 - `android/`: proyecto nativo de Capacitor 8 (se versiona). Cambios propios: orientación vertical (`AndroidManifest.xml`), splash y fondo `#0e1322` (`styles.xml`, `colors_noche.xml`), `android.overridePathCheck=true` (`gradle.properties`, por la tilde en la ruta local).
 - `capacitor.config.json`: appId, color de fondo, `SystemBars` (íconos claros, insets por CSS) y `SplashScreen`.
 - `scripts/apk.js` (`npm run apk`): build de `www`, `cap sync` y `assembleDebug`; deja `dist/duelo-de-nodos-<versión>-debug.apk`. Busca solo un JDK 17+ (el de Android Studio si `JAVA_HOME` es viejo) y el SDK.
-- `test/run.js`: simulaciones CPU vs CPU en node. `test/golden.js`: huella de cada jugada de esas 220 partidas (referencia en `test/golden-ref.json`). `test/reglas.js`: tableros, duelos, partida guardada antigua (`test/fixtures/partida-0.2.0.json`) y ganchos. `test/tutorial.js`: recorre las 5 lecciones con el motor. `npm test` corre las cuatro. `test/tune.js`, `test/len2.js`: apoyo para afinar.
+- `test/run.js`: simulaciones CPU vs CPU en node. `test/golden.js`: huella de cada jugada de esas 220 partidas (referencia en `test/golden-ref.json`). `test/reglas.js`: tableros, duelos, partida guardada antigua (`test/fixtures/partida-0.2.0.json`) y ganchos. `test/tutorial.js`: recorre las 5 lecciones con el motor. `test/campana.js`: campaña (8 pruebas). `test/lib/recorrer.js`: recorrido de lecciones que comparten tutorial y campaña. `npm test` corre las cinco. `test/tune.js`, `test/len2.js`: apoyo para afinar.
 - No se versionan: `www/`, `dist/`, `node_modules/`, builds de Android.
 
 ## Reglas de trabajo (importante)
@@ -39,7 +41,7 @@ Juego de estrategia por turnos para celular, contra la CPU. Es web (un HTML gene
 2. La lógica sigue siendo pura (sin DOM, sin `window`, sin Capacitor). Todo lo nativo vive en la capa de UI/plataforma.
 3. Después de tocar `logic.js`, `ai.js` o `data/`, correr `npm test`. Si la huella de `test/golden.js` cambia, el juego cambió: solo se acepta (`--update`) si el cambio es deliberado y aprobado.
 4. No romper la demo web: GitHub Pages sirve `index.html` desde la raíz de `main`. `main` siempre jugable: se trabaja en ramas y se fusiona cuando está probado. El build de Capacitor es un paso aparte.
-8. Todo lo nuevo (datos, campaña, tutorial) tiene que funcionar en el HTML único de la web, sin servidor. Guardar progreso siempre vía `Platform.storage`, para que la app lo herede.
+8. Juego, datos, diálogos y arte de criaturas van en el HTML único de la web, sin servidor. **Excepción (Fase 3, aprobada):** retratos y fondos de escenas son archivos en `art/web/retratos|fondos/` que se cargan al mostrarse (Pages los sirve, `build.py --out www` los copia a la app); si faltan, círculo con inicial y fondo liso. Guardar progreso siempre vía `Platform.storage`, para que la app lo herede. `build.py` mide el HTML comprimido (gzip, lo que sirve Pages): tope 450 KB.
 5. Todo original: criaturas, nombres y arte sin relación con Pokémon ni Nintendo. No introducir nombres, diseños ni sonidos de esa franquicia.
 6. Sin frameworks ni TypeScript por ahora. Si la campaña lo justifica, proponerlo antes (Vite sería el siguiente paso razonable), no imponerlo.
 7. Commits pequeños y en español, un tema por commit.
@@ -149,7 +151,16 @@ Rama `capacitor-android` (en GitHub). App probada en emulador: toque, splash, zo
 - Verificado: `npm test` idéntico; en el navegador a 375 px sin scroll horizontal; figuras de 38×38 px en el tablero (prueba de 40 px); íconos de estado en tablero y ficha; patrones distinguibles en escala de grises; respaldo con emoji si una imagen falla.
 - Pendiente (Andrés): revisar `art/web/prueba-40.png` y `hoja.png`. Los retratos (`ari-*.png`) van en `art/retratos/`, no en `art/source/` (el script los ignora con aviso).
 
-## Siguiente: Fase 3 de `ROADMAP.md` (estructura de campaña)
+## Fase 3 (estructura de campaña): terminada 2026-11-11, rama `fase3-campana` (sin publicar)
+- Jugable: prólogo y Arco 1 (duelos 1 a 4) con escenas, retratos, fondos, elecciones, recompensas y Sello de Lino. Duelos 5 a 14 en el mapa como "Próximamente" (sus escenas ya están convertidas).
+- Decisiones (aprobadas): arte de escenas como archivos aparte; equipos de campaña con repetidas; duelos 1 y 2 guiados con el motor del tutorial y los textos del guion.
+- Propuesto por Claude, **revisar**: equipos rivales de Sira y Madre Lino (`c03`, `c04`), la "figura de reserva" de Teo (Zumbiza), colores de acento de personajes y qué expresión usa cada uno por escena (`campana.json` → `expresiones`).
+- El duelo 4 se juega **sin** "Hebras enredadas" (aviso antes del duelo): la regla es de la Fase 4.
+- Peso: HTML 575 → 666 KB sin comprimir; **380 → 405 KB comprimido** (lo que se descarga). Retratos (20, 757 KB) y fondos (3, 336 KB) se bajan por escena.
+- Fondos de 852 px de ancho (menos de los 1080 pedidos): no se agrandan.
+- Verificado: `npm test` (lo anterior idéntico + 8 de campaña); en el navegador los 4 duelos de punta a punta, derrota con reintento, retomar un duelo tras recargar, exportar/importar/borrar, respaldo con inicial; capturas en Chrome del emulador.
+
+## Siguiente: Fase 4 de `ROADMAP.md` (primer jefe: Madre Lino y "Hebras enredadas")
 La biblia y el guion ya están en `docs/`. Pendiente de la 0b: link del formulario, prueba en iPhone y testers.
 
 ## Después (no empezar sin pedirlo)

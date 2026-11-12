@@ -43,7 +43,7 @@ Objetivo: que alguien que nunca vio el juego entienda las reglas en 5 minutos, s
 - Se ofrece al primer inicio, se puede saltar, y se reabre desde "Cómo jugar". Se guarda cuál lección se completó.
 - Criterio de salida: publicado en la web y probado con 2 o 3 personas que no conozcan el juego; anotar dónde se traban (el formulario ayuda).
 
-## Fase 3 — Estructura de campaña
+## Fase 3 — Estructura de campaña (terminada: prólogo y Arco 1)
 - Pantalla de mapa de épocas (5 arcos) con desbloqueo lineal de los 14 duelos.
 - Progreso guardado (duelos ganados, estrellas o nota por duelo, criaturas desbloqueadas) con la misma capa de persistencia que la partida guardada (`Platform.storage`).
 - En la web el progreso vive en el navegador: se pierde si se borran los datos del sitio o se cambia de teléfono. Agregar "Exportar / importar progreso" (un código para copiar y pegar) para que los testers no pierdan avance.
