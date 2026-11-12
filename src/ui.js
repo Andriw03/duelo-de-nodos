@@ -23,7 +23,8 @@
     level: 'normal', team: [], cpuTeam: [], state: null,
     sel: null, info: null, confirm: null, busy: false, fast: false,
     lastCpuMs: null, log: [], figEls: new Map(), msg: '',
-    guide: null // tutorial en curso (DuelTutorial.createGuide) o null
+    guide: null, // tutorial en curso (DuelTutorial.createGuide) o null
+    campaign: null // duelo de campaña en curso: { id, onEnd(resultado) } (ver campana-ui.js)
   };
   /* ---------- Versión y comentarios (los inyecta build.py desde package.json y src/config.json) ---------- */
   const CFG = window.DUEL_CONFIG || { version: 'dev', feedbackUrl: '' };
@@ -448,7 +449,7 @@
   function save() {
     if (!ui.state || ui.guide) return;
     if (ui.state.winner !== null) { store.del(); return; }
-    store.set({ v: 1, state: ui.state, level: ui.level, team: ui.team, cpuTeam: ui.cpuTeam, log: ui.log.slice(0, 40) });
+    store.set({ v: 1, state: ui.state, level: ui.level, team: ui.team, cpuTeam: ui.cpuTeam, log: ui.log.slice(0, 40), campana: ui.campaign ? ui.campaign.id : null });
   }
 
   /* ---------- Interacción del jugador ---------- */
@@ -663,6 +664,12 @@
   async function gameOver() {
     if (ui.guide) { finishLesson(); return; } // en el tutorial no se toca la partida guardada
     store.del();
+    if (ui.campaign) {
+      const c = ui.campaign, w = ui.state.winner; ui.campaign = null;
+      P.haptic(w === 0 ? 'win' : 'lose');
+      c.onEnd(w === 0 ? 'win' : w === 1 ? 'lose' : 'draw', ui.state.winReason);
+      return;
+    }
     const s = ui.state;
     const title = s.winner === 0 ? '¡Ganaste!' : s.winner === 1 ? 'Ganó la CPU' : 'Empate';
     P.haptic(s.winner === 0 ? 'win' : 'lose');
@@ -673,6 +680,7 @@
 
   /* ---------- Inicio ---------- */
   function startGame(team, cpuTeam) {
+    ui.campaign = null;
     ui.team = team.slice(); ui.cpuTeam = cpuTeam || D.randomBalancedTeam();
     const first = Math.random() < 0.5 ? 0 : 1;
     ui.state = D.newGame(ui.team, ui.cpuTeam, first, DUEL_LIBRE);
@@ -684,13 +692,34 @@
     save(); afterAction();
   }
   function resumeGame(sv) {
+    ui.campaign = sv.campana && window.DuelCampanaUI ? window.DuelCampanaUI.contexto(sv.campana) : null;
     ui.level = sv.level || 'normal'; ui.team = sv.team; ui.cpuTeam = sv.cpuTeam; ui.state = sv.state; ui.log = sv.log || [];
     ui.sel = null; ui.info = null; ui.confirm = null; ui.busy = false;
     $('#scr-team').hidden = true; $('#scr-game').hidden = false;
     buildBoard(); say('Partida recuperada.'); afterAction();
   }
+  /* ---------- Duelos de campaña (los lanza campana-ui.js) ---------- */
+  function startCampaignDuel(cfg, team, ctx) {
+    ui.guide = null; ui.campaign = ctx;
+    ui.level = AI.LEVELS[cfg.ai] ? cfg.ai : 'normal';
+    ui.cpuTeam = cfg.rival.team.slice();
+    const first = Math.random() < 0.5 ? 0 : 1;
+    ui.state = D.newGame(team.slice(), ui.cpuTeam, first, cfg);
+    ui.log = []; ui.sel = null; ui.info = null; ui.confirm = null; ui.busy = false;
+    hideScreens(); $('#scr-game').hidden = false;
+    buildBoard();
+    say(first === 0 ? 'Sorteo: <b>empiezas tú</b>.' : 'Sorteo: <b>empieza el rival</b>.');
+    logEvents([], first === 0 ? 'Empiezas tú.' : 'Empieza el rival.');
+    save(); afterAction();
+  }
+  function startCampaignGuided(lesson, ctx) {
+    ui.campaign = ctx;
+    startLesson(lesson, lesson.titulo);
+  }
+  function hideScreens() { document.querySelectorAll('#app > .screen').forEach(sc => { sc.hidden = true; }); }
+
   function showTeamScreen() {
-    $('#scr-game').hidden = true; $('#scr-team').hidden = false;
+    hideScreens(); $('#scr-team').hidden = false;
     renderTeam(); window.scrollTo(0, 0);
   }
 
@@ -736,17 +765,20 @@
   }
   async function confirmQuit() {
     const v = await openModal('¿Abandonar la partida?', '<p>Se pierde la partida en curso y vuelves a elegir equipo.</p>', [{ label: 'Cancelar', value: 'no' }, { label: 'Abandonar', value: 'yes', danger: true }]);
-    if (v === 'yes') { store.del(); ui.busy = false; showTeamScreen(); }
+    if (v === 'yes') {
+      store.del(); ui.busy = false;
+      if (ui.campaign) { const c = ui.campaign; ui.campaign = null; c.onEnd('exit'); } else showTeamScreen();
+    }
   }
 
   /* ---------- Tutorial ---------- */
-  function startLesson(L) {
+  function startLesson(L, titulo) {
     ui.guide = TUT.createGuide(L);
     ui.state = ui.guide.start();
     ui.log = []; ui.sel = null; ui.info = null; ui.confirm = null; ui.busy = false;
     $('#scr-team').hidden = true; $('#scr-game').hidden = false;
     $('#guide-bar').hidden = false;
-    $('#guide-title').textContent = 'Tutorial · ' + L.orden + ' de ' + TUT.LESSONS.length + ': ' + L.titulo;
+    $('#guide-title').textContent = titulo || ('Tutorial · ' + L.orden + ' de ' + TUT.LESSONS.length + ': ' + L.titulo);
     buildBoard(); say(''); afterAction();
   }
   function guideNext() {
@@ -755,6 +787,10 @@
   }
   async function finishLesson() {
     const L = ui.guide.lesson; ui.busy = true; refresh();
+    if (ui.campaign) { // duelo guiado de campaña: lo cierra campana-ui.js
+      const c = ui.campaign; ui.campaign = null; ui.guide = null; ui.busy = false; $('#guide-bar').hidden = true;
+      P.haptic('win'); c.onEnd('win'); return;
+    }
     const p = TUT.readProgress(P.storage);
     if (!p.hechas.includes(L.id)) p.hechas.push(L.id);
     p.ofrecido = true; TUT.writeProgress(P.storage, p);
@@ -770,6 +806,7 @@
   function exitTutorial() {
     ui.guide = null; ui.busy = false; ui.state = null;
     $('#guide-bar').hidden = true;
+    if (ui.campaign) { const c = ui.campaign; ui.campaign = null; c.onEnd('exit'); return; }
     showTeamScreen();
   }
   function openTutorialList() {
@@ -797,6 +834,7 @@
   /* ---------- Botón "atrás" (Android) ---------- */
   function onBack() {
     if (!$('#modal').hidden) { closeModal(); return; }   // cierra la ventana abierta
+    if (window.DuelCampanaUI && window.DuelCampanaUI.onBack()) return; // diálogo o mapa de campaña
     if (!$('#battle').hidden) return;                     // el combate se cierra con "Continuar"
     if (!$('#scr-game').hidden) { openMenu(); return; }  // en partida: abre el menú (la partida ya está guardada)
     P.minimize();                                         // en la elección de equipo: a segundo plano, sin cerrar
@@ -812,6 +850,7 @@
     $('#btn-rules-t').addEventListener('click', openRules);
     $('#btn-rules-g').addEventListener('click', openRules);
     $('#btn-guide-exit').addEventListener('click', requestExitTutorial);
+    $('#btn-camp').addEventListener('click', () => window.DuelCampanaUI && window.DuelCampanaUI.abrir());
     $('#btn-menu').addEventListener('click', openMenu);
     $('#version-t').textContent = 'Versión ' + CFG.version + (feedbackUrl ? ' ·' : '');
     $('#btn-feedback-t').hidden = !feedbackUrl;
@@ -824,7 +863,10 @@
   window.DuelUI = {
     get state() { return ui.state; }, get busy() { return ui.busy; }, setFast(v) { ui.fast = v; },
     // solo lectura, para pruebas: lección y paso del tutorial en curso
-    get guide() { return ui.guide && { lesson: ui.guide.lesson.id, step: ui.guide.i, done: ui.guide.done }; }
+    get guide() { return ui.guide && { lesson: ui.guide.lesson.id, step: ui.guide.i, done: ui.guide.done }; },
+    get campaign() { return ui.campaign && ui.campaign.id; },
+    // para campana-ui.js (misma interfaz, otro archivo)
+    api: { openModal, closeModal, esc, creatureImg, typeIcon, showTeamScreen, hideScreens, startCampaignDuel, startCampaignGuided, nudge }
   };
   const start = () => P.restore([SAVE_KEY]).then(init);
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();

@@ -7,6 +7,7 @@
 """
 import argparse
 import base64
+import gzip
 import json
 import pathlib
 import re
@@ -14,7 +15,7 @@ import shutil
 
 RAIZ = pathlib.Path(__file__).parent
 SRC = RAIZ / 'src'
-TOPE_KB = 600   # peso máximo razonable del HTML de la web (se descarga entero en cada visita)
+TOPE_GZ_KB = 450   # tope de lo que se descarga: GitHub Pages sirve el HTML comprimido con gzip
 
 
 def leer(nombre):
@@ -40,8 +41,15 @@ def config_js():
 
 
 def data_js():
-    """window.DUEL_DATA con data/boards, data/duels y data/tutorial (*.json) (la web no tiene servidor: van dentro del HTML)."""
+    """window.DUEL_DATA con data/boards, data/duels, data/tutorial y data/campaign (la web no tiene servidor: van dentro del HTML).
+    Los retratos y fondos de la campaña NO van dentro: se cargan como archivos desde art/web/ (Fase 3)."""
     datos = {}
+    camp = RAIZ / 'data' / 'campaign'
+    rd = lambda f: json.loads(f.read_text(encoding='utf-8'))
+    datos['campaign'] = {
+        'campana': rd(camp / 'campana.json'), 'escenas': rd(camp / 'escenas.json')['escenas'],
+        'personajes': rd(camp / 'personajes.json')['personajes'],
+        'guiados': {j['id']: j for j in (rd(f) for f in sorted((camp / 'guiados').glob('*.json')))}}
     for carpeta in ('boards', 'duels', 'tutorial'):
         datos[carpeta] = {}
         for f in sorted((RAIZ / 'data' / carpeta).glob('*.json')):
@@ -91,6 +99,11 @@ def main():
             raise SystemExit('Falta ' + str(core) + ': corre "npm install" antes de --out')
         shutil.copy2(core, destino / 'capacitor.js')
         capacitor = '<script src="capacitor.js"></script>'
+        # Retratos y fondos de las escenas van como archivos (no dentro del HTML)
+        for sub in ('retratos', 'fondos'):
+            origen = RAIZ / 'art' / 'web' / sub
+            if origen.is_dir():
+                shutil.copytree(origen, destino / 'art' / 'web' / sub, dirs_exist_ok=True)
     else:
         destino = RAIZ
         fonts_css = fuentes_incrustadas(fonts_css)
@@ -99,6 +112,7 @@ def main():
     s = leer('shell.html')
     for marca, contenido in [('/*FONTS*/', fonts_css), ('/*CSS*/', leer('style.css')), ('/*DATA*/', data_js()),
                              ('/*LOGIC*/', leer('logic.js')), ('/*AI*/', leer('ai.js')), ('/*TUTORIAL*/', leer('tutorial.js')),
+                             ('/*CAMPANA*/', leer('campana.js')), ('/*CAMPANA_UI*/', leer('campana-ui.js')),
                              ('<!--CAPACITOR-->\n', capacitor + '\n' if capacitor else ''),
                              ('/*CONFIG*/', config_js()), ('/*ART*/', arte),
                              ('/*PLATFORM*/', leer('platform.js')), ('/*UI*/', leer('ui.js'))]:
@@ -108,10 +122,11 @@ def main():
     salida = destino / 'index.html'
     salida.write_text(s, encoding='utf-8', newline='\n')
     total = len(s.encode('utf-8'))
-    print(salida, total, 'bytes')
+    comprimido = len(gzip.compress(s.encode('utf-8'), 9))
+    print(salida, total, 'bytes (%.0f KB; %.0f KB comprimido, lo que se descarga)' % (total / 1024, comprimido / 1024))
     print('  arte de criaturas: %.0f KB en WebP (%.0f KB dentro del HTML, en base64)' % (peso_arte / 1024, len(arte) / 1024))
-    if total > TOPE_KB * 1024:
-        print('  AVISO: el HTML pesa %.0f KB, más que el tope de %d KB.' % (total / 1024, TOPE_KB))
+    if comprimido > TOPE_GZ_KB * 1024:
+        print('  AVISO: el HTML comprimido pesa %.0f KB, más que el tope de %d KB.' % (comprimido / 1024, TOPE_GZ_KB))
 
 
 if __name__ == '__main__':

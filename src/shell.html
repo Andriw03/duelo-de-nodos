@@ -29,6 +29,7 @@
       <button type="button" id="btn-rules-t" class="btn icon" aria-label="Cómo jugar">?</button>
     </header>
     <p class="intro">Elige 6 de las 12 criaturas. La CPU arma un equipo equilibrado al azar. Toca la <b>i</b> para ver la ruleta de cada una.</p>
+    <button type="button" id="btn-camp" class="btn camp-btn"><span>Campaña</span><small>El Gran Telar del Tiempo</small></button>
     <p class="about"><span id="version-t"></span><button type="button" id="btn-feedback-t" class="linkbtn" hidden>Enviar comentarios</button></p>
     <div class="diff" id="diff" role="radiogroup" aria-label="Dificultad">
       <button type="button" role="radio" data-lv="facil">Fácil</button>
@@ -45,6 +46,16 @@
         <button type="button" id="btn-play" class="btn primary" disabled>Jugar</button>
       </div>
     </footer>
+  </section>
+
+  <section id="scr-camp" class="screen" hidden>
+    <header class="tbar">
+      <button type="button" id="btn-camp-back" class="btn icon" aria-label="Volver">‹</button>
+      <h1>Campaña</h1>
+      <button type="button" id="btn-camp-menu" class="btn icon" aria-label="Opciones de campaña">☰</button>
+    </header>
+    <div id="camp-head" class="camp-head"></div>
+    <div id="camp-list" class="camp-list"></div>
   </section>
 
   <section id="scr-game" class="screen" hidden>
@@ -75,6 +86,19 @@
   </div>
 </div>
 
+<div id="dialogo" class="dialogo" hidden>
+  <div class="dlg-fondo"></div>
+  <div class="dlg-escena" aria-live="polite"></div>
+  <div class="dlg-retrato"></div>
+  <div class="dlg-caja">
+    <div class="dlg-nombre"></div>
+    <p class="dlg-accion"></p>
+    <p class="dlg-texto"></p>
+    <div class="dlg-opciones"></div>
+    <div class="dlg-pie"><button type="button" class="linkbtn dlg-saltar">Saltar escena</button><span class="dlg-sigue">Toca para seguir ›</span></div>
+  </div>
+</div>
+
 <div id="modal" class="overlay modal" hidden>
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="modal-title">
     <h2 id="modal-title"></h2>
@@ -95,6 +119,9 @@
 <script>
 /*TUTORIAL*/
 </script>
+<script>
+/*CAMPANA*/
+</script>
 <!--CAPACITOR-->
 <script>
 /*CONFIG*/
@@ -103,6 +130,9 @@
 </script>
 <script>
 /*UI*/
+</script>
+<script>
+/*CAMPANA_UI*/
 </script>
 </body>
 </html>
