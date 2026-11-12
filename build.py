@@ -14,6 +14,7 @@ import shutil
 
 RAIZ = pathlib.Path(__file__).parent
 SRC = RAIZ / 'src'
+TOPE_KB = 600   # peso máximo razonable del HTML de la web (se descarga entero en cada visita)
 
 
 def leer(nombre):
@@ -52,6 +53,25 @@ def data_js():
     return 'window.DUEL_DATA = ' + texto.replace('</', '<\\/') + ';'
 
 
+def art_js():
+    """window.DUEL_ART: arte de las criaturas (data/art.json) incrustado como data URI.
+    Solo van el token (128 px) y la ficha-web (256 px); la ficha de 512 px queda en art/web/."""
+    ruta = RAIZ / 'data' / 'art.json'
+    if not ruta.exists():
+        return 'window.DUEL_ART = {};', 0
+    art = json.loads(ruta.read_text(encoding='utf-8')).get('criaturas', {})
+    out = {}; peso = 0
+    for cid, archivos in sorted(art.items()):
+        out[cid] = {}
+        for clave, nombre in (('token', 'token'), ('ficha', 'ficha-web')):
+            f = RAIZ / archivos[nombre]
+            if not f.exists():
+                raise SystemExit('data/art.json apunta a un archivo que no existe: ' + archivos[nombre])
+            datos = f.read_bytes(); peso += len(datos)
+            out[cid][clave] = 'data:image/webp;base64,' + base64.b64encode(datos).decode('ascii')
+    return 'window.DUEL_ART = ' + json.dumps(out, separators=(',', ':')) + ';', peso
+
+
 def main():
     ap = argparse.ArgumentParser(description='Build de Duelo de Nodos')
     ap.add_argument('--out', help='carpeta destino (p. ej. www). Sin esto: index.html en la raíz')
@@ -75,18 +95,23 @@ def main():
         destino = RAIZ
         fonts_css = fuentes_incrustadas(fonts_css)
 
+    arte, peso_arte = art_js()
     s = leer('shell.html')
     for marca, contenido in [('/*FONTS*/', fonts_css), ('/*CSS*/', leer('style.css')), ('/*DATA*/', data_js()),
                              ('/*LOGIC*/', leer('logic.js')), ('/*AI*/', leer('ai.js')), ('/*TUTORIAL*/', leer('tutorial.js')),
                              ('<!--CAPACITOR-->\n', capacitor + '\n' if capacitor else ''),
-                             ('/*CONFIG*/', config_js()),
+                             ('/*CONFIG*/', config_js()), ('/*ART*/', arte),
                              ('/*PLATFORM*/', leer('platform.js')), ('/*UI*/', leer('ui.js'))]:
         assert marca in s, 'falta el marcador ' + marca
         s = s.replace(marca, contenido)
 
     salida = destino / 'index.html'
     salida.write_text(s, encoding='utf-8', newline='\n')
-    print(salida, len(s.encode('utf-8')), 'bytes')
+    total = len(s.encode('utf-8'))
+    print(salida, total, 'bytes')
+    print('  arte de criaturas: %.0f KB en WebP (%.0f KB dentro del HTML, en base64)' % (peso_arte / 1024, len(arte) / 1024))
+    if total > TOPE_KB * 1024:
+        print('  AVISO: el HTML pesa %.0f KB, más que el tope de %d KB.' % (total / 1024, TOPE_KB))
 
 
 if __name__ == '__main__':

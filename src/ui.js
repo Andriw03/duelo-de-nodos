@@ -39,6 +39,29 @@
 
   const wait = ms => new Promise(r => setTimeout(r, reduced ? Math.min(ms, 120) : (ui.fast ? ms * 0.45 : ms)));
 
+  /* ---------- Arte de criaturas e íconos ----------
+     DUEL_ART (lo incrusta build.py desde data/art.json): { id: { token, ficha } } como data URI.
+     Si una criatura no tiene arte, o la imagen falla, se muestra su emoji. */
+  const ART = window.DUEL_ART || {};
+  const STATUS_ICON = { poison: 'st-poison', para: 'st-para', sleep: 'st-sleep', freeze: 'st-freeze' };
+  const icon = (id, cls) => '<svg class="ic' + (cls ? ' ' + cls : '') + '" aria-hidden="true"><use href="#' + id + '"/></svg>';
+  const typeIcon = t => icon('ty-' + t);
+  function creatureImg(c, kind, cls) {
+    const a = ART[c.id];
+    if (!a || !a[kind]) return '<span class="emo">' + c.emoji + '</span>';
+    return '<img class="art' + (cls ? ' ' + cls : '') + '" src="' + a[kind] + '" alt="" data-emoji="' + c.emoji + '" draggable="false">';
+  }
+  // Respaldo: si una imagen del arte no carga, vuelve el emoji (HTML) o el texto (tablero SVG)
+  document.addEventListener('error', e => {
+    const el = e.target;
+    if (el && el.tagName === 'IMG' && el.classList.contains('art')) {
+      const sp = document.createElement('span'); sp.className = 'emo'; sp.textContent = el.dataset.emoji || '';
+      el.replaceWith(sp);
+    } else if (el && el.tagName && el.tagName.toLowerCase() === 'image' && el.dataset.emoji) {
+      const t = svgEl('text', { class: 'fe', y: 1 }); t.textContent = el.dataset.emoji; el.replaceWith(t);
+    }
+  }, true);
+
   /* ---------- Ruletas en canvas ---------- */
   function prepCanvas(cv, size) {
     const dpr = Math.min(3, window.devicePixelRatio || 1);
@@ -53,6 +76,26 @@
     if (s.t === 'b') return 'Esq';
     return '✕';
   }
+  // Patrón de cada color de segmento, para quien no distingue colores (se dibuja con la tinta del segmento)
+  const patternCache = {};
+  function segPattern(ctx, t, dpr) {
+    if (t === 'w') return null;
+    const key = t + '@' + dpr;
+    if (!patternCache[key]) {
+      const n = t === 'b' ? 10 : 7; const tile = document.createElement('canvas');
+      tile.width = tile.height = Math.round(n * dpr);
+      const c = tile.getContext('2d'); c.scale(dpr, dpr);
+      c.strokeStyle = c.fillStyle = t === 'g' ? 'rgba(58,42,0,.5)' : 'rgba(255,255,255,.42)'; c.lineWidth = 1.3;
+      if (t === 'r') { c.beginPath(); c.moveTo(-1, n + 1); c.lineTo(n + 1, -1); c.moveTo(-1, 1); c.lineTo(1, -1); c.moveTo(n - 1, n + 1); c.lineTo(n + 1, n - 1); c.stroke(); }
+      else if (t === 'g') { c.beginPath(); c.arc(n / 2, n / 2, 1.5, 0, Math.PI * 2); c.fill(); }
+      else if (t === 'p') { c.lineWidth = 1.1; c.beginPath(); c.moveTo(0, .5); c.lineTo(n, .5); c.moveTo(.5, 0); c.lineTo(.5, n); c.stroke(); }
+      else if (t === 'b') { c.beginPath(); c.moveTo(0, n * .6); c.quadraticCurveTo(n / 4, n * .15, n / 2, n * .6); c.quadraticCurveTo(n * .75, n * 1.05, n, n * .6); c.stroke(); }
+      patternCache[key] = tile;
+    }
+    const p = ctx.createPattern(patternCache[key], 'repeat');
+    if (p.setTransform && window.DOMMatrix) p.setTransform(new DOMMatrix().scale(1 / dpr));
+    return p;
+  }
   function drawWheel(cv, wheel, rot, opts) {
     opts = opts || {};
     const size = +cv.dataset.size; const ctx = cv.getContext('2d');
@@ -66,11 +109,14 @@
       const a0 = -Math.PI / 2 + TAU * fr[i][0], a1 = -Math.PI / 2 + TAU * fr[i][1];
       ctx.beginPath(); ctx.moveTo(0, 0); ctx.arc(0, 0, R, a0, a1); ctx.closePath();
       ctx.fillStyle = D.SEG[s.t].color; ctx.fill();
+      const pat = segPattern(ctx, s.t, dpr); if (pat) { ctx.fillStyle = pat; ctx.fill(); }
       ctx.lineWidth = Math.max(1.2, size / 80); ctx.strokeStyle = '#0e1322'; ctx.stroke();
       if (opts.labels && a1 - a0 > 0.22) {
         ctx.save(); ctx.rotate((a0 + a1) / 2);
         ctx.fillStyle = D.SEG[s.t].ink; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
         ctx.font = '800 ' + Math.round(size / 11) + 'px Nunito, system-ui, sans-serif';
+        // contorno del color del segmento: el número se lee sobre el patrón
+        ctx.lineJoin = 'round'; ctx.lineWidth = 3; ctx.strokeStyle = D.SEG[s.t].color; ctx.strokeText(shortVal(s), R - 7, 0);
         ctx.fillText(shortVal(s), R - 7, 0); ctx.restore();
       }
     });
@@ -89,19 +135,19 @@
   function weakTo(t) { return D.TYPE_ORDER.find(x => D.TYPES[x].beats === t); }
   function typeStripHTML() {
     const order = D.TYPE_ORDER.concat([D.TYPE_ORDER[0]]);
-    return '<span class="lbl" aria-hidden="true">⚔</span>' + order.map((t, i) => '<span class="t"><span class="dot" style="background:' + D.TYPES[t].color + '"></span>' + D.TYPES[t].name + '</span>' + (i < order.length - 1 ? '<span class="arr">›</span>' : '')).join('');
+    return '<span class="lbl" aria-hidden="true">⚔</span>' + order.map((t, i) => '<span class="t"><span style="color:' + D.TYPES[t].color + '">' + typeIcon(t) + '</span>' + D.TYPES[t].name + '</span>' + (i < order.length - 1 ? '<span class="arr">›</span>' : '')).join('');
   }
   function cycleSVG() {
     const R = 78, cx = 130, cy = 104, pts = D.TYPE_ORDER.map((t, i) => { const a = -Math.PI / 2 + i * 2 * Math.PI / 5; return { t, x: cx + R * Math.cos(a), y: cy + R * Math.sin(a) }; });
     let g = '<svg class="cycle-svg" viewBox="0 0 260 210" role="img" aria-label="Ciclo de tipos"><defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#9ba6c9"/></marker></defs>';
     pts.forEach((p, i) => { const q = pts[(i + 1) % 5]; const dx = q.x - p.x, dy = q.y - p.y, L = Math.hypot(dx, dy), k = 27 / L;
       g += '<line x1="' + (p.x + dx * k).toFixed(1) + '" y1="' + (p.y + dy * k).toFixed(1) + '" x2="' + (q.x - dx * k).toFixed(1) + '" y2="' + (q.y - dy * k).toFixed(1) + '" stroke="#9ba6c9" stroke-width="2.5" marker-end="url(#ah)"/>'; });
-    pts.forEach(p => { g += '<circle cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="24" fill="' + D.TYPES[p.t].color + '"/><text x="' + p.x.toFixed(1) + '" y="' + p.y.toFixed(1) + '" style="fill:#10172b">' + D.TYPES[p.t].name + '</text>'; });
+    pts.forEach(p => { g += '<circle cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="24" fill="' + D.TYPES[p.t].color + '"/><use href="#ty-' + p.t + '" x="' + (p.x - 7).toFixed(1) + '" y="' + (p.y - 17).toFixed(1) + '" width="14" height="14" style="color:#10172b"/><text x="' + p.x.toFixed(1) + '" y="' + (p.y + 7).toFixed(1) + '" style="fill:#10172b">' + D.TYPES[p.t].name + '</text>'; });
     return g + '</svg>';
   }
-  function typeChip(t) { const T = D.TYPES[t]; return '<span class="chip"><span class="dot" style="background:' + T.color + '"></span>' + T.name + '</span>'; }
+  function typeChip(t) { const T = D.TYPES[t]; return '<span class="chip"><span style="color:' + T.color + '">' + typeIcon(t) + '</span>' + T.name + '</span>'; }
   function segRows(wheel) {
-    return wheel.map(s => '<tr><td><span class="sq" style="background:' + D.SEG[s.t].color + '"></span></td><td class="n">' + esc(s.name) +
+    return wheel.map(s => '<tr><td><span class="sq seg-' + s.t + '" style="background-color:' + D.SEG[s.t].color + '"></span></td><td class="n">' + esc(s.name) +
       (s.t === 'g' && s.fx ? ' <span class="note">(' + esc(D.FX[s.fx]) + ')</span>' : '') +
       (s.t === 'p' ? ' <span class="note">' + D.STATUS[s.st].name.toLowerCase() + '</span>' : '') +
       '</td><td class="v">' + shortVal(s) + '</td><td class="pc">' + pct(s.w) + '</td></tr>').join('');
@@ -109,7 +155,7 @@
   function statusText(f) {
     if (!f || !f.status) return '';
     const S = D.STATUS[f.status.k];
-    return '<span class="chip" style="box-shadow:inset 0 0 0 1.5px ' + S.color + '">' + S.icon + ' ' + S.name + ' · ' + f.status.left + ' t</span>';
+    return '<span class="chip" style="box-shadow:inset 0 0 0 1.5px ' + S.color + '"><span style="color:' + S.color + '">' + icon(STATUS_ICON[f.status.k], 'st') + '</span>' + S.name + ' · ' + f.status.left + ' t</span>';
   }
   function locText(f) {
     if (!f) return '';
@@ -128,7 +174,7 @@
     const f = info.fig !== undefined ? ui.state.figs[info.fig] : null;
     const c = D.CREATURE[f ? f.kind : info.kind];
     box.className = 'ficha';
-    box.innerHTML = '<div class="head"><strong>' + c.emoji + ' ' + esc(c.name) + '</strong>' + typeChip(c.type) +
+    box.innerHTML = '<div class="head">' + creatureImg(c, 'token') + '<strong>' + esc(c.name) + '</strong>' + typeChip(c.type) +
       '<span class="chip up">Vence a ' + D.TYPES[D.TYPES[c.type].beats].name + '</span><span class="chip down">Débil ante ' + D.TYPES[weakTo(c.type)].name + '</span>' +
       '<span class="chip">MP ' + c.mp + '</span>' +
       (f ? '<span class="chip" style="color:var(--p' + f.owner + ')">' + (f.owner === 0 ? 'Tuya' : 'CPU') + '</span>' : '') +
@@ -136,12 +182,12 @@
     const cv = box.querySelector('canvas'); prepCanvas(cv, 80); drawWheel(cv, c.wheel, 0);
   }
   function bigFichaHTML(c) {
-    return '<div class="big-ficha"><div>' + typeChip(c.type) + ' <span class="chip">MP ' + c.mp + '</span> <span class="chip">' + D.RARITY[c.rarity] + '</span> <span class="chip">Vence a ' + D.TYPES[D.TYPES[c.type].beats].name + '</span></div>' +
+    return '<div class="big-ficha">' + creatureImg(c, 'ficha', 'big') + '<div>' + typeChip(c.type) + ' <span class="chip">MP ' + c.mp + '</span> <span class="chip">' + D.RARITY[c.rarity] + '</span> <span class="chip">Vence a ' + D.TYPES[D.TYPES[c.type].beats].name + '</span></div>' +
       '<canvas></canvas><table class="segs">' + segRows(c.wheel) + '</table></div>';
   }
   function showCreature(id) {
     const c = D.CREATURE[id];
-    openModal(c.emoji + ' ' + c.name, bigFichaHTML(c), [{ label: 'Cerrar', primary: true }]);
+    openModal(esc(c.name), bigFichaHTML(c), [{ label: 'Cerrar', primary: true }]);
     const cv = $('#modal-body canvas'); prepCanvas(cv, 170); drawWheel(cv, c.wheel, 0, { labels: true });
   }
 
@@ -168,7 +214,7 @@
 
   /* ---------- Reglas ---------- */
   function rulesHTML() {
-    const seg = t => '<span class="k"><span class="sq" style="background:' + D.SEG[t].color + '"></span>' + D.SEG[t].name + '</span>';
+    const seg = t => '<span class="k"><span class="sq seg-' + t + '" style="background-color:' + D.SEG[t].color + '"></span>' + D.SEG[t].name + '</span>';
     const cycle = D.TYPE_ORDER.map(t => D.TYPES[t].name).join(' → ') + ' → ' + D.TYPES[D.TYPE_ORDER[0]].name;
     return '<p><b>Objetivo:</b> deja una figura sobre la <b>meta rival</b> (el círculo grande del otro lado).</p>' +
       '<h3>Tu turno</h3><ol>' +
@@ -205,7 +251,7 @@
       const on = ui.team.includes(c.id);
       const card = el('div', 'card' + (on ? ' on' : ''));
       card.innerHTML = '<span class="check">' + (on ? ui.team.indexOf(c.id) + 1 : '') + '</span>' +
-        '<button type="button" class="pick" aria-pressed="' + on + '"><span class="em">' + c.emoji + '</span><span class="nm">' + esc(c.name) + '</span>' +
+        '<button type="button" class="pick" aria-pressed="' + on + '"><span class="em">' + creatureImg(c, 'token') + '</span><span class="nm">' + esc(c.name) + '</span>' +
         '<span class="meta">' + typeChip(c.type) + '</span><span class="meta"><span>MP ' + c.mp + '</span>·<span>' + D.RARITY[c.rarity] + '</span></span></button>' +
         '<button type="button" class="info" aria-label="Ver ruleta de ' + esc(c.name) + '"><span>i</span></button>';
       card.querySelector('.pick').addEventListener('click', () => {
@@ -262,9 +308,14 @@
       const c = D.creatureOf(f);
       g.appendChild(svgEl('circle', { class: 'ring', r: 27 }));
       g.appendChild(svgEl('circle', { class: 'fb', r: 20 }));
-      const t = svgEl('text', { class: 'fe', y: 1 }); t.textContent = c.emoji; g.appendChild(t);
-      g.appendChild(svgEl('circle', { class: 'ft', cx: 15, cy: 15, r: 6, fill: D.TYPES[c.type].color }));
-      const st = svgEl('g', { class: 'fs' }); st.appendChild(svgEl('circle', { cx: 16, cy: -16, r: 8.5 })); st.appendChild(svgEl('text', { x: 16, y: -15.5 })); g.appendChild(st);
+      const a = ART[c.id];
+      if (a && a.token) {
+        const im = svgEl('image', { class: 'fi', href: a.token, x: -19, y: -19, width: 38, height: 38 });
+        im.dataset.emoji = c.emoji; g.appendChild(im);
+      } else { const t = svgEl('text', { class: 'fe', y: 1 }); t.textContent = c.emoji; g.appendChild(t); }
+      g.appendChild(svgEl('circle', { class: 'ft', cx: 15, cy: 15, r: 7, fill: D.TYPES[c.type].color }));
+      g.appendChild(svgEl('use', { href: '#ty-' + c.type, x: 10.5, y: 10.5, width: 9, height: 9, class: 'fti' }));
+      const st = svgEl('g', { class: 'fs' }); st.appendChild(svgEl('circle', { cx: 16, cy: -16, r: 8.5 })); st.appendChild(svgEl('use', { x: 10.5, y: -21.5, width: 11, height: 11 })); g.appendChild(st);
       const av = svgEl('g', { class: 'fa' }); av.appendChild(svgEl('circle', { cx: -16, cy: -16, r: 8.5 })); av.appendChild(svgEl('text', { x: -16, y: -15.5 })); g.appendChild(av);
       g.style.opacity = '0';
       $('#figs').appendChild(g); ui.figEls.set(f.id, g);
@@ -284,7 +335,7 @@
       if (!g.dataset.anim) placeFig(g, f.node);
       g.classList.toggle('sel', !!(ui.sel && ui.sel.fig === f.id));
       const st = g.querySelector('.fs');
-      if (f.status) { const S = D.STATUS[f.status.k]; st.style.display = ''; st.querySelector('circle').setAttribute('fill', S.color); st.querySelector('text').textContent = S.icon; }
+      if (f.status) { const S = D.STATUS[f.status.k]; st.style.display = ''; st.querySelector('circle').setAttribute('fill', S.color); st.querySelector('use').setAttribute('href', '#' + STATUS_ICON[f.status.k]); }
       else st.style.display = 'none';
       const av = g.querySelector('.fa'); const rel = advOf(f);
       if (rel) { av.style.display = ''; av.querySelector('circle').setAttribute('fill', rel > 0 ? 'var(--go)' : 'var(--hit)'); av.querySelector('text').textContent = rel > 0 ? '▲' : '▼'; }
@@ -335,7 +386,7 @@
         const guided = ui.guide && canAct() && f.loc === 'bench' && ui.guide.highlights().figs.includes(f.id);
         const b = el('button', 'slot ' + f.loc + (ui.sel && ui.sel.fig === f.id ? ' sel' : '') + (rel > 0 ? ' up' : rel < 0 ? ' down' : '') + (guided ? ' guide' : ''));
         b.type = 'button';
-        b.innerHTML = c.emoji + '<span class="tdot" style="background:' + D.TYPES[c.type].color + '"></span>';
+        b.innerHTML = creatureImg(c, 'token') + '<span class="tic" style="background:' + D.TYPES[c.type].color + '">' + typeIcon(c.type) + '</span>';
         if (f.loc === 'ko') b.dataset.ko = f.koLeft;
         b.setAttribute('aria-label', c.name + (f.loc === 'bench' ? ' en la banca' : f.loc === 'ko' ? ' en la enfermería' : ' en el tablero'));
         b.addEventListener('click', () => slotTapped(f.id));
@@ -504,7 +555,7 @@
       const box = $(sel); const c = D.creatureOf(f);
       box.className = 'fighter p' + f.owner;
       const mods = [...new Set(wheel.flatMap(x => x.mods || []))];
-      box.querySelector('.fn').innerHTML = c.emoji + ' ' + esc(c.name);
+      box.querySelector('.fn').innerHTML = creatureImg(c, 'token') + esc(c.name);
       box.querySelector('.fr').innerHTML = (f.id === aId ? 'Ataca' : 'Defiende') + ' · ' + (f.owner === 0 ? 'Tú' : 'CPU') + ' · ' + D.TYPES[c.type].name + (mods.length ? '<br>' + esc(mods.join(' · ')) : '');
       box.querySelector('.res').innerHTML = '';
       const cv = box.querySelector('canvas'); prepCanvas(cv, size);
@@ -532,7 +583,7 @@
         $('#battle').removeEventListener('pointerdown', onSkip);
         anims.forEach(a => {
           const seg = a.wheel[a.idx];
-          a.box.querySelector('.res').innerHTML = '<span class="sq" style="background:' + D.SEG[seg.t].color + '"></span>' + esc(D.segLabel(seg));
+          a.box.querySelector('.res').innerHTML = '<span class="sq seg-' + seg.t + '" style="background-color:' + D.SEG[seg.t].color + '"></span>' + esc(D.segLabel(seg));
         });
         const w = preview.battle.winner;
         if (w !== null) (w === top.id ? anims[0] : anims[1]).box.classList.add('win');
@@ -655,7 +706,7 @@
       let stopFails = 0;
       c.wheel.forEach((s, i) => { for (let k = 0; k < 50; k++) if (D.segmentAtRotation(c.wheel, D.targetRotation(c.wheel, i, 4, Math.random, 0)) !== i) stopFails++; });
       worstAll = Math.max(worstAll, worst); overAll += over; segsAll += c.wheel.length;
-      rows += '<tr><td>' + c.emoji + ' ' + esc(c.name) + '</td><td>' + worst.toFixed(1).replace('.', ',') + ' pp</td><td class="' + (over ? 'warn' : 'ok') + '">' + (over ? over + ' fuera' : 'OK') + '</td><td class="' + (stopFails ? 'warn' : 'ok') + '">' + (stopFails ? stopFails : 'OK') + '</td></tr>';
+      rows += '<tr><td>' + creatureImg(c, 'token') + ' ' + esc(c.name) + '</td><td>' + worst.toFixed(1).replace('.', ',') + ' pp</td><td class="' + (over ? 'warn' : 'ok') + '">' + (over ? over + ' fuera' : 'OK') + '</td><td class="' + (stopFails ? 'warn' : 'ok') + '">' + (stopFails ? stopFails : 'OK') + '</td></tr>';
     });
     let big = 0; const M = 100000;
     D.CREATURES.forEach(c => { const cnt = new Array(c.wheel.length).fill(0); for (let i = 0; i < M; i++) cnt[D.pickIndex(c.wheel, Math.random)]++; c.wheel.forEach((s, i) => big = Math.max(big, Math.abs(cnt[i] / M - s.w / 96) * 100)); });
