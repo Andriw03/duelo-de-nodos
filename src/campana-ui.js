@@ -55,6 +55,8 @@
       });
     });
     $('#camp-list').innerHTML = html;
+    const sig = C.siguiente(prog);
+    if (sig) precargarEscenas(sig.antes || [], sig);
     $('#camp-list').querySelectorAll('.camp-duel').forEach(b => b.addEventListener('click', () => jugar(C.duelo(b.dataset.id), false)));
   }
 
@@ -67,6 +69,7 @@
   async function jugar(d, reintento) {
     if (!reintento) await escenas(d.antes || [], d);
     if (d.aviso) await U.openModal(esc(d.titulo), '<p>' + esc(d.aviso) + '</p>', [{ label: 'Entendido', primary: true }]);
+    precargarEscenas((d.despues || []).concat(d.reintento ? [d.reintento] : []), d);
     if (d.guiado) { U.startCampaignGuided(C.guiado(d.guiado), contexto(d.id)); return; }
     const equipo = await elegirEquipo(d);
     if (!equipo) { mapa(); return; }
@@ -115,8 +118,25 @@
     return eq;
   }
 
+  /* ---------- Precarga ----------
+     Retratos y fondos son archivos aparte (art/web/): se piden antes de mostrarlos para que la escena
+     no aparezca a medias con red lenta. Cada archivo se pide una sola vez; si falla, la escena usa su respaldo. */
+  const pedidos = new Set();
+  function precargar(urls) {
+    urls.forEach(u => { if (!u || pedidos.has(u)) return; pedidos.add(u); const img = new Image(); img.decoding = 'async'; img.src = u; });
+  }
+  function archivosEscena(e) {
+    const out = [e.fondo];
+    e.lineas.forEach(l => { out.push(l.retrato); (l.opciones || []).forEach(o => out.push(o.respuesta && o.respuesta.retrato)); });
+    return out;
+  }
+  function precargarEscenas(ids, d) {
+    ids.forEach(id => { try { precargar(archivosEscena(C.escena(id, d, prog))); } catch (e) { /* escena sin datos: nada que precargar */ } });
+  }
+
   /* ---------- Diálogo ---------- */
   async function escenas(ids, d) {
+    precargarEscenas(ids, d);   // todas las del tramo: la siguiente queda lista mientras se lee la actual
     for (const id of ids) await dialogo(C.escena(id, d, prog));
   }
   function dialogo(e) {
