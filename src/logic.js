@@ -33,7 +33,9 @@
   const FX = {
     cure:       'y se cura de su estado',
     area_para:  'y paraliza a los rivales que tenga al lado',
-    area_sleep: 'y duerme a los rivales que tenga al lado'
+    area_sleep: 'y duerme a los rivales que tenga al lado',
+    remiendo:   'y saca de la enfermería a una figura propia',
+    embestida:  'y avanza al cruce que deja el rival'
   };
 
   const RARITY = { c: 'Común', r: 'Rara', e: 'Épica' };
@@ -69,7 +71,34 @@
     { id: 'zumbiza', name: 'Zumbiza', emoji: '🐝', type: 'rayo', mp: 3, rarity: 'c',
       wheel: [W('Aguijón eléctrico', 40, 32), P('Zumbido paralizante', 2, 'para', 16), B('Vuelo zigzag', 16), W('Picada', 20, 16), R(16)] },
     { id: 'chispabuho', name: 'Chispabúho', emoji: '🦉', type: 'rayo', mp: 2, rarity: 'r',
-      wheel: [W('Garra voltaica', 70, 28), G('Relámpago', 90, 12), P('Ojos hipnóticos', 2, 'sleep', 12), W('Picotazo', 30, 12), B('Planeo', 16), R(16)] }
+      wheel: [W('Garra voltaica', 70, 28), G('Relámpago', 90, 12), P('Ojos hipnóticos', 2, 'sleep', 12), W('Picotazo', 30, 12), B('Planeo', 16), R(16)] },
+    // --- Plantilla de 25 (2026-11-13) ---
+    { id: 'brasapo', name: 'Brasapo', emoji: '🐸', type: 'fuego', mp: 2, rarity: 'c',
+      wheel: [W('Lengüetazo ardiente', 60, 28), P('Humo tóxico', 2, 'poison', 24), W('Salto de brasa', 40, 16), B('Hollín', 12), R(16)] },
+    { id: 'lanaflama', name: 'Lanaflama', emoji: '🦙', type: 'fuego', mp: 3, rarity: 'r',
+      wheel: [B('Vellón de humo', 26), W('Coz caliente', 60, 24), P('Escupitajo de ceniza', 2, 'para', 16), W('Mordisco', 40, 16), R(14)] },
+    { id: 'picobuzo', name: 'Picobuzo', emoji: '🦫', type: 'agua', mp: 1, rarity: 'r',
+      wheel: [W('Coletazo de pala', 80, 26), B('Zambullida', 24), P('Espolón venenoso', 3, 'poison', 20), W('Picotazo', 40, 10), R(16)] },
+    { id: 'velaguja', name: 'Velaguja', emoji: '🐟', type: 'agua', mp: 3, rarity: 'r',
+      wheel: [W('Estocada', 70, 32), W('Puntada', 50, 24), W('Corte de aleta', 40, 20), B('Vela al viento', 16), R(4)] },
+    { id: 'cestacol', name: 'Cestacol', emoji: '🐌', type: 'planta', mp: 1, rarity: 'c',
+      wheel: [B('Refugio de mimbre', 32), W('Cabezazo de concha', 70, 30), P('Baba adormecedora', 1, 'sleep', 14), R(20)] },
+    { id: 'hormihoja', name: 'Hormihoja', emoji: '🐜', type: 'planta', mp: 3, rarity: 'r',
+      wheel: [W('Golpe de hoja', 30, 24), B('Escudo de hoja', 18), W('Tijeretazo', 60, 16), W('Mordida de cortadora', 100, 14), P('Savia pegajosa', 1, 'poison', 12), R(12)] },
+    { id: 'cascoriza', name: 'Cascoriza', emoji: '🦤', type: 'planta', mp: 1, rarity: 'e',
+      wheel: [W('Patada de garra', 120, 30), G('Llamado del nido', 70, 10, 'remiendo'), P('Casco aturdidor', 2, 'para', 14), B('Plumaje de flecos', 14), R(28)] },
+    { id: 'capiganso', name: 'Capiganso', emoji: '🪿', type: 'tierra', mp: 2, rarity: 'c',
+      wheel: [P('Graznido de alarma', 1, 'para', 26), W('Picotazo', 60, 22), B('Alas en guardia', 22), W('Pisotón palmeado', 40, 12), R(14)] },
+    { id: 'pinzanfora', name: 'Pinzánfora', emoji: '🦀', type: 'tierra', mp: 1, rarity: 'r',
+      wheel: [W('Pinza de bronce', 100, 36), B('Dentro del ánfora', 32), W('Pinza chica', 40, 12), R(16)] },
+    { id: 'columnero', name: 'Columnero', emoji: '🐏', type: 'tierra', mp: 3, rarity: 'e',
+      wheel: [W('Topetazo', 60, 24), W('Coz de risco', 40, 18), P('Mirada de mármol', 3, 'freeze', 14), G('Carga de carnero', 70, 12, 'embestida'), B('Salto de cornisa', 14), R(14)] },
+    { id: 'crestrayo', name: 'Crestrayo', emoji: '🦎', type: 'rayo', mp: 2, rarity: 'c',
+      wheel: [W('Latigazo de cola', 70, 26), W('Chispazo', 40, 22), P('Cresta estática', 1, 'para', 16), B('Escabullirse', 16), R(16)] },
+    { id: 'campanala', name: 'Campanala', emoji: '🦇', type: 'rayo', mp: 2, rarity: 'r',
+      wheel: [W('Mordisco', 60, 24), P('Tañido adormecedor', 2, 'sleep', 22), W('Aleteo', 30, 14), G('Repique', 60, 8, 'area_para'), B('Colgarse del campanario', 14), R(14)] },
+    { id: 'jabatrueno', name: 'Jabatrueno', emoji: '🐗', type: 'rayo', mp: 1, rarity: 'e',
+      wheel: [W('Colmillazo', 120, 28), G('Carga del estandarte', 80, 18), W('Hocicazo', 60, 12), B('Pechera de escudo', 12), R(26)] }
   ];
   const CREATURE = {};
   CREATURES.forEach((c, i) => { c.index = i; CREATURE[c.id] = c; });
@@ -439,6 +468,28 @@
     return { win, lose, tie: 1 - win - lose };
   }
 
+  /* Efectos de dorado nuevos (devuelven el texto, o null si el efecto no es de este grupo).
+     remiendo: la figura propia con más turnos de enfermería pendientes vuelve a la banca (si no hay, no pasa nada).
+     embestida: la ganadora pasa al cruce que dejó la perdedora, salvo que sea una meta. */
+  function applyFx(s, fx, Wf, Lf, wNode, lNode, events) {
+    if (fx === 'remiendo') {
+      const own = s.figs.filter(f => f.owner === Wf.owner && f.loc === 'ko' && f.id !== Lf.id)
+        .sort((a, b) => b.koLeft - a.koLeft || a.id - b.id)[0];
+      if (!own) return ', pero no tiene figuras propias en la enfermería';
+      own.loc = 'bench'; own.koLeft = 0;
+      return 'y saca a ' + creatureOf(own).name + ' de la enfermería';
+    }
+    if (fx === 'embestida') {
+      const B = boardOf(s);
+      if (lNode === null || lNode === undefined || B.nodes[lNode].kind === 'goal') return ', pero no puede avanzar a una meta';
+      Wf.node = lNode;
+      events.push({ type: 'move', fig: Wf.id, from: wNode, to: lNode, path: [wNode, lNode], fx: 'embestida' });
+      runHook(s, 'afterLand', [Wf, events]);
+      return 'y avanza al cruce que deja el rival';
+    }
+    return null;
+  }
+
   function resolveBattle(s0, aId, dId, ai, di) {
     const s = clone(s0); const events = [];
     const A = s.figs[aId], D = s.figs[dId];
@@ -466,13 +517,15 @@
         setStatus(s, Lf, ws.st); outcome = 'status';
         text = nW + ' gana con ' + segLabel(ws) + ' sobre ' + segLabel(ls) + ': ' + nL + ' queda ' + STATUS[ws.st].adj + '.';
       } else {
-        const wNode = Wf.node;
+        const wNode = Wf.node, lNode = Lf.node;
         knockOut(s, Lf); outcome = 'ko';
         text = nW + ' gana con ' + segLabel(ws) + ' sobre ' + segLabel(ls) + ': ' + nL + ' va a la enfermería';
         if (ws.t === 'g' && ws.fx) {
-          text += ' ' + FX[ws.fx];
-          if (ws.fx === 'cure') Wf.status = null;
+          const fx = applyFx(s, ws.fx, Wf, Lf, wNode, lNode, events);
+          if (fx) text += (fx[0] === ',' ? '' : ' ') + fx;
+          else if (ws.fx === 'cure') { text += ' ' + FX[ws.fx]; Wf.status = null; }
           else {
+            text += ' ' + FX[ws.fx];
             const k = ws.fx === 'area_para' ? 'para' : 'sleep';
             const occ = occupancy(s);
             boardOf(s).adj[wNode].forEach(n => { const id = occ[n]; if (id !== -1 && s.figs[id].owner !== Wf.owner) setStatus(s, s.figs[id], k); });

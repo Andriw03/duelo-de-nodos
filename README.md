@@ -1,6 +1,6 @@
 # Duelo de Nodos
 
-Juego de estrategia por turnos para celular, contra la CPU. Tablero de 29 nodos, 12 criaturas originales, ruletas de combate y 3 niveles de dificultad. Funciona como página web (un solo archivo HTML, sin conexión: las fuentes Lilita One y Nunito, licencia OFL, van incluidas) y como app de Android con Capacitor.
+Juego de estrategia por turnos para celular, contra la CPU. Tablero de 29 nodos, 25 criaturas originales, ruletas de combate y 3 niveles de dificultad. Funciona como página web (un solo archivo HTML, sin conexión: las fuentes Lilita One y Nunito, licencia OFL, van incluidas) y como app de Android con Capacitor.
 
 **Jugar en el navegador:** https://andriw03.github.io/duelo-de-nodos/
 
