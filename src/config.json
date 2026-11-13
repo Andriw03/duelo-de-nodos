@@ -1,4 +1,4 @@
 {
-  "_comentario": "feedbackUrl: link 'rellenado previamente' de Google Forms; {version} se reemplaza por la versión del juego. Vacío = sin botón de comentarios.",
-  "feedbackUrl": ""
+  "_comentario": "feedbackUrl: formulario de Google Forms para testers. Si se agrega una pregunta 'Versión', usar el link 'rellenado previamente' con {version} en lugar del valor (se reemplaza por la versión del juego). Vacío = sin botón de comentarios.",
+  "feedbackUrl": "https://docs.google.com/forms/d/e/1FAIpQLSdmN9qLxyi3g16s7SqJmsaPVl6p7kIjHWxcm6axZr5O7mZK4w/viewform"
 }
