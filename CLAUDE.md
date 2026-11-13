@@ -170,7 +170,7 @@ Rama `capacitor-android` (en GitHub). App probada en emulador: toque, splash, zo
 - Peso: HTML 412 → 207 KB comprimido con las 12 artes actuales (la ficha salió del HTML). Cada token nuevo suma ~10 KB.
 - Arte de las 13 y recompensas del Arco 1: hechos en 0.7.0 (ver abajo). Falta repartir las de Tierra, Rayo y Agua en los arcos 2 a 5.
 
-## Arco 1 para testers + Fase 4 (Madre Lino): 2026-11-13, rama `arco1-testers`
+## Arco 1 para testers + Fase 4 (Madre Lino): 2026-11-13, rama `arco1-testers`, publicada como 0.7.0
 - **Arte:** las 25 procesadas; `data/art.json` con todas. HTML: 206 → 303 KB comprimido (tope 450). A 40 px, Cascoriza y Hormihoja se ven delgadas pero se reconocen.
 - **Recompensas** (aprobadas): d01 Fuego ×5 (suma Brasapo y Lanaflama); d03 las 4 de Planta (Erizarza, Musgoso, Cestacol, Hormihoja; ninguna otra época da Planta); d04 Sello de Lino + Cascoriza (la biblia pone las figuras de linaje en el rival previo al jefe: es una extensión, no un choque). `normalizar` entrega a progresos viejos lo que se sumó a duelos ya ganados.
 - **Sira (c03, Fácil):** Erizarza, Cestacol, Musgoso, Hormihoja, Erizarza, Cestacol.
