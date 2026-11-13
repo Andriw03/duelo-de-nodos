@@ -100,6 +100,14 @@ prueba('un progreso de antes (0.6.0) recibe las figuras que se sumaron a duelos 
   assert(!p.figuras.includes('cascoriza'), 'no da la recompensa de un duelo sin ganar');
 });
 
+prueba('el duelo de Madre Lino trae Hebras enredadas y se apaga desde los datos', () => {
+  const cfg = C.configDuelo(C.duelo('d04'));
+  assert.deepStrictEqual(cfg.rules, [{ type: 'hebras', nodes: [8, 12, 16, 20] }]);
+  const s = D.newGame(cfg.rival.team, cfg.rival.team, 0, cfg);
+  assert.deepStrictEqual(D.markedNodes(s), [8, 12, 16, 20]);
+  assert.deepStrictEqual(D.markedNodes(D.newGame(cfg.rival.team, cfg.rival.team, 0, { ...cfg, rules: [] })), []);
+});
+
 prueba('exportar e importar el progreso', () => {
   const p = C.ganar(C.ganar(C.nuevo('Ñandú'), 'd01'), 'd02');
   const code = C.exportar(p);

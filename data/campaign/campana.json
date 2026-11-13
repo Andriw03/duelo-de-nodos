@@ -22,7 +22,7 @@
     { "id": "d04", "num": 4, "capitulo": "arco-1", "rival": "madre-lino", "titulo": "Madre Lino", "jefe": true,
       "antes": ["escena-3"], "duelo": "c04", "despues": ["duelo-4-despues"], "reintento": "duelo-4-reintento",
       "recompensa": { "sello": "lino", "figuras": ["cascoriza"], "texto": "Sello de Lino y Cascoriza" },
-      "aviso": "Su regla de tablero, Hebras enredadas, llega en la Fase 4: por ahora se juega sin ella." },
+      "aviso": "Regla de tablero: Hebras enredadas. Cuatro cruces del borde tienen un nudo. Una figura (tuya o de Madre Lino) que llega a uno queda enredada: en su próximo turno no puede moverse, pero sí atacar. Una figura de Fuego que ataca desde un cruce vecino quema esa hebra para el resto del duelo." },
     { "id": "d05", "num": 5, "capitulo": "arco-2", "rival": "nuri", "titulo": "Nuri, aprendiz de pesas", "disponible": false },
     { "id": "d06", "num": 6, "capitulo": "arco-2", "rival": "senora-de-las-pesas", "titulo": "Señora de las Pesas", "jefe": true, "disponible": false },
     { "id": "d07", "num": 7, "capitulo": "arco-3", "rival": "gerda", "titulo": "Gerda, mercader de la feria", "disponible": false },

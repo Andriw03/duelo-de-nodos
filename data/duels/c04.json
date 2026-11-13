@@ -1,12 +1,13 @@
 {
   "id": "c04",
   "nombre": "Madre Lino (campaña, duelo 4, jefa)",
-  "_equipo": "Equipo rival propuesto por Claude (linaje Planta). Revisar.",
-  "_pendiente": "Regla de tablero 'Hebras enredadas' (docs/biblia.md, Jefes): se agrega en la Fase 4.",
+  "_equipo": "Linaje Planta con movimiento alto (decidido 2026-11-13 por simulación: con Planta lenta el equipo inicial de Fuego ganaba ~85 %).",
+  "_simulacion": "node test/sim-jefe.js (IA Normal como jugador, 400 partidas): gana 70 % con 5 Fuego + Zumbiza, 61 % con equipo mixto, 35 % sin Fuego.",
+  "_regla": "Hebras enredadas (docs/biblia.md, Jefes). Para apagarla: \"rules\": [].",
   "board": "clasico",
   "player": { "team": "campaign" },
-  "rival": { "team": ["cascoriza", "hormihoja", "musgoso", "cestacol", "erizarza", "musgoso"] },
+  "rival": { "team": ["hormihoja", "hormihoja", "hormihoja", "erizarza", "erizarza", "cascoriza"] },
   "ai": "normal",
-  "rules": [],
+  "rules": [{ "type": "hebras", "nodes": [8, 12, 16, 20] }],
   "victory": { "type": "goal", "turnLimit": 300 }
 }
