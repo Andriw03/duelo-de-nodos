@@ -213,7 +213,7 @@
       }
     } else if (v === 'del') {
       const r = await U.openModal('¿Borrar la campaña?', '<p>Se pierde el avance de este navegador (exporta antes si quieres conservarlo).</p>', [{ label: 'Cancelar', value: null }, { label: 'Borrar', value: 'ok', danger: true }]);
-      if (r === 'ok') { P.storage.del(C.KEY); prog = null; U.showTeamScreen(); return; }
+      if (r === 'ok') { P.storage.del(C.KEY); prog = null; U.showHome(); return; }
     }
     if (prog) mapa();
   }
@@ -227,7 +227,7 @@
   // Botón atrás (Android): salta la escena o vuelve del mapa a la pantalla inicial
   function onBack() {
     if (dlg) { cerrarDialogo(); return true; }
-    if (!$('#scr-camp').hidden) { U.showTeamScreen(); return true; }
+    if (!$('#scr-camp').hidden) { U.showHome(); return true; }
     return false;
   }
 
@@ -235,7 +235,7 @@
     const el = $('#dialogo');
     el.addEventListener('click', ev => { if (ev.target.closest('.dlg-opciones')) return; avanzar(); });
     el.querySelector('.dlg-saltar').addEventListener('click', ev => { ev.stopPropagation(); cerrarDialogo(); });
-    $('#btn-camp-back').addEventListener('click', () => U.showTeamScreen());
+    $('#btn-camp-back').addEventListener('click', () => U.showHome());
     $('#btn-camp-menu').addEventListener('click', opciones);
     // retrato pequeño del mapa que no carga: inicial
     document.addEventListener('error', ev => {

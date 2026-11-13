@@ -278,8 +278,12 @@
     $('#team-count').textContent = ui.team.length + '/6';
     $('#btn-play').disabled = ui.team.length !== 6;
     document.querySelectorAll('#diff button').forEach(b => b.setAttribute('aria-checked', String(b.dataset.lv === ui.level)));
+    updateContinue();
+  }
+  // "Continuar" vive en la portada; el guion de shell.html ya lo mostró si había algo guardado
+  function updateContinue() {
     const sv = store.get();
-    $('#btn-continue').hidden = !(sv && sv.state && sv.state.winner === null);
+    document.body.classList.toggle('hay-partida', !!(sv && sv.state && sv.state.winner === null));
   }
 
   /* ---------- Tablero SVG ---------- */
@@ -708,7 +712,7 @@
     const first = Math.random() < 0.5 ? 0 : 1;
     ui.state = D.newGame(ui.team, ui.cpuTeam, first, DUEL_LIBRE);
     ui.log = []; ui.sel = null; ui.info = null; ui.confirm = null; ui.busy = false;
-    $('#scr-team').hidden = true; $('#scr-game').hidden = false;
+    hideScreens(); $('#scr-game').hidden = false;
     buildBoard();
     say(first === 0 ? 'Sorteo: <b>empiezas tú</b>. Toca una figura de tu banca para meterla.' : 'Sorteo: <b>empieza la CPU</b>.');
     logEvents([], first === 0 ? 'Empiezas tú.' : 'Empieza la CPU.');
@@ -718,7 +722,7 @@
     ui.campaign = sv.campana && window.DuelCampanaUI ? window.DuelCampanaUI.contexto(sv.campana) : null;
     ui.level = sv.level || 'normal'; ui.team = sv.team; ui.cpuTeam = sv.cpuTeam; ui.state = sv.state; ui.log = sv.log || [];
     ui.sel = null; ui.info = null; ui.confirm = null; ui.busy = false;
-    $('#scr-team').hidden = true; $('#scr-game').hidden = false;
+    hideScreens(); $('#scr-game').hidden = false;
     buildBoard(); say('Partida recuperada.'); afterAction();
   }
   /* ---------- Duelos de campaña (los lanza campana-ui.js) ---------- */
@@ -738,6 +742,24 @@
   function startCampaignGuided(lesson, ctx) {
     ui.campaign = ctx;
     startLesson(lesson, lesson.titulo);
+  }
+  /* ---------- Portada ---------- */
+  const PORTADA = 'art/web/fondos/portada.webp';
+  let portadaLista = false;
+  function prepararPortada() {
+    if (portadaLista) return; portadaLista = true;
+    document.querySelectorAll('.ini-fig').forEach(el => {
+      const c = D.CREATURE[el.dataset.k]; if (!c) return;
+      el.innerHTML = creatureImg(c, 'token'); el.style.borderColor = D.TYPES[c.type].color;
+    });
+    // el fondo se pide al arrancar el juego (con red lenta, pedirlo antes atrasaba el arranque); si falla, queda el degradado
+    const img = new Image();
+    img.onload = () => { const f = $('.ini-img'); f.style.backgroundImage = 'url("' + PORTADA + '")'; f.classList.add('lista'); };
+    img.src = PORTADA;
+  }
+  function showHome() {
+    hideScreens(); $('#scr-inicio').hidden = false;
+    prepararPortada(); updateContinue(); window.scrollTo(0, 0);
   }
   function hideScreens() { document.querySelectorAll('#app > .screen').forEach(sc => { sc.hidden = true; }); }
 
@@ -799,7 +821,7 @@
     ui.guide = TUT.createGuide(L);
     ui.state = ui.guide.start();
     ui.log = []; ui.sel = null; ui.info = null; ui.confirm = null; ui.busy = false;
-    $('#scr-team').hidden = true; $('#scr-game').hidden = false;
+    hideScreens(); $('#scr-game').hidden = false;
     $('#guide-bar').hidden = false;
     $('#guide-title').textContent = titulo || ('Tutorial · ' + L.orden + ' de ' + TUT.LESSONS.length + ': ' + L.titulo);
     buildBoard(); say(''); afterAction();
@@ -830,7 +852,7 @@
     ui.guide = null; ui.busy = false; ui.state = null;
     $('#guide-bar').hidden = true;
     if (ui.campaign) { const c = ui.campaign; ui.campaign = null; c.onEnd('exit'); return; }
-    showTeamScreen();
+    showHome();
   }
   function openTutorialList() {
     const p = TUT.readProgress(P.storage);
@@ -845,6 +867,12 @@
     openModal('Cómo jugar', rulesHTML(), (ui.busy ? [] : [{ label: 'Tutorial', onClick: () => setTimeout(openTutorialList, 0) }]).concat([{ label: 'Cerrar', primary: true }]));
   }
   // Primera vez que se abre el juego (sin partida guardada): ofrecer el tutorial una sola vez
+  // Ejecuta fn cuando termina la intro de la portada (o ya, si no hay intro)
+  function despuesDeIntro(fn) {
+    if (!document.body.classList.contains('ini-anim')) { fn(); return; }
+    const mo = new MutationObserver(() => { if (!document.body.classList.contains('ini-anim')) { mo.disconnect(); fn(); } });
+    mo.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+  }
   async function offerTutorial() {
     const p = TUT.readProgress(P.storage);
     if (p.ofrecido || store.get()) return;
@@ -860,7 +888,8 @@
     if (window.DuelCampanaUI && window.DuelCampanaUI.onBack()) return; // diálogo o mapa de campaña
     if (!$('#battle').hidden) return;                     // el combate se cierra con "Continuar"
     if (!$('#scr-game').hidden) { openMenu(); return; }  // en partida: abre el menú (la partida ya está guardada)
-    P.minimize();                                         // en la elección de equipo: a segundo plano, sin cerrar
+    if (!$('#scr-team').hidden) { showHome(); return; }  // en la elección de equipo: a la portada
+    P.minimize();                                         // en la portada: a segundo plano, sin cerrar
   }
 
   /* ---------- Arranque ---------- */
@@ -871,6 +900,9 @@
     $('#btn-play').addEventListener('click', () => { if (ui.team.length === 6) startGame(ui.team); });
     $('#btn-continue').addEventListener('click', () => { const sv = store.get(); if (sv && sv.state && Array.isArray(sv.state.figs) && sv.state.figs.length === 12 && !D.validate(sv.state).length) resumeGame(sv); else { store.del(); renderTeam(); } });
     $('#btn-rules-t').addEventListener('click', openRules);
+    $('#btn-rules-i').addEventListener('click', openRules);
+    $('#btn-libre').addEventListener('click', showTeamScreen);
+    $('#btn-team-back').addEventListener('click', showHome);
     $('#btn-rules-g').addEventListener('click', openRules);
     $('#btn-guide-exit').addEventListener('click', requestExitTutorial);
     $('#btn-camp').addEventListener('click', () => window.DuelCampanaUI && window.DuelCampanaUI.abrir());
@@ -880,9 +912,10 @@
     $('#btn-feedback-t').addEventListener('click', openFeedback);
     ui.team = ['tizonaje', 'pulpiza', 'erizarza', 'tejonrock', 'zumbiza', 'musgoso'];
     renderTeam();
+    showHome();
     document.body.classList.remove('cargando');
     P.hideSplash();
-    offerTutorial();
+    despuesDeIntro(offerTutorial);
   }
   window.DuelUI = {
     get state() { return ui.state; }, get busy() { return ui.busy; }, setFast(v) { ui.fast = v; },
@@ -890,7 +923,7 @@
     get guide() { return ui.guide && { lesson: ui.guide.lesson.id, step: ui.guide.i, done: ui.guide.done }; },
     get campaign() { return ui.campaign && ui.campaign.id; },
     // para campana-ui.js (misma interfaz, otro archivo)
-    api: { openModal, closeModal, esc, creatureImg, typeIcon, showTeamScreen, hideScreens, startCampaignDuel, startCampaignGuided, nudge }
+    api: { openModal, closeModal, esc, creatureImg, typeIcon, showTeamScreen, showHome, hideScreens, startCampaignDuel, startCampaignGuided, nudge }
   };
   const start = () => P.restore([SAVE_KEY]).then(init);
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
