@@ -51,7 +51,7 @@ Objetivo: que alguien que nunca vio el juego entienda las reglas en 5 minutos, s
 - Datos de campaña en `data/campaign/*.json`; los textos salen de la biblia, no se inventan nuevos sin avisar.
 - Criterio de salida: Arco 1 (Neolítico/Planta) jugable de punta a punta en la web con diálogos provisionales.
 
-## Fase 4 — Primer jefe y reglas de tablero
+## Fase 4 — Primer jefe y reglas de tablero (terminada: Madre Lino y Hebras enredadas)
 - Implementar al jefe del Arco 1 con su regla de tablero (cruces marcados o enlazados, según la biblia).
 - Simulaciones específicas para este duelo: que sea ganable pero no trivial (apuntar a 40–60 % de victorias de un jugador medio contra la IA Normal; ajustar con los tests).
 - Playtest con amigos del corte vertical (tutorial + Arco 1) desde el link. **Decisión de continuar aquí.**

@@ -33,7 +33,7 @@ Juego de estrategia por turnos para celular, contra la CPU. Es web (un HTML gene
 - `android/`: proyecto nativo de Capacitor 8 (se versiona). Cambios propios: orientación vertical (`AndroidManifest.xml`), splash y fondo `#0e1322` (`styles.xml`, `colors_noche.xml`), `android.overridePathCheck=true` (`gradle.properties`, por la tilde en la ruta local).
 - `capacitor.config.json`: appId, color de fondo, `SystemBars` (íconos claros, insets por CSS) y `SplashScreen`.
 - `scripts/apk.js` (`npm run apk`): build de `www`, `cap sync` y `assembleDebug`; deja `dist/duelo-de-nodos-<versión>-debug.apk`. Busca solo un JDK 17+ (el de Android Studio si `JAVA_HOME` es viejo) y el SDK.
-- `test/run.js`: simulaciones CPU vs CPU en node. `test/golden.js`: huella de cada jugada de esas 220 partidas (referencia en `test/golden-ref.json`). `test/reglas.js`: tableros, duelos, partida guardada antigua (`test/fixtures/partida-0.2.0.json`) y ganchos. `test/tutorial.js`: recorre las 5 lecciones con el motor. `test/campana.js`: campaña (8 pruebas). `test/lib/recorrer.js`: recorrido de lecciones que comparten tutorial y campaña. `npm test` corre las cinco. `test/tune.js`, `test/len2.js`: apoyo para afinar.
+- `test/run.js`: simulaciones CPU vs CPU en node. `test/golden.js`: huella de cada jugada de esas 220 partidas (referencia en `test/golden-ref.json`). `test/reglas.js`: tableros, duelos, partida guardada antigua (`test/fixtures/partida-0.2.0.json`) y ganchos. `test/tutorial.js`: recorre las 5 lecciones con el motor. `test/campana.js`: campaña (10 pruebas). `test/criaturas.js`: plantilla de 25. `test/lib/recorrer.js`: recorrido de lecciones que comparten tutorial y campaña. `npm test` corre las seis. `test/tune.js`, `test/len2.js`, `test/sim-jefe.js` (equipo del jugador contra un duelo de campaña: `DUELO=c04 node test/sim-jefe.js 400`; variables `VARIANTES`, `RIVAL`, `IA`): apoyo para afinar.
 - No se versionan: `www/`, `dist/`, `node_modules/`, builds de Android.
 
 ## Reglas de trabajo (importante)
@@ -94,7 +94,7 @@ Juego de estrategia por turnos para celular, contra la CPU. Es web (un HTML gene
 - Villano: el Patrón (Orsolo Venn), dueño del Taller de Tarjetas (tarjetas perforadas tipo Jacquard); quiere automatizar el Telar y eliminar el azar.
 - Campaña lineal de 14 duelos: un jefe por época y un final. Los jefes necesitan reglas de tablero nuevas (cruces marcados, cruces enlazados).
 - Decisiones de Andrés anotadas en `docs/biblia.md` (2026-11-11):
-  - Nombre del juego: **Hilos del Tiempo**. Todavía no se aplicó (UI, `<title>`, README, app, appId): hacerlo como tarea aparte, con aprobación.
+  - Nombre del juego: **Hilos del Tiempo**. Aplicado (0.7.0) en `<title>`, pantalla de inicio y README. Siguen con el nombre viejo: repositorio, URL de Pages, claves de guardado `duelo-nodos-*` (no cambiarlas: se perderían partidas), `capacitor.config.json`, `package.json` y appId (Fase 7).
   - "›" del ciclo significa "vence a" (confirmado).
   - Datos históricos de la biblia: verificados por Andrés.
   - Protagonista: **nombre elegible** (el guion usa `Ari` y deja `{jugador}` listo).
@@ -106,7 +106,8 @@ Juego de estrategia por turnos para celular, contra la CPU. Es web (un HTML gene
 - **Re-giro del combate:** el resultado de las ruletas se aplica al tocar "Continuar". Si la app se cierra (o se recarga la web) mientras giran, al volver se puede atacar otra vez con otro sorteo. Arreglarlo toca el flujo del combate: preguntar antes.
 - Ícono de la app y del splash: siguen los de Capacitor por defecto (Fase 6).
 - Vibración sin probar en un teléfono real (el emulador no vibra).
-- Aplicar el nombre **Hilos del Tiempo** (decidido, sin aplicar).
+- Formulario de comentarios sin la versión del juego: si Andrés agrega una pregunta "Versión", poner en `src/config.json` el link "rellenado previamente" con `{version}`.
+- Sira (duelo 3, Fácil) se gana ~96 % con el equipo inicial (IA Normal de jugador): intencional por ahora, revisar con testers.
 - Vocabulario del mundo frente al de la interfaz: el guion dice "rodillo" (meta), "lizo" (entrada), "calada" (carril central), "remiendo" (enfermería), "cruce" (nodo); la UI y el tutorial dicen META, entrada y enfermería. Decidir si la interfaz adopta el vocabulario del telar.
 - El guion trata a Ari en masculino ("hijo", "forastero", "sorprendido") y la biblia decide nombre elegible: si el jugador también elige cómo se le trata, hay que neutralizar o variar esas líneas.
 - Los duelos 1 y 2 del guion son tutoriales guiados con Maru y Teo; ya existe el tutorial genérico de la Fase 2. Decidir en la Fase 3 si se reemplaza, se reutiliza su motor con los textos del guion o conviven.
@@ -126,14 +127,14 @@ Rama `capacitor-android` (en GitHub). App probada en emulador: toque, splash, zo
 - Hecho: `capacitor-android` fusionada en `main` y publicada (2026-11-11). Versión visible 0.2.0 (pantalla de equipo y Menú). Botón "Enviar comentarios" (pantalla de equipo y Menú), oculto mientras `feedbackUrl` esté vacío.
 - Probado: navegador de computador, teléfono simulado 375×812 y Chrome 133 real en el emulador (toques, partida, guardado al cerrar y reabrir; sin errores en consola).
 - PWA (instalable y sin conexión): descartada por ahora; se retoma si los testers lo piden.
-- Falta: link del formulario (Andrés), prueba en Safari de iPhone (alguien con iPhone), fusionar `web-testers` en `main` y que 2–3 personas jueguen desde el link.
+- Falta: prueba en Safari de iPhone (alguien con iPhone), fusionar `web-testers` en `main` y que 2–3 personas jueguen desde el link.
 - Lista para probar en iPhone: abrir el link en Safari; que se vean las fuentes redondeadas; elegir equipo y jugar 3–4 turnos tocando; que nada quede bajo el notch ni la barra inferior; abrir Menú, Historial y "Cómo jugar"; cerrar Safari, reabrir el link y usar "Continuar partida guardada".
 - Probar Chrome en el emulador: `adb reverse tcp:8765 tcp:8765` y abrir `http://localhost:8765/` (por `10.0.2.2` la descarga se cortaba a medias). Para saltar la bienvenida de Chrome sin aceptar nada: archivo `/data/local/tmp/chrome-command-line` con `_ --disable-fre --no-first-run` + `am set-debug-app --persistent com.android.chrome` (deshacer al terminar).
 
 ## Fase 1 (motor dirigido por datos): terminada 2026-11-11, rama `fase1-datos`
 - Tablero clásico en `data/boards/clasico.json` (generado desde el código anterior, mismo orden de vecinos) y duelo `libre` en `data/duels/libre.json`.
 - La partida guarda `boardId`, `rules`, `turnLimit` y `duelId`. Partidas guardadas sin esos campos (≤ 0.2.0) se tratan como clásico, sin reglas y 300 turnos.
-- Ganchos para reglas de jefe en `logic.js` (`registerRule`): `neighbors`, `afterLand`, `endTurn`, `wheel`. **Ninguna regla real registrada**: los efectos de cruces marcados y enlazados se definen con la biblia (Fase 4). Los tableros ya aceptan `marked` y `links` como datos.
+- Ganchos para reglas de jefe en `logic.js` (`registerRule`): `neighbors`, `afterLand`, `endTurn`, `wheel` y (Fase 4) `afterAttack`. Estado de las reglas en `s.ruleState` (lo copia `clone`; viaja en la partida guardada). Regla real: `hebras` (Fase 4). Los tableros ya aceptan `marked` y `links` como datos.
 - Condición de victoria: solo `goal` (llegar a la meta) con `turnLimit`; otro tipo falla al crear la partida.
 - Verificado: huella idéntica en las 5 series, `run.js` igual a la referencia, 13 pruebas de `reglas.js`, web y `www/` sin errores, partida 0.2.0 recuperada con "Continuar".
 - Sin cambios visibles para el jugador. Publicar en `main` cuando Andrés lo pida (subir la versión).
@@ -167,10 +168,21 @@ Rama `capacitor-android` (en GitHub). App probada en emulador: toque, splash, zo
 - La huella de `test/golden.js` cambió a propósito (más criaturas en los equipos al azar). `test/run.js` ahora gira 100.000 veces por ruleta (desvío máx. 0,36 pp; antes fallaba por azar).
 - Salida de referencia nueva de `node test/run.js`: normal vs normal J0 28 · J1 31 · empates 1 · por límite 1; dificil vs facil J0 38 · J1 1 · empates 1 · por límite 1; facil vs dificil J0 5 · J1 35 · por límite 0; dificil vs normal J0 18 · J1 21 · empates 1 · por límite 2; normal vs dificil J0 16 · J1 23 · empates 1 · por límite 2.
 - Peso: HTML 412 → 207 KB comprimido con las 12 artes actuales (la ficha salió del HTML). Cada token nuevo suma ~10 KB.
-- Falta: arte de las 13 (prompts en el doc de la plantilla), `data/art.json`, repartirlas en las recompensas de la campaña (arcos 2 a 5) y revisar a 375 px que la pantalla de equipo con 25 se vea bien.
+- Arte de las 13 y recompensas del Arco 1: hechos en 0.7.0 (ver abajo). Falta repartir las de Tierra, Rayo y Agua en los arcos 2 a 5.
 
-## Siguiente: Fase 4 de `ROADMAP.md` (primer jefe: Madre Lino y "Hebras enredadas")
-La biblia y el guion ya están en `docs/`. Pendiente de la 0b: link del formulario, prueba en iPhone y testers.
+## Arco 1 para testers + Fase 4 (Madre Lino): 2026-11-13, rama `arco1-testers`
+- **Arte:** las 25 procesadas; `data/art.json` con todas. HTML: 206 → 303 KB comprimido (tope 450). A 40 px, Cascoriza y Hormihoja se ven delgadas pero se reconocen.
+- **Recompensas** (aprobadas): d01 Fuego ×5 (suma Brasapo y Lanaflama); d03 las 4 de Planta (Erizarza, Musgoso, Cestacol, Hormihoja; ninguna otra época da Planta); d04 Sello de Lino + Cascoriza (la biblia pone las figuras de linaje en el rival previo al jefe: es una extensión, no un choque). `normalizar` entrega a progresos viejos lo que se sumó a duelos ya ganados.
+- **Sira (c03, Fácil):** Erizarza, Cestacol, Musgoso, Hormihoja, Erizarza, Cestacol.
+- **Hebras enredadas** (interpretación aprobada): llegar a un cruce marcado (entrar, moverse o embestida) enreda; en el siguiente turno de su dueño no se mueve, sí ataca; quedarse no re-enreda; afecta a los dos bandos; una figura de Fuego que ataca desde un cruce vecino quema esa marca para todo el duelo (gane o pierda) y suelta a la enredada. Cruces 8, 12, 16, 20. Se apaga con `"rules": []` en `data/duels/c04.json`.
+- **Madre Lino (c04, Normal):** Hormihoja ×3, Erizarza ×2, Cascoriza (decidido por simulación). Con IA Normal de jugador, 400 partidas: gana 70 % con 5 Fuego + Zumbiza, 61 % mixto, 35 % sin Fuego. Con Planta lenta (mp 9 contra 14) el Fuego ganaba ~85 %. La regla casi no cambia el % (la IA la sortea): su peso es de decisión para una persona.
+- **Interfaz:** nudo (`#mk-knot`, color `--knot`) en cada marca activa, insignia en la figura enredada, aviso en la ficha y al tocarla, textos de la regla en el historial y en el mensaje; aviso antes del duelo con la regla y la contramedida.
+- **Carga:** precarga de retratos y fondos (próximo duelo desde el mapa, tramo completo de escenas, escenas de después al empezar un duelo). Con 3G simulado (50 KB/s, 300 ms) el HTML tarda ~6,3 s, la pantalla se ve a ~1,5 s y el juego queda listo 9 ms después de llegar; mientras tanto `body.cargando` atenúa los botones y dice "Cargando criaturas…".
+- **Formulario** en `src/config.json` (botón "Enviar comentarios" visible). **Nombre** Hilos del Tiempo aplicado.
+- Verificado: `npm test` (huella idéntica, 17 de reglas, 10 de campaña, 9 de criaturas), `run.js` igual a la referencia; en el navegador a 375 px: duelo 4 con nudos, enredo, aviso, partida guardada con la figura enredada, recompensa de d01, progreso viejo con figuras nuevas, sin errores en consola.
+
+## Siguiente
+Testers del Arco 1 (link, iPhone). Después, Fase 5 de `ROADMAP.md`.
 
 ## Después (no empezar sin pedirlo)
 - Fases 2 a 7 de `ROADMAP.md`. Multijugador online (requiere servidor autoritativo; versión 2).
