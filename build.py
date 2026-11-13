@@ -42,7 +42,8 @@ def config_js():
 
 def data_js():
     """window.DUEL_DATA con data/boards, data/duels, data/tutorial y data/campaign (la web no tiene servidor: van dentro del HTML).
-    Los retratos y fondos de la campaña NO van dentro: se cargan como archivos desde art/web/ (Fase 3)."""
+    Los retratos y fondos de la campaña NO van dentro: se cargan como archivos desde art/web/ (Fase 3).
+    Las fichas de criaturas (256 px) tampoco: solo el token va incrustado."""
     datos = {}
     camp = RAIZ / 'data' / 'campaign'
     rd = lambda f: json.loads(f.read_text(encoding='utf-8'))
@@ -62,8 +63,10 @@ def data_js():
 
 
 def art_js():
-    """window.DUEL_ART: arte de las criaturas (data/art.json) incrustado como data URI.
-    Solo van el token (128 px) y la ficha-web (256 px); la ficha de 512 px queda en art/web/."""
+    """window.DUEL_ART: arte de las criaturas (data/art.json).
+    El token (128 px) va incrustado como data URI (el tablero lo necesita al instante).
+    La ficha-web (256 px) va como ruta a art/web/: se descarga al abrir la ficha (decidido 2026-11-13,
+    para que la plantilla de 25 quepa bajo el tope). La ficha de 512 px no se usa en la web."""
     ruta = RAIZ / 'data' / 'art.json'
     if not ruta.exists():
         return 'window.DUEL_ART = {};', 0
@@ -75,6 +78,9 @@ def art_js():
             f = RAIZ / archivos[nombre]
             if not f.exists():
                 raise SystemExit('data/art.json apunta a un archivo que no existe: ' + archivos[nombre])
+            if clave == 'ficha':
+                out[cid][clave] = archivos[nombre]  # ruta relativa, se sirve como archivo
+                continue
             datos = f.read_bytes(); peso += len(datos)
             out[cid][clave] = 'data:image/webp;base64,' + base64.b64encode(datos).decode('ascii')
     return 'window.DUEL_ART = ' + json.dumps(out, separators=(',', ':')) + ';', peso
@@ -104,6 +110,10 @@ def main():
             origen = RAIZ / 'art' / 'web' / sub
             if origen.is_dir():
                 shutil.copytree(origen, destino / 'art' / 'web' / sub, dirs_exist_ok=True)
+        # Fichas de criaturas (256 px): también como archivos
+        (destino / 'art' / 'web').mkdir(parents=True, exist_ok=True)
+        for f in (RAIZ / 'art' / 'web').glob('*-ficha-web.webp'):
+            shutil.copy2(f, destino / 'art' / 'web' / f.name)
     else:
         destino = RAIZ
         fonts_css = fuentes_incrustadas(fonts_css)

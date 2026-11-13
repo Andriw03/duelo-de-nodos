@@ -41,8 +41,9 @@
   const wait = ms => new Promise(r => setTimeout(r, reduced ? Math.min(ms, 120) : (ui.fast ? ms * 0.45 : ms)));
 
   /* ---------- Arte de criaturas e íconos ----------
-     DUEL_ART (lo incrusta build.py desde data/art.json): { id: { token, ficha } } como data URI.
-     Si una criatura no tiene arte, o la imagen falla, se muestra su emoji. */
+     DUEL_ART (lo arma build.py desde data/art.json): { id: { token, ficha } }. El token es un data URI;
+     la ficha es una ruta a art/web/ que se descarga al abrirla. Si la ficha falla, se usa el token;
+     si no hay arte o el token falla, se muestra el emoji. */
   const ART = window.DUEL_ART || {};
   const STATUS_ICON = { poison: 'st-poison', para: 'st-para', sleep: 'st-sleep', freeze: 'st-freeze' };
   const icon = (id, cls) => '<svg class="ic' + (cls ? ' ' + cls : '') + '" aria-hidden="true"><use href="#' + id + '"/></svg>';
@@ -50,12 +51,15 @@
   function creatureImg(c, kind, cls) {
     const a = ART[c.id];
     if (!a || !a[kind]) return '<span class="emo">' + c.emoji + '</span>';
-    return '<img class="art' + (cls ? ' ' + cls : '') + '" src="' + a[kind] + '" alt="" data-emoji="' + c.emoji + '" draggable="false">';
+    const respaldo = kind !== 'token' && a.token ? ' data-token="' + a.token + '"' : '';
+    return '<img class="art' + (cls ? ' ' + cls : '') + '" src="' + a[kind] + '" alt="" data-emoji="' + c.emoji + '"' + respaldo + ' draggable="false">';
   }
   // Respaldo: si una imagen del arte no carga, vuelve el emoji (HTML) o el texto (tablero SVG)
   document.addEventListener('error', e => {
     const el = e.target;
-    if (el && el.tagName === 'IMG' && el.classList.contains('art')) {
+    if (el && el.tagName === 'IMG' && el.classList.contains('art') && el.dataset.token) {
+      const t = el.dataset.token; delete el.dataset.token; el.src = t; // ficha que no cargó: se usa el token
+    } else if (el && el.tagName === 'IMG' && el.classList.contains('art')) {
       const sp = document.createElement('span'); sp.className = 'emo'; sp.textContent = el.dataset.emoji || '';
       el.replaceWith(sp);
     } else if (el && el.tagName && el.tagName.toLowerCase() === 'image' && el.dataset.emoji) {
