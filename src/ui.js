@@ -157,6 +157,14 @@
       (s.t === 'p' ? ' <span class="note">' + D.STATUS[s.st].name.toLowerCase() + '</span>' : '') +
       '</td><td class="v">' + shortVal(s) + '</td><td class="pc">' + pct(s.w) + '</td></tr>').join('');
   }
+  // Eventos que se muestran en el mensaje además del combate: rodear y reglas de jefe
+  const NOTE_EVENTS = ['surround', 'hebras', 'hebras-quema'];
+  // Hebras enredadas: aviso en la ficha de una figura enredada
+  function enredoText(f) {
+    if (!f || !f.enredo || f.loc !== 'board') return '';
+    const ahora = ui.state && ui.state.current === f.owner && ui.state.turn !== f.enredo;
+    return '<span class="chip chip-knot">' + icon('mk-knot', 'st') + 'Enredada · ' + (ahora ? 'no puede moverse este turno' : 'no podrá moverse en su próximo turno') + '</span>';
+  }
   function statusText(f) {
     if (!f || !f.status) return '';
     const S = D.STATUS[f.status.k];
@@ -183,7 +191,7 @@
       '<span class="chip up">Vence a ' + D.TYPES[D.TYPES[c.type].beats].name + '</span><span class="chip down">Débil ante ' + D.TYPES[weakTo(c.type)].name + '</span>' +
       '<span class="chip">MP ' + c.mp + '</span>' +
       (f ? '<span class="chip" style="color:var(--p' + f.owner + ')">' + (f.owner === 0 ? 'Tuya' : 'CPU') + '</span>' : '') +
-      statusText(f) + locText(f) + '</div><canvas aria-label="Ruleta de ' + esc(c.name) + '"></canvas><table class="segs">' + segRows(c.wheel) + '</table>';
+      statusText(f) + enredoText(f) + locText(f) + '</div><canvas aria-label="Ruleta de ' + esc(c.name) + '"></canvas><table class="segs">' + segRows(c.wheel) + '</table>';
     const cv = box.querySelector('canvas'); prepCanvas(cv, 80); drawWheel(cv, c.wheel, 0);
   }
   function bigFichaHTML(c) {
@@ -292,6 +300,7 @@
       }
     });
     svg.appendChild(gE); svg.appendChild(gN);
+    svg.appendChild(svgEl('g', { id: 'marks' }));
     svg.appendChild(svgEl('g', { id: 'hl' }));
     svg.appendChild(svgEl('g', { id: 'figs' }));
     ui.figEls = new Map();
@@ -321,6 +330,7 @@
       g.appendChild(svgEl('circle', { class: 'ft', cx: 15, cy: 15, r: 7, fill: D.TYPES[c.type].color }));
       g.appendChild(svgEl('use', { href: '#ty-' + c.type, x: 10.5, y: 10.5, width: 9, height: 9, class: 'fti' }));
       const st = svgEl('g', { class: 'fs' }); st.appendChild(svgEl('circle', { cx: 16, cy: -16, r: 8.5 })); st.appendChild(svgEl('use', { x: 10.5, y: -21.5, width: 11, height: 11 })); g.appendChild(st);
+      const kn = svgEl('g', { class: 'fn' }); kn.appendChild(svgEl('circle', { cx: -16, cy: 16, r: 8.5 })); kn.appendChild(svgEl('use', { href: '#mk-knot', x: -22, y: 10, width: 12, height: 12 })); g.appendChild(kn);
       const av = svgEl('g', { class: 'fa' }); av.appendChild(svgEl('circle', { cx: -16, cy: -16, r: 8.5 })); av.appendChild(svgEl('text', { x: -16, y: -15.5 })); g.appendChild(av);
       g.style.opacity = '0';
       $('#figs').appendChild(g); ui.figEls.set(f.id, g);
@@ -342,11 +352,19 @@
       const st = g.querySelector('.fs');
       if (f.status) { const S = D.STATUS[f.status.k]; st.style.display = ''; st.querySelector('circle').setAttribute('fill', S.color); st.querySelector('use').setAttribute('href', '#' + STATUS_ICON[f.status.k]); }
       else st.style.display = 'none';
+      g.querySelector('.fn').style.display = f.enredo ? '' : 'none';
       const av = g.querySelector('.fa'); const rel = advOf(f);
       if (rel) { av.style.display = ''; av.querySelector('circle').setAttribute('fill', rel > 0 ? 'var(--go)' : 'var(--hit)'); av.querySelector('text').textContent = rel > 0 ? '▲' : '▼'; }
       else av.style.display = 'none';
     });
     for (const [id, g] of ui.figEls) if (!alive.has(id)) { g.remove(); ui.figEls.delete(id); }
+    // Hebras enredadas: nudo en cada cruce marcado que sigue activo
+    const mk = $('#marks'); mk.innerHTML = '';
+    D.markedNodes(s).forEach(n => {
+      const N = brd().nodes[n];
+      mk.appendChild(svgEl('circle', { class: 'knot-ring', cx: N.x, cy: N.y, r: 18 }));
+      mk.appendChild(svgEl('use', { class: 'knot', href: '#mk-knot', x: N.x - 11, y: N.y - 11, width: 22, height: 22 }));
+    });
     // resaltados
     const hl = $('#hl'); hl.innerHTML = '';
     if (ui.sel) {
@@ -467,6 +485,7 @@
     acts.forEach(a => { if (a.type === 'move' || a.type === 'enter') dest.set(a.to, a); });
     const targets = acts.some(a => a.type === 'stay') ? D.adjacentRivals(s, f) : [];
     if (f.loc === 'bench' && !dest.size) { ui.sel = null; say('Tus dos entradas están ocupadas.'); return; }
+    if (f.enredo && f.owner === s.current && !dest.size) say(D.creatureOf(f).name + ' está enredada: este turno no puede moverse' + (targets.length ? ', pero sí atacar.' : '.'));
     ui.sel = { fig: id, dest, targets };
     P.haptic('tap');
   }
@@ -530,7 +549,7 @@
     if (act.type === 'enter' || act.type === 'move') await animateMove(act);
     const r = D.applyAction(ui.state, act);
     ui.state = r.state; logEvents(r.events);
-    const extra = r.events.filter(e => e.type === 'surround' || e.type === 'heal' || e.type === 'cure').map(e => e.text).join(' ');
+    const extra = r.events.filter(e => NOTE_EVENTS.includes(e.type) || e.type === 'heal' || e.type === 'cure').map(e => e.text).join(' ');
     say(extra);
     ui.busy = false;
     save();
@@ -600,7 +619,7 @@
           $('#battle').hidden = true;
           const r = D.applyAction(ui.state, { type: 'attack', fig: aId, target: dId, spin: sp });
           ui.state = r.state; logEvents(r.events);
-          const extra = r.events.filter(e => e.type === 'surround').map(e => e.text).join(' ');
+          const extra = r.events.filter(e => NOTE_EVENTS.includes(e.type)).map(e => e.text).join(' ');
           say(preview.battle.text + (extra ? ' ' + extra : ''));
           ui.busy = false; save(); resolve(r);
         };
@@ -643,7 +662,7 @@
       const r = D.applyAction(ui.state, act); ui.state = r.state;
       moved = D.creatureOf(ui.state.figs[act.fig]).name;
       logEvents(r.events, (act.type === 'enter' ? 'La CPU metió a ' : 'La CPU movió a ') + moved + '.');
-      say((act.type === 'enter' ? 'La CPU metió a <b>' : 'La CPU movió a <b>') + esc(moved) + '</b>. ' + r.events.filter(e => e.type === 'surround').map(e => e.text).join(' '));
+      say((act.type === 'enter' ? 'La CPU metió a <b>' : 'La CPU movió a <b>') + esc(moved) + '</b>. ' + esc(r.events.filter(e => NOTE_EVENTS.includes(e.type)).map(e => e.text).join(' ')));
       refresh();
       if (ui.state.winner !== null) { ui.busy = false; save(); afterAction(); return; }
     } else if (act.type === 'stay') {

@@ -2,6 +2,7 @@
    Layout: una columna, el tablero ocupa el centro y los controles quedan al alcance del pulgar. */
 :root {
   --bg: #0e1322;
+  --knot: #d9b26a; /* Hebras enredadas: hilo de lino */
   --panel: #171f36;
   --raise: #212b48;
   --line: #2f3b62;
@@ -187,6 +188,12 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing:
 .type-strip .arr { color: var(--muted); font-size: 12px; }
 .chip.up { box-shadow: inset 0 0 0 1.5px var(--go); }
 .chip.down { box-shadow: inset 0 0 0 1.5px var(--hit); }
+.knot-ring { fill: none; stroke: var(--knot); stroke-width: 2.5; stroke-dasharray: 4 3; pointer-events: none; }
+.knot { color: var(--knot); pointer-events: none; }
+.fig .fn circle { fill: var(--knot); stroke: var(--bg); stroke-width: 2; }
+.fig .fn use { color: #10172b; }
+.chip-knot { box-shadow: inset 0 0 0 1.5px var(--knot); }
+.chip-knot .ic { color: var(--knot); }
 .fig .fa circle { stroke: var(--bg); stroke-width: 2; }
 .fig .fa text { font: 800 10px var(--font-body); fill: #10172b; text-anchor: middle; dominant-baseline: central; }
 .slot.up::before, .slot.down::before { position: absolute; top: -6px; left: -6px; width: 17px; height: 17px; border-radius: 50%; font-size: 9.5px; font-weight: 800; display: grid; place-items: center; color: #10172b; border: 2px solid var(--bg); }
