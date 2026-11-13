@@ -22,7 +22,7 @@ Juego de estrategia por turnos para celular, contra la CPU. Es web (un HTML gene
 - `src/ui.js`, `src/style.css`, `src/shell.html`: interfaz. `shell.html` tiene los marcadores `/*FONTS*/`, `/*CSS*/`, `/*LOGIC*/`, `/*AI*/`, `<!--CAPACITOR-->`, `/*CONFIG*/`, `/*PLATFORM*/`, `/*UI*/`.
 - `/*CONFIG*/` → `window.DUEL_CONFIG = {version, feedbackUrl}`: la versión sale de `package.json` (única fuente) y `feedbackUrl` de `src/config.json` (`{version}` dentro del link se reemplaza; solo `https://`; vacío = sin botón de comentarios).
 - `src/platform.js`: **única capa que conoce Capacitor** (`window.Platform`): guardado con respaldo nativo, vibración, botón atrás, splash, minimizar. En la web cae a `localStorage` y no hace nada nuevo. `ui.js` solo habla con `Platform`, nunca con Capacitor.
-- Arte de criaturas: `art/source/<id>.png|jpg` (fondo magenta, **no se versiona**) → `scripts/procesar-arte.py` (Pillow) → `art/web/<id>-token.webp` (128), `<id>-ficha.webp` (512, no va al HTML), `<id>-ficha-web.webp` (256) + `prueba-40.png` + `hoja.png` (ignorada) y `data/art.json`. `build.py` incrusta token y ficha-web como `window.DUEL_ART` (marcador `/*ART*/`) y avisa si el HTML pasa de 600 KB. Ni `logic.js` ni los tests leen `data/art.json`. En `ui.js`, `creatureImg(c, 'token'|'ficha')` y `<image>` en el tablero; si falta el arte o la imagen falla, vuelve el emoji.
+- Arte de criaturas: `art/source/<id>.png|jpg` (fondo magenta, **no se versiona**) → `scripts/procesar-arte.py` (Pillow) → `art/web/<id>-token.webp` (128), `<id>-ficha.webp` (512, no va al HTML), `<id>-ficha-web.webp` (256) + `prueba-40.png` + `hoja.png` (ignorada) y `data/art.json`. `build.py` incrusta solo el token como `window.DUEL_ART` (marcador `/*ART*/`); la ficha-web va como ruta a `art/web/` y se descarga al abrir la ficha (si falla, se usa el token). `--out www` copia las fichas. Ni `logic.js` ni los tests leen `data/art.json`. En `ui.js`, `creatureImg(c, 'token'|'ficha')` y `<image>` en el tablero; si falta el arte o la imagen falla, vuelve el emoji.
 - Íconos propios en SVG (`<symbol>` en `shell.html`): estados `st-poison`, `st-para`, `st-sleep`, `st-freeze` (reemplazan ☠ ϟ z ❄; el campo `icon` de `logic.js` ya no se usa en la interfaz) y tipos `ty-fuego`… `ty-agua`. Se usan con `icon(id)` en `ui.js`.
 - Patrones de segmento (accesibilidad): rojo rayas, dorado puntos, morado cuadrícula, azul ondas, blanco liso; en el canvas (`segPattern`) y en las leyendas (`.sq.seg-<t>` en `style.css`).
 - `src/fonts.css` + `src/fonts/`: Lilita One y Nunito (woff2, subconjunto latino, OFL). Nunito es variable (un archivo, pesos 200–1000).
@@ -70,7 +70,7 @@ Juego de estrategia por turnos para celular, contra la CPU. Es web (un HTML gene
 ### IA (valores de referencia con `node test/run.js`)
 - Fácil: ruido alto y 25 % de jugadas al azar. Normal: agresiva. Difícil: más posicional.
 - Normal gana ~82 % a Fácil; Difícil gana ~56 % a Normal; máx. ~30 ms por turno.
-- Salida de referencia medida el 2026-11-09 (se repite igual en cada corrida; compararla línea por línea):
+- Salida de referencia medida el 2026-11-09 con 12 criaturas (con 25, ver "Plantilla de 25"; se repite igual en cada corrida; compararla línea por línea):
   - desvío en 1000 giros 2,73 pp
   - normal vs normal: J0 34 · J1 25 · empates 1 · por límite 10
   - dificil vs facil: J0 35 · J1 5 · por límite 0 · facil vs dificil: J0 4 · J1 36 · por límite 1
@@ -106,7 +106,6 @@ Juego de estrategia por turnos para celular, contra la CPU. Es web (un HTML gene
 - **Re-giro del combate:** el resultado de las ruletas se aplica al tocar "Continuar". Si la app se cierra (o se recarga la web) mientras giran, al volver se puede atacar otra vez con otro sorteo. Arreglarlo toca el flujo del combate: preguntar antes.
 - Ícono de la app y del splash: siguen los de Capacitor por defecto (Fase 6).
 - Vibración sin probar en un teléfono real (el emulador no vibra).
-- La prueba "±3 % en 1.000 giros" de `test/run.js` es estadísticamente frágil (falla por azar en ~60 % de las corridas completas aunque el sorteo es correcto). Con 100k giros el desvío es <0,4 pp: subir el tamaño de muestra o cambiar el criterio.
 - Aplicar el nombre **Hilos del Tiempo** (decidido, sin aplicar).
 - Vocabulario del mundo frente al de la interfaz: el guion dice "rodillo" (meta), "lizo" (entrada), "calada" (carril central), "remiendo" (enfermería), "cruce" (nodo); la UI y el tutorial dicen META, entrada y enfermería. Decidir si la interfaz adopta el vocabulario del telar.
 - El guion trata a Ari en masculino ("hijo", "forastero", "sorprendido") y la biblia decide nombre elegible: si el jugador también elige cómo se le trata, hay que neutralizar o variar esas líneas.
@@ -159,6 +158,16 @@ Rama `capacitor-android` (en GitHub). App probada en emulador: toque, splash, zo
 - Peso: HTML 575 → 666 KB sin comprimir; **380 → 405 KB comprimido** (lo que se descarga). Retratos (20, 757 KB) y fondos (3, 336 KB) se bajan por escena.
 - Fondos de 852 px de ancho (menos de los 1080 pedidos): no se agrandan.
 - Verificado: `npm test` (lo anterior idéntico + 8 de campaña); en el navegador los 4 duelos de punta a punta, derrota con reintento, retomar un duelo tras recargar, exportar/importar/borrar, respaldo con inicial; capturas en Chrome del emulador.
+
+## Plantilla de 25 criaturas: 2026-11-13, rama `criaturas-25` (sin publicar)
+- 13 nuevas (diseño aprobado por Andrés): Brasapo, Lanaflama (Fuego); Picobuzo, Velaguja (Agua); Cestacol, Hormihoja, Cascoriza (Planta); Capiganso, Pinzánfora, Columnero (Tierra); Crestrayo, Campanala, Jabatrueno (Rayo). Cada tipo: 2 comunes, 2 raras, 1 épica (total 10/10/5).
+- Efectos de dorado nuevos (aprobados): `remiendo` (Cascoriza: la figura propia con más turnos de enfermería vuelve a la banca) y `embestida` (Columnero: la ganadora pasa al cruce que deja la perdedora, nunca a una meta; llama al gancho `afterLand`). En la interfaz la figura aparece en el cruce nuevo sin animación.
+- Reglas de diseño que comprueba `test/criaturas.js`: suma 96, 4–6 segmentos, daño ≤ 120, el Fallo nunca pesa más que el segmento más pesado (si no, la parálisis no le hace nada), efectos solo en raras/épicas con peso 8–12, 5 por tipo con al menos un mp 1 y un mp 3, y que los equipos al azar usan las 25.
+- Balance medido (2.400 partidas Normal vs Normal, equipos al azar): los equipos con cada criatura nueva ganan entre 45 y 54 %; las 12 de antes, entre 45 y 57 %. Difícil vs Normal (500 partidas): Difícil gana el 60 % de las decididas (antes 52 %). Partidas por límite: ~8 % en Normal vs Normal, ~13 % en los cruces Normal/Difícil (antes ~10 %): vigilar.
+- La huella de `test/golden.js` cambió a propósito (más criaturas en los equipos al azar). `test/run.js` ahora gira 100.000 veces por ruleta (desvío máx. 0,36 pp; antes fallaba por azar).
+- Salida de referencia nueva de `node test/run.js`: normal vs normal J0 28 · J1 31 · empates 1 · por límite 1; dificil vs facil J0 38 · J1 1 · empates 1 · por límite 1; facil vs dificil J0 5 · J1 35 · por límite 0; dificil vs normal J0 18 · J1 21 · empates 1 · por límite 2; normal vs dificil J0 16 · J1 23 · empates 1 · por límite 2.
+- Peso: HTML 412 → 207 KB comprimido con las 12 artes actuales (la ficha salió del HTML). Cada token nuevo suma ~10 KB.
+- Falta: arte de las 13 (prompts en el doc de la plantilla), `data/art.json`, repartirlas en las recompensas de la campaña (arcos 2 a 5) y revisar a 375 px que la pantalla de equipo con 25 se vea bien.
 
 ## Siguiente: Fase 4 de `ROADMAP.md` (primer jefe: Madre Lino y "Hebras enredadas")
 La biblia y el guion ya están en `docs/`. Pendiente de la 0b: link del formulario, prueba en iPhone y testers.
