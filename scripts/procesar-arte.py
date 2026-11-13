@@ -9,8 +9,8 @@ Entrada:  art/source/<id>.png o .jpg   (id = el de logic.js; fondo magenta #FF00
 Salida:   art/web/<id>-token.webp      128 px, para el tablero, la banca y las tarjetas
           art/web/<id>-ficha.webp      512 px, original de alta resolución (no va dentro del HTML)
           art/web/<id>-ficha-web.webp  256 px, la que se incrusta en el HTML (se ve a 128 px)
-          art/web/prueba-40.png        las 12 a 40 px sobre #0e1322 (prueba de 40 px)
-          art/web/hoja.png             las 12 juntas, para revisar el estilo y los bordes
+          art/web/prueba-40.png        todas a 40 px sobre #0e1322 (prueba de 40 px)
+          art/web/hoja.png             todas juntas, para revisar el estilo y los bordes
           data/art.json                id -> archivos (lo lee build.py, no el motor)
 RETRATOS
 Entrada:  art/retratos/<personaje>-<expresion>.png  (fondo magenta)
@@ -165,8 +165,8 @@ def criaturas():
         listas[cid] = cuad
         print('%-11s %-5s %8.1fK %8.1fK %8.1fK' % (cid, f.suffix[1:], pesos[0] / 1024, pesos[1] / 1024, pesos[2] / 1024))
     print('%-11s %-5s %8.1fK %8.1fK %8.1fK' % ('TOTAL', '', total['token'] / 1024, total['ficha'] / 1024, total['ficha-web'] / 1024))
-    print('Dentro del HTML van token + ficha-web: %.0f KB (+33 %% en base64 = ~%.0f KB).' %
-          ((total['token'] + total['ficha-web']) / 1024, (total['token'] + total['ficha-web']) * 4 / 3 / 1024))
+    print('Dentro del HTML va solo el token: %.0f KB (+33 %% en base64 = ~%.0f KB). La ficha-web (%.0f KB) se descarga aparte.' %
+          (total['token'] / 1024, total['token'] * 4 / 3 / 1024, total['ficha-web'] / 1024))
 
     # Prueba de 40 px: así se ven en el tablero, sobre el fondo de la app
     n = len(listas); cols = 6; celda = 56

@@ -60,6 +60,71 @@
       "token": "art/web/chispabuho-token.webp",
       "ficha": "art/web/chispabuho-ficha.webp",
       "ficha-web": "art/web/chispabuho-ficha-web.webp"
+    },
+    "brasapo": {
+      "token": "art/web/brasapo-token.webp",
+      "ficha": "art/web/brasapo-ficha.webp",
+      "ficha-web": "art/web/brasapo-ficha-web.webp"
+    },
+    "lanaflama": {
+      "token": "art/web/lanaflama-token.webp",
+      "ficha": "art/web/lanaflama-ficha.webp",
+      "ficha-web": "art/web/lanaflama-ficha-web.webp"
+    },
+    "picobuzo": {
+      "token": "art/web/picobuzo-token.webp",
+      "ficha": "art/web/picobuzo-ficha.webp",
+      "ficha-web": "art/web/picobuzo-ficha-web.webp"
+    },
+    "velaguja": {
+      "token": "art/web/velaguja-token.webp",
+      "ficha": "art/web/velaguja-ficha.webp",
+      "ficha-web": "art/web/velaguja-ficha-web.webp"
+    },
+    "cestacol": {
+      "token": "art/web/cestacol-token.webp",
+      "ficha": "art/web/cestacol-ficha.webp",
+      "ficha-web": "art/web/cestacol-ficha-web.webp"
+    },
+    "hormihoja": {
+      "token": "art/web/hormihoja-token.webp",
+      "ficha": "art/web/hormihoja-ficha.webp",
+      "ficha-web": "art/web/hormihoja-ficha-web.webp"
+    },
+    "cascoriza": {
+      "token": "art/web/cascoriza-token.webp",
+      "ficha": "art/web/cascoriza-ficha.webp",
+      "ficha-web": "art/web/cascoriza-ficha-web.webp"
+    },
+    "capiganso": {
+      "token": "art/web/capiganso-token.webp",
+      "ficha": "art/web/capiganso-ficha.webp",
+      "ficha-web": "art/web/capiganso-ficha-web.webp"
+    },
+    "pinzanfora": {
+      "token": "art/web/pinzanfora-token.webp",
+      "ficha": "art/web/pinzanfora-ficha.webp",
+      "ficha-web": "art/web/pinzanfora-ficha-web.webp"
+    },
+    "columnero": {
+      "token": "art/web/columnero-token.webp",
+      "ficha": "art/web/columnero-ficha.webp",
+      "ficha-web": "art/web/columnero-ficha-web.webp"
+    },
+    "crestrayo": {
+      "token": "art/web/crestrayo-token.webp",
+      "ficha": "art/web/crestrayo-ficha.webp",
+      "ficha-web": "art/web/crestrayo-ficha-web.webp"
+    },
+    "campanala": {
+      "token": "art/web/campanala-token.webp",
+      "ficha": "art/web/campanala-ficha.webp",
+      "ficha-web": "art/web/campanala-ficha-web.webp"
+    },
+    "jabatrueno": {
+      "token": "art/web/jabatrueno-token.webp",
+      "ficha": "art/web/jabatrueno-ficha.webp",
+      "ficha-web": "art/web/jabatrueno-ficha-web.webp"
     }
   }
 }
