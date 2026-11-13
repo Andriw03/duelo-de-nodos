@@ -182,7 +182,7 @@ Rama `capacitor-android` (en GitHub). App probada en emulador: toque, splash, zo
 - **Formulario** en `src/config.json` (botón "Enviar comentarios" visible). **Nombre** Hilos del Tiempo aplicado.
 - Verificado: `npm test` (huella idéntica, 17 de reglas, 10 de campaña, 9 de criaturas), `run.js` igual a la referencia; en el navegador a 375 px: duelo 4 con nudos, enredo, aviso, partida guardada con la figura enredada, recompensa de d01, progreso viejo con figuras nuevas, sin errores en consola.
 
-## Portada: 2026-11-13, rama `portada` (sin publicar)
+## Portada: 2026-11-13, rama `portada`, publicada como 0.8.0
 - Intro de 2,85 s (título, hilo que se dibuja con una ventana que se corre: solo `transform`/`opacity`), figuras y botones en cascada; motas y "respiración" de ±2 % siguen en bucle. Un toque la completa; un toque sobre un botón aún invisible no lo activa. Sin intro la segunda vez en la sesión y con `prefers-reduced-motion` (sin motas ni respiración; comprobado leyendo el código, no emulado).
 - Medido a 375×812 y 375×667: sin scroll, sin desplazamiento de layout (PerformanceObserver; se corrigieron dos: la clase `intro` chocaba con `.intro` y el pie crecía al aparecer "Enviar comentarios"), sin errores en consola.
 - Peso: fondo 91 KB (archivo aparte) + HTML 303 → 306 KB comprimido. Total extra ~94 KB.
