@@ -5,7 +5,7 @@
   "_pendiente": "Regla de tablero 'Hebras enredadas' (docs/biblia.md, Jefes): se agrega en la Fase 4.",
   "board": "clasico",
   "player": { "team": "campaign" },
-  "rival": { "team": ["musgoso", "erizarza", "musgoso", "erizarza", "musgoso", "erizarza"] },
+  "rival": { "team": ["cascoriza", "hormihoja", "musgoso", "cestacol", "erizarza", "musgoso"] },
   "ai": "normal",
   "rules": [],
   "victory": { "type": "goal", "turnLimit": 300 }

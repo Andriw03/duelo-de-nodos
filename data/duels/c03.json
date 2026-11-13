@@ -4,7 +4,7 @@
   "_equipo": "Equipo rival propuesto por Claude (linaje Planta, biblia: control de entradas, veneno y sueño). Revisar.",
   "board": "clasico",
   "player": { "team": "campaign" },
-  "rival": { "team": ["erizarza", "musgoso", "erizarza", "musgoso", "erizarza", "erizarza"] },
+  "rival": { "team": ["erizarza", "cestacol", "musgoso", "hormihoja", "erizarza", "cestacol"] },
   "ai": "facil",
   "rules": [],
   "victory": { "type": "goal", "turnLimit": 300 }
