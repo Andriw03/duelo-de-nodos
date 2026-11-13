@@ -159,7 +159,7 @@ Rama `capacitor-android` (en GitHub). App probada en emulador: toque, splash, zo
 - Fondos de 852 px de ancho (menos de los 1080 pedidos): no se agrandan.
 - Verificado: `npm test` (lo anterior idéntico + 8 de campaña); en el navegador los 4 duelos de punta a punta, derrota con reintento, retomar un duelo tras recargar, exportar/importar/borrar, respaldo con inicial; capturas en Chrome del emulador.
 
-## Plantilla de 25 criaturas: 2026-11-13, rama `criaturas-25` (sin publicar)
+## Plantilla de 25 criaturas: 2026-11-13, rama `criaturas-25`, publicada como 0.6.0
 - 13 nuevas (diseño aprobado por Andrés): Brasapo, Lanaflama (Fuego); Picobuzo, Velaguja (Agua); Cestacol, Hormihoja, Cascoriza (Planta); Capiganso, Pinzánfora, Columnero (Tierra); Crestrayo, Campanala, Jabatrueno (Rayo). Cada tipo: 2 comunes, 2 raras, 1 épica (total 10/10/5).
 - Efectos de dorado nuevos (aprobados): `remiendo` (Cascoriza: la figura propia con más turnos de enfermería vuelve a la banca) y `embestida` (Columnero: la ganadora pasa al cruce que deja la perdedora, nunca a una meta; llama al gancho `afterLand`). En la interfaz la figura aparece en el cruce nuevo sin animación.
 - Reglas de diseño que comprueba `test/criaturas.js`: suma 96, 4–6 segmentos, daño ≤ 120, el Fallo nunca pesa más que el segmento más pesado (si no, la parálisis no le hace nada), efectos solo en raras/épicas con peso 8–12, 5 por tipo con al menos un mp 1 y un mp 3, y que los equipos al azar usan las 25.

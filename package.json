@@ -1,6 +1,6 @@
 {
   "name": "duelo-de-nodos",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Duelo de Nodos: estrategia por turnos contra la CPU",
   "directories": {
     "test": "test"
