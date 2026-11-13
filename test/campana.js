@@ -79,7 +79,7 @@ prueba('progreso: desbloqueo lineal, recompensas y equipo con repetidas', () => 
   assert.strictEqual(C.estado(p, C.duelo('d02')), 'bloqueado');
   assert.strictEqual(C.estado(p, C.duelo('d05')), 'proximamente');
   p = C.ganar(p, 'd01');
-  assert.deepStrictEqual(p.figuras, ['tizonaje', 'magmuz', 'pavorasa']);
+  assert.deepStrictEqual(p.figuras, ['tizonaje', 'magmuz', 'pavorasa', 'brasapo', 'lanaflama']);
   assert.strictEqual(C.estado(p, C.duelo('d01')), 'ganado');
   assert.strictEqual(C.siguiente(p).id, 'd02');
   p = C.ganar(C.ganar(p, 'd02'), 'd02');
@@ -89,7 +89,15 @@ prueba('progreso: desbloqueo lineal, recompensas y equipo con repetidas', () => 
   assert(!C.equipoValido(['cetamar', 'tizonaje', 'tizonaje', 'tizonaje', 'tizonaje', 'tizonaje'], p), 'no deja usar criaturas bloqueadas');
   p = C.ganar(C.ganar(p, 'd03'), 'd04');
   assert.deepStrictEqual(p.sellos, ['lino']);
+  assert(p.figuras.includes('cascoriza') && p.figuras.includes('hormihoja'), 'recompensas de d03 y d04');
   assert.strictEqual(C.siguiente(p), null, 'tras el duelo 4 no hay más duelos disponibles');
+});
+
+prueba('un progreso de antes (0.6.0) recibe las figuras que se sumaron a duelos ya ganados', () => {
+  const viejo = { v: 1, jugador: 'Ari', ganados: ['d01', 'd02', 'd03'], sellos: [], figuras: ['tizonaje', 'magmuz', 'pavorasa', 'zumbiza', 'erizarza', 'musgoso'], equipo: [] };
+  const p = C.normalizar(viejo);
+  ['brasapo', 'lanaflama', 'cestacol', 'hormihoja'].forEach(k => assert(p.figuras.includes(k), 'falta ' + k));
+  assert(!p.figuras.includes('cascoriza'), 'no da la recompensa de un duelo sin ganar');
 });
 
 prueba('exportar e importar el progreso', () => {

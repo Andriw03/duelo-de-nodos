@@ -43,6 +43,12 @@
     out.ganados = (Array.isArray(p.ganados) ? p.ganados : []).filter(id => ids.has(id));
     out.sellos = (Array.isArray(p.sellos) ? p.sellos : []).filter(s => typeof s === 'string').slice(0, 5);
     out.figuras = (Array.isArray(p.figuras) ? p.figuras : []).filter(k => D.CREATURE[k]);
+    // Si una recompensa creció después de ganar el duelo (0.7.0: más figuras), se entrega lo que falta
+    out.ganados.forEach(id => {
+      const r = DUELOS.find(d => d.id === id).recompensa || {};
+      (r.figuras || []).forEach(k => { if (D.CREATURE[k] && !out.figuras.includes(k)) out.figuras.push(k); });
+      if (r.sello && !out.sellos.includes(r.sello)) out.sellos.push(r.sello);
+    });
     out.equipo = (Array.isArray(p.equipo) ? p.equipo : []).filter(k => out.figuras.includes(k)).slice(0, TAM_EQUIPO);
     return out;
   }
