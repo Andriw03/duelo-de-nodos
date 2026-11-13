@@ -151,7 +151,7 @@ Rama `capacitor-android` (en GitHub). App probada en emulador: toque, splash, zo
 - Verificado: `npm test` idéntico; en el navegador a 375 px sin scroll horizontal; figuras de 38×38 px en el tablero (prueba de 40 px); íconos de estado en tablero y ficha; patrones distinguibles en escala de grises; respaldo con emoji si una imagen falla.
 - Pendiente (Andrés): revisar `art/web/prueba-40.png` y `hoja.png`. Los retratos (`ari-*.png`) van en `art/retratos/`, no en `art/source/` (el script los ignora con aviso).
 
-## Fase 3 (estructura de campaña): terminada 2026-11-11, rama `fase3-campana` (sin publicar)
+## Fase 3 (estructura de campaña): terminada 2026-11-11, rama `fase3-campana`, publicada como 0.5.0
 - Jugable: prólogo y Arco 1 (duelos 1 a 4) con escenas, retratos, fondos, elecciones, recompensas y Sello de Lino. Duelos 5 a 14 en el mapa como "Próximamente" (sus escenas ya están convertidas).
 - Decisiones (aprobadas): arte de escenas como archivos aparte; equipos de campaña con repetidas; duelos 1 y 2 guiados con el motor del tutorial y los textos del guion.
 - Propuesto por Claude, **revisar**: equipos rivales de Sira y Madre Lino (`c03`, `c04`), la "figura de reserva" de Teo (Zumbiza), colores de acento de personajes y qué expresión usa cada uno por escena (`campana.json` → `expresiones`).
