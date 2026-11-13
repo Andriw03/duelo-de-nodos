@@ -5,17 +5,17 @@ const AI = require('../src/ai.js');
 console.log('nodos', D.BOARD.nodes.length, 'aristas', D.BOARD.edges.length);
 console.log('dist entrada jugador -> meta CPU', D.BOARD.dist[D.BOARD.entries[0][0]][D.BOARD.goal[1]]);
 
-// 2) 1.000 giros por ruleta
+// 2) 100.000 giros por ruleta (con 1.000 el ±3 % fallaba por azar; con 100.000 el desvío esperado es <0,4 pp)
 const rng = D.mulberry32(42);
 let worst = 0;
 for (const c of D.CREATURES) {
-  const n = 1000, cnt = new Array(c.wheel.length).fill(0);
+  const n = 100000, cnt = new Array(c.wheel.length).fill(0);
   for (let i = 0; i < n; i++) cnt[D.pickIndex(c.wheel, rng)]++;
   const tot = c.wheel.reduce((a, s) => a + s.w, 0);
   if (tot !== 96) console.log('PESO != 96', c.name, tot);
-  c.wheel.forEach((s, i) => { const dev = Math.abs(cnt[i] / n - s.w / tot) * 100; worst = Math.max(worst, dev); if (dev > 3) console.log('DESVÍO', c.name, s.name, dev.toFixed(2)); });
+  c.wheel.forEach((s, i) => { const dev = Math.abs(cnt[i] / n - s.w / tot) * 100; worst = Math.max(worst, dev); if (dev > 1) console.log('DESVÍO', c.name, s.name, dev.toFixed(2)); });
 }
-console.log('máx desvío en 1000 giros (pp):', worst.toFixed(2));
+console.log('máx desvío en 100000 giros (pp):', worst.toFixed(2));
 
 // 3) Partidas CPU vs CPU
 function play(seed, l0, l1) {
