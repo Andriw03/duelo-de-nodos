@@ -10,6 +10,27 @@
 </style>
 </head>
 <body class="cargando">
+<script>
+/* Portada: la intro se ve completa solo la primera vez por sesión. Va aquí (y no en ui.js) para que empiece
+   apenas se pinta la pantalla, aunque con red lenta el resto del juego tarde varios segundos en llegar.
+   Un toque la completa; un toque sobre un botón que aún no se veía no lo activa. */
+(function () {
+  var b = document.body, ya = false;
+  // "Continuar" se decide aquí para que no aparezca después y empuje los botones (ui.js lo confirma al arrancar)
+  try { if (localStorage.getItem('duelo-nodos-v1')) b.classList.add('hay-partida'); } catch (e) {}
+  try { ya = !!sessionStorage.getItem('hilos-intro'); sessionStorage.setItem('hilos-intro', '1'); } catch (e) {}
+  if (ya || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) return;
+  b.classList.add('ini-anim');
+  var fin = function () { b.classList.remove('ini-anim'); document.removeEventListener('pointerdown', toque, true); };
+  var toque = function (e) {
+    var bt = e.target && e.target.closest && e.target.closest('button');
+    if (bt && +getComputedStyle(bt).opacity < 0.6) document.addEventListener('click', function (c) { c.stopPropagation(); c.preventDefault(); }, { capture: true, once: true });
+    fin();
+  };
+  document.addEventListener('pointerdown', toque, true);
+  setTimeout(fin, 3000);
+})();
+</script>
 <!-- Íconos propios (estados y tipos). Se usan con <use href="#id">; color = currentColor. -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
   <symbol id="mk-knot" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" d="M3 8c5 0 6 8 11 8s5-6 2-7.5S9 12 8 16M21 8c-2 0-3 1-4 2.5M3 16c2 0 3-1 4-2.5"/></symbol>
@@ -24,14 +45,30 @@
   <symbol id="ty-agua" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2.2c3.6 5 6.4 8.3 6.4 11.6a6.4 6.4 0 0 1-12.8 0c0-3.3 2.8-6.6 6.4-11.6z"/><path fill="none" stroke="#0e1322" stroke-width="1.5" stroke-linecap="round" d="M8.6 14.6c1.1.9 2.3.9 3.4 0s2.3-.9 3.4 0" opacity=".55"/></symbol>
 </svg>
 <div id="app">
-  <section id="scr-team" class="screen">
+  <section id="scr-inicio" class="screen inicio">
+    <div class="ini-img" aria-hidden="true"></div>
+    <div class="ini-motas" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="ini-cuerpo">
+      <h1 class="ini-titulo">Hilos del <span>Tiempo</span></h1>
+      <div class="ini-hilo" aria-hidden="true"><div class="ini-hilo-in"><svg viewBox="0 0 280 20" preserveAspectRatio="none"><path d="M4 10C34 2 52 18 82 10s48-8 70 0 48 8 70 0 36-6 54 0"/></svg></div><b class="ini-chispa"></b></div>
+      <div class="ini-figs" aria-hidden="true"><span class="ini-fig" data-k="tizonaje"></span><span class="ini-fig" data-k="erizarza"></span><span class="ini-fig" data-k="corazamba"></span><span class="ini-fig" data-k="zumbiza"></span><span class="ini-fig" data-k="pulpiza"></span></div>
+      <nav class="ini-botones" aria-label="Menú principal">
+        <button type="button" id="btn-continue" class="btn primary">Continuar partida</button>
+        <button type="button" id="btn-camp" class="btn camp-btn"><span>Campaña</span><small>El Gran Telar del Tiempo</small></button>
+        <button type="button" id="btn-libre" class="btn">Partida libre</button>
+        <button type="button" id="btn-rules-i" class="btn">Cómo jugar</button>
+      </nav>
+      <p class="about ini-pie"><span id="version-t"></span><button type="button" id="btn-feedback-t" class="linkbtn" hidden>Enviar comentarios</button></p>
+    </div>
+  </section>
+
+  <section id="scr-team" class="screen" hidden>
     <header class="tbar">
-      <h1>Hilos del <span>Tiempo</span></h1>
+      <button type="button" id="btn-team-back" class="btn icon" aria-label="Volver a la portada">‹</button>
+      <h1 class="tbar-t">Partida libre</h1>
       <button type="button" id="btn-rules-t" class="btn icon" aria-label="Cómo jugar">?</button>
     </header>
     <p class="intro">Elige 6 de las 25 criaturas. La CPU arma un equipo equilibrado al azar. Toca la <b>i</b> para ver la ruleta de cada una.</p>
-    <button type="button" id="btn-camp" class="btn camp-btn"><span>Campaña</span><small>El Gran Telar del Tiempo</small></button>
-    <p class="about"><span id="version-t"></span><button type="button" id="btn-feedback-t" class="linkbtn" hidden>Enviar comentarios</button></p>
     <div class="diff" id="diff" role="radiogroup" aria-label="Dificultad">
       <button type="button" role="radio" data-lv="facil">Fácil</button>
       <button type="button" role="radio" data-lv="normal">Normal</button>
@@ -40,7 +77,6 @@
     <div id="type-strip-t" class="type-strip" aria-label="Ciclo de tipos: cada tipo vence al siguiente"></div>
     <div id="team-grid" class="grid"></div>
     <footer class="team-foot">
-      <button type="button" id="btn-continue" class="btn" hidden>Continuar partida guardada</button>
       <div class="row">
         <span class="count" id="team-count">0/6</span>
         <button type="button" id="btn-random" class="btn">Al azar</button>
