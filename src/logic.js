@@ -181,7 +181,9 @@
        afterLand(s, fig, events, rule)  -> después de entrar o moverse a un cruce
        endTurn(s, player, events, rule) -> al terminar el turno de player, antes del cambio de turno
        wheel(s, fig, opp, wheel, rule)  -> ruleta efectiva de fig contra opp (devuelve la ruleta)
-     Ninguna regla real está registrada todavía: sus efectos se definen con la biblia (Fase 4). */
+       afterAttack(s, figId, from, events, rule) -> después de un combate; from = cruce desde donde atacó
+     Si una regla necesita recordar algo durante la partida, lo guarda en s.ruleState (clone lo copia).
+     Reglas reales: 'hebras' (Madre Lino, más abajo). */
   const RULES = {};
   function registerRule(type, impl) { RULES[type] = impl; }
   const hasRules = s => !!(s && s.rules && s.rules.length);
@@ -196,6 +198,50 @@
     if (hasRules(s)) for (const r of s.rules) { const impl = ruleImpl(r); if (impl.neighbors) list = impl.neighbors(s, n, list, r); }
     return list;
   }
+
+  /* Hebras enredadas (Madre Lino, duelo 4; docs/biblia.md, "Jefes"). Datos: { type: 'hebras', nodes: [cruces marcados] }.
+     - Llegar a un cruce marcado (entrar, moverse o por embestida) enreda a la figura: en el siguiente turno de su
+       dueño no puede moverse, pero sí atacar. Quedarse en el cruce no la vuelve a enredar.
+     - Una figura de Fuego que ataca desde un cruce vecino a una marca la despeja para el resto del duelo
+       (y suelta a la figura que estuviera enredada en ella), gane o pierda el combate.
+     Afecta a los dos bandos. Estado: s.ruleState.hebras = cruces que siguen marcados; f.enredo = turno en que se enredó. */
+  function hebrasMarcas(s, r) {
+    if (!s.ruleState) s.ruleState = {};
+    if (!s.ruleState.hebras) s.ruleState.hebras = r.nodes.slice();
+    return s.ruleState.hebras;
+  }
+  // Cruces marcados que siguen activos en la partida (para la interfaz); [] si el duelo no tiene la regla
+  function markedNodes(s) {
+    const r = (s.rules || []).find(x => x.type === 'hebras');
+    if (!r) return [];
+    return (s.ruleState && s.ruleState.hebras) || r.nodes.slice();
+  }
+  registerRule('hebras', {
+    neighbors(s, node, list) {
+      // BFS no pasa por cruces ocupados: la única figura que puede estar en node es la que se mueve
+      const f = s.figs.find(x => x.loc === 'board' && x.node === node);
+      return f && f.enredo ? [] : list;
+    },
+    afterLand(s, f, events, r) {
+      if (!hebrasMarcas(s, r).includes(f.node)) return;
+      f.enredo = s.turn;
+      events.push({ type: 'hebras', fig: f.id, node: f.node, text: creatureOf(f).name + ' queda enredada: en su próximo turno no podrá moverse.' });
+    },
+    afterAttack(s, figId, from, events, r) {
+      const f = s.figs[figId];
+      if (from === null || from === undefined || creatureOf(f).type !== 'fuego') return;
+      const B = boardOf(s), marcas = hebrasMarcas(s, r);
+      const quemadas = marcas.filter(n => B.adj[from].includes(n));
+      if (!quemadas.length) return;
+      s.ruleState.hebras = marcas.filter(n => !quemadas.includes(n));
+      s.figs.forEach(g => { if (g.loc === 'board' && quemadas.includes(g.node)) g.enredo = null; });
+      events.push({ type: 'hebras-quema', fig: figId, nodes: quemadas, text: creatureOf(f).name + ' quema ' + (quemadas.length > 1 ? 'las hebras enredadas de los cruces vecinos' : 'la hebra enredada del cruce vecino') + '.' });
+    },
+    endTurn(s, p, events, r) {
+      hebrasMarcas(s, r);
+      s.figs.forEach(f => { if (f.enredo && (f.loc !== 'board' || (f.owner === p && f.enredo !== s.turn))) f.enredo = null; });
+    }
+  });
 
   /* ---------- Utilidades ---------- */
   function mulberry32(seed) {
@@ -213,7 +259,9 @@
       turn: s.turn, current: s.current, winner: s.winner, winReason: s.winReason,
       awaitAttack: s.awaitAttack, forcedAttack: !!s.forcedAttack, firstPlayer: s.firstPlayer,
       boardId: s.boardId, rules: s.rules, turnLimit: s.turnLimit, duelId: s.duelId,
-      figs: s.figs.map(f => ({ ...f, status: f.status ? { ...f.status } : null }))
+      figs: s.figs.map(f => ({ ...f, status: f.status ? { ...f.status } : null })),
+      // estado propio de las reglas de jefe (solo existe si alguna regla lo usa)
+      ...(s.ruleState ? { ruleState: JSON.parse(JSON.stringify(s.ruleState)) } : {})
     };
   }
 
@@ -391,6 +439,7 @@
       const sp = act.spin || spinBattle(s, act.fig, act.target, rng || Math.random);
       const r = resolveBattle(s, act.fig, act.target, sp.ai, sp.di);
       r.events.forEach(e => events.push(e));
+      runHook(r.state, 'afterAttack', [act.fig, s.figs[act.fig].node, events]);
       surroundCheck(r.state, r.state.current, events);
       endTurn(r.state, events);
       return { state: r.state, events, battle: r.battle };
@@ -601,7 +650,7 @@
 
   const api = {
     MAX_TURNS, KO_TURNS, TYPES, TYPE_ORDER, STATUS, SEG, FX, RARITY, CREATURES, CREATURE, BOARD,
-    BOARDS, DUELS, compileBoard, registerBoard, boardOf, turnLimitOf, registerRule, RULES,
+    BOARDS, DUELS, compileBoard, registerBoard, boardOf, turnLimitOf, registerRule, RULES, markedNodes,
     mulberry32, clone, newGame, occupancy, reachable, adjacentRivals, legalActions, applyAction,
     pickIndex, effectiveWheel, compareSegs, spinBattle, battleOdds, resolveBattle, segLabel,
     randomBalancedTeam, validate, mustAttack, wheelFractions, segmentAtRotation, targetRotation, creatureOf, isImmobile, rivalGoal

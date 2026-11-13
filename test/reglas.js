@@ -184,4 +184,82 @@ prueba('las reglas viajan en la partida guardada (JSON)', () => {
   assert.deepStrictEqual(D.validate(copia), []);
 });
 
+/* ---------- Hebras enredadas (Madre Lino, regla real) ---------- */
+const HEBRAS = [{ type: 'hebras', nodes: [8, 12, 16, 20] }];
+const fallo = k => D.CREATURE[k].wheel.findIndex(x => x.t === 'r');
+const empate = (a, b) => ({ ai: fallo(a), di: fallo(b) }); // rojo contra rojo: nadie gana
+// Un turno cualquiera del jugador actual sin tocar a la figura `menos` (mete una figura y termina)
+function turnoDeRelleno(s, menos) {
+  const a = D.legalActions(s).find(x => x.type === 'enter' && x.fig !== menos);
+  assert(a, 'no hay figura para meter');
+  s = D.applyAction(s, a).state;
+  if (s.awaitAttack !== null && s.winner === null) s = D.applyAction(s, { type: 'end' }).state;
+  return s;
+}
+const mueve = (s, fig) => D.legalActions(s).filter(a => a.fig === fig && a.type === 'move');
+
+prueba('hebras: llegar a un cruce marcado enreda (no se mueve en su próximo turno, sí ataca) y después suelta', () => {
+  let s = conFiguras(HEBRAS, s => {
+    s.figs[4].loc = 'board'; s.figs[4].node = 21;   // Zumbiza del jugador, junto a la marca 16
+    s.figs[7].loc = 'board'; s.figs[7].node = 13;   // Cetamar de la CPU, vecina de 16
+  });
+  assert.deepStrictEqual(D.markedNodes(s), [8, 12, 16, 20]);
+  let r = D.applyAction(s, mueve(s, 4).find(a => a.to === 16));
+  assert(r.events.some(e => e.type === 'hebras' && e.fig === 4));
+  s = r.state;
+  assert.strictEqual(s.awaitAttack, 4, 'queda junto a Cetamar');
+  s = D.applyAction(s, { type: 'end' }).state;
+  s = turnoDeRelleno(s, 7);                          // turno de la CPU
+  assert.strictEqual(mueve(s, 4).length, 0, 'enredada: no puede moverse');
+  assert(D.legalActions(s).some(a => a.fig === 4 && a.type === 'stay'), 'enredada: puede atacar');
+  s = D.applyAction(s, { type: 'stay', fig: 4 }).state;
+  s = D.applyAction(s, { type: 'attack', fig: 4, target: 7, spin: empate('zumbiza', 'cetamar') }).state;
+  assert.deepStrictEqual(D.validate(s), []);
+  s = turnoDeRelleno(s, 7);
+  assert(mueve(s, 4).length > 0, 'quedarse y atacar en la marca no la vuelve a enredar');
+});
+
+prueba('hebras: el rival también se enreda, y una figura que cae al remiendo queda suelta', () => {
+  let s = conFiguras(HEBRAS, s => { s.figs[10].loc = 'board'; s.figs[10].node = 7; s.current = 1; }); // Chispabúho de la CPU
+  s = D.applyAction(s, mueve(s, 10).find(a => a.to === 12)).state;
+  assert(s.figs[10].enredo);
+  s = turnoDeRelleno(s);
+  assert.strictEqual(mueve(s, 10).length, 0);
+  const k = D.clone(s); k.figs[10].loc = 'ko'; k.figs[10].node = null; k.figs[10].koLeft = 2; k.figs[10].koAt = k.turn;
+  const t = D.applyAction(k, D.legalActions(k).find(a => a.type === 'enter')).state;
+  assert(!t.figs[10].enredo, 'fuera del tablero no sigue enredada');
+});
+
+prueba('hebras: una figura de Fuego que ataca junto a una marca la quema y suelta a la enredada', () => {
+  const colocar = atacante => s => {
+    s.figs[atacante].loc = 'board'; s.figs[atacante].node = 13;   // 13 es vecino de las marcas 8 y 16
+    s.figs[7].loc = 'board'; s.figs[7].node = 16; s.figs[7].enredo = 1; // Cetamar enredada en 16
+  };
+  // Magmuz (Fuego) quema las dos marcas vecinas de 13, gane o pierda
+  let s = conFiguras(HEBRAS, colocar(0));
+  s = D.applyAction(s, { type: 'stay', fig: 0 }).state;
+  let r = D.applyAction(s, { type: 'attack', fig: 0, target: 7, spin: empate('magmuz', 'cetamar') });
+  assert(r.events.some(e => e.type === 'hebras-quema'));
+  assert.deepStrictEqual(D.markedNodes(r.state), [12, 20]);
+  assert(!r.state.figs[7].enredo, 'la de la marca quemada queda suelta');
+  assert(mueve(r.state, 7).length > 0);
+  // Pulpiza (Agua) no quema nada
+  s = conFiguras(HEBRAS, colocar(1));
+  s = D.applyAction(s, { type: 'stay', fig: 1 }).state;
+  r = D.applyAction(s, { type: 'attack', fig: 1, target: 7, spin: empate('pulpiza', 'cetamar') });
+  assert.deepStrictEqual(D.markedNodes(r.state), [8, 12, 16, 20]);
+  // las marcas quemadas viajan en la partida guardada
+  const g = JSON.parse(JSON.stringify(D.applyAction(conFiguras(HEBRAS, colocar(0)), { type: 'stay', fig: 0 }).state));
+  const q = D.applyAction(g, { type: 'attack', fig: 0, target: 7, spin: empate('magmuz', 'cetamar') }).state;
+  assert.deepStrictEqual(JSON.parse(JSON.stringify(q)).ruleState.hebras, [12, 20]);
+});
+
+prueba('hebras: la IA juega partidas completas con la regla (Normal y Difícil)', () => {
+  for (let i = 0; i < 8; i++) {
+    const r = D.mulberry32(300 + i);
+    const s = jugar(D.newGame(equipo(r), equipo(r), i % 2, { rules: HEBRAS, victory: { type: 'goal', turnLimit: 300 } }), r, i % 2 ? 'dificil' : 'normal');
+    assert(s.winner !== null);
+  }
+});
+
 console.log('\n' + n + ' pruebas OK');
