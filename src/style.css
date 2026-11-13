@@ -292,3 +292,8 @@ img.art { display: block; object-fit: contain; pointer-events: none; -webkit-use
 .dlg-pie { display: flex; justify-content: space-between; align-items: center; color: var(--muted); font-size: 12px; font-weight: 700; }
 .dlg-sigue { animation: pulse 1.6s ease-in-out infinite; }
 @media (prefers-reduced-motion: reduce) { .dlg-sigue { animation: none; } }
+
+/* Mientras llega el HTML (con 3G, varios segundos): la pantalla ya se ve, pero los botones no responden
+   hasta que arranca ui.js. Se atenúan y se avisa en el lugar de las cartas. */
+body.cargando button { pointer-events: none; opacity: .45; }
+body.cargando #team-grid::before { content: 'Cargando criaturas…'; grid-column: 1 / -1; padding: 28px 0; text-align: center; color: var(--muted); font-weight: 700; }

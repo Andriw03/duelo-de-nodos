@@ -880,6 +880,7 @@
     $('#btn-feedback-t').addEventListener('click', openFeedback);
     ui.team = ['tizonaje', 'pulpiza', 'erizarza', 'tejonrock', 'zumbiza', 'musgoso'];
     renderTeam();
+    document.body.classList.remove('cargando');
     P.hideSplash();
     offerTutorial();
   }
