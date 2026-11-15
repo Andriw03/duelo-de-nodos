@@ -109,7 +109,7 @@
    "titulo": "Maru (tutorial guiado)",
    "capitulo": "Prólogo: Hebra (duelos 1 y 2)",
    "lineas": [],
-   "recompensa": "equipo inicial de Fuego."
+   "recompensa": "equipo inicial, una figura de cada tipo."
   },
   "duelo-1-antes": {
    "titulo": "Maru (tutorial guiado)",
@@ -183,7 +183,7 @@
     {
      "quien": "tamsin",
      "nombre": "Tamsin",
-     "texto": "Antes, esto es para ti. *(le entrega un estuche de seis figuras de Fuego)* Mi equipo de cuando era aprendiz. Fuego es rápido y de golpe alto. Úsalo bien."
+     "texto": "Antes, esto es para ti. *(le entrega un estuche con una figura de cada linaje)* Mi equipo de cuando era aprendiz. Cada hilo sirve contra otro. Úsalo bien."
     }
    ]
   },
@@ -411,7 +411,7 @@
     {
      "quien": "sira",
      "nombre": "Sira",
-     "texto": "Mi equipo es de Planta. Quema bien con Fuego, así que ya sabes por qué te dejaron ese estuche."
+     "texto": "Mi equipo es de Planta. Quema bien con Fuego, así que ya sabes qué figura de tu estuche sacar."
     }
    ]
   },
@@ -1162,7 +1162,7 @@
     {
      "quien": "lucio",
      "nombre": "Lucio",
-     "texto": "Mi equipo es de Agua. Vence a Fuego, así que tus figuras iniciales sufren hoy. Cede ante Rayo."
+     "texto": "Mi equipo es de Agua. Vence a Fuego, así que tus figuras de Fuego sufren hoy. Cede ante Rayo."
     },
     {
      "quien": "lucio",

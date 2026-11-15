@@ -64,9 +64,9 @@ Prólogo en Hebra · Arco 1 Neolítico · Arco 2 Edad Antigua · Arco 3 Edad Med
 - **Maru:** *(viendo cómo su figura llega al borde)* Mira nomás. Aprendiste en cinco minutos lo que a mí me costó una semana.
 - **Ari:** Tuve una buena maestra.
 - **Maru:** *(sonrojada)* No exageres. Falta lo bueno: pelear.
-- **Tamsin:** Antes, esto es para ti. *(le entrega un estuche de seis figuras de Fuego)* Mi equipo de cuando era aprendiz. Fuego es rápido y de golpe alto. Úsalo bien.
+- **Tamsin:** Antes, esto es para ti. *(le entrega un estuche con una figura de cada linaje)* Mi equipo de cuando era aprendiz. Cada hilo sirve contra otro. Úsalo bien.
 
-> **Recompensa:** equipo inicial de Fuego.
+> **Recompensa:** equipo inicial, una figura de cada tipo.
 
 ### Duelo 2: Teo, vecino de Hebra (combate y estados)
 
@@ -131,7 +131,7 @@ Prólogo en Hebra · Arco 1 Neolítico · Arco 2 Edad Antigua · Arco 3 Edad Med
 - **Elección de Ari:**
   - «¿Si gano, me dejas pasar?» → **Sira:** Si ganas, te dejo pasar y te regalo mis mejores hilos.
   - «Te gano rápido.» → **Sira:** Ay, qué prisa. Aquí la prisa se paga con nudos.
-- **Sira:** Mi equipo es de Planta. Quema bien con Fuego, así que ya sabes por qué te dejaron ese estuche.
+- **Sira:** Mi equipo es de Planta. Quema bien con Fuego, así que ya sabes qué figura de tu estuche sacar.
 
 **Después**
 
@@ -357,7 +357,7 @@ Prólogo en Hebra · Arco 1 Neolítico · Arco 2 Edad Antigua · Arco 3 Edad Med
 **Antes**
 
 - **Lucio:** *(limpiando una cuerda)* ¿Buscas al Capitán? Para llegar a él hay que pasar por mí. Es tradición. No me mires así, que yo no la inventé.
-- **Lucio:** Mi equipo es de Agua. Vence a Fuego, así que tus figuras iniciales sufren hoy. Cede ante Rayo.
+- **Lucio:** Mi equipo es de Agua. Vence a Fuego, así que tus figuras de Fuego sufren hoy. Cede ante Rayo.
 - **Lucio:** *(guiñando un ojo)* Y tú acabas de ganar un estuche entero de Rayo. Qué curioso.
 - **Elección de Ari:**
   - «El hilo sabe lo que hace.» → **Lucio:** Entonces que el hilo juegue mejor que tú.

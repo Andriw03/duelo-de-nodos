@@ -71,7 +71,7 @@ El conflicto central es personal: el villano y la mentora fueron compañeros, y 
 
 La campaña tiene siete capítulos y 14 duelos: un prólogo en el presente, cinco épocas (un rival y un Guardián cada una) y un final en el Taller de Tarjetas. Ari viaja primero al pasado más lejano y avanza hacia el presente, siguiendo el orden de los tipos. En cada época se gana un Sello de Hilo.
 
-1. **Prólogo, Hebra (duelos 1 y 2).** El telar de la aldea no responde. Tamsin entrega el primer equipo (Fuego) y un carrete que abre el camino a otras épocas. Maru enseña las reglas básicas.
+1. **Prólogo, Hebra (duelos 1 y 2).** El telar de la aldea no responde. Tamsin entrega el primer equipo (una figura de cada linaje) y un carrete que abre el camino a otras épocas. Maru enseña las reglas básicas.
 2. **Arco 1, Neolítico (Planta).** Aldeas de agricultores y telares de cintura. Kael aparece recogiendo hilos para el Patrón. Madre Lino pide paciencia y entrega el Sello de Lino.
 3. **Arco 2, Edad Antigua (Tierra).** Una ciudad de talleres con telares verticales de pesas. El Taller de Tarjetas ya dejó marcas en los muros: primera pista del plan. La Señora de las Pesas entrega el Sello de Pesa y Kael empieza a dudar.
 4. **Arco 3, Edad Media (Rayo).** Feria de las rutas de la seda y gremios de tejedores. Maese Pedal revela que Tamsin estuvo en el Desgarro. Sello de Pedal.
@@ -85,7 +85,7 @@ Los 14 duelos suben de Fácil a Difícil en la IA actual. Las reglas especiales 
 
 | # | Capítulo | Rival | Regla especial | IA | Recompensa |
 | --- | --- | --- | --- | --- | --- |
-| 1 | Prólogo | Maru | Ninguna; tutorial guiado | Fácil | Equipo inicial de Fuego |
+| 1 | Prólogo | Maru | Ninguna; tutorial guiado | Fácil | Equipo inicial surtido |
 | 2 | Prólogo | Teo, vecino de Hebra | Ninguna; enseña combate y estados | Fácil | Primera figura de reserva |
 | 3 | Neolítico | Sira, hiladora | Ninguna | Fácil | Figuras de Planta |
 | 4 | Neolítico | Madre Lino (jefa) | Hebras enredadas | Normal | Sello de Lino |
