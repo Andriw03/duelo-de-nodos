@@ -211,13 +211,13 @@ Plan: `docs/plan-audio.md`. Créditos y licencias: `docs/creditos.md`.
 - **No probado:** que algo suene bien (Claude no oye), iPhone real, estado `interrupted` real, Android (WebView).
 
 ## Pendientes del audio
-- Andrés: escuchar y aprobar los 18 sonidos y las dos músicas en `tools/sonidos.html` (pegar el JSON de "Copiar parámetros" para aplicarlo); confirmar volúmenes por defecto.
+- Sonidos aprobados por Andrés (2026-11-15) tal como están, con los volúmenes por defecto. Para ajustar uno: `tools/sonidos.html` → "Copiar parámetros" → pegar el JSON en el chat.
 - Andrés: iPhone real (desbloqueo, interruptor de silencio, volver de segundo plano).
 - Fase B: música de archivo en `art/web/audio/` (tope 1,5 MB, carga perezosa, respaldo generativo, `saveData`), con licencia en `docs/creditos.md`. `build.py --out www` ya copia esa carpeta.
 - Si `dialogo` o `mover` cansan, retirarlos.
 
 ## Siguiente
-Andrés aprueba los sonidos. Testers del Arco 1 (link, iPhone). Después, Fase 5 de `ROADMAP.md`.
+Prueba del audio en iPhone; publicar la rama `audio` cuando Andrés lo pida (subir a 0.9.0). Testers del Arco 1 (link, iPhone). Después, Fase 5 de `ROADMAP.md`.
 
 ## Después (no empezar sin pedirlo)
 - Fases 2 a 7 de `ROADMAP.md`. Multijugador online (requiere servidor autoritativo; versión 2).
