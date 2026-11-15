@@ -194,14 +194,14 @@ Rama `capacitor-android` (en GitHub). App probada en emulador: toque, splash, zo
 - Red lenta (50 KB/s): la portada se pinta a ~1,5 s y la intro corre ahí; el juego responde a ~6,4 s; el fondo se pide al arrancar y aparece ~2 s después. Pedirlo antes compite con el HTML en una red real (~1,8 s más de espera para jugar).
 - Navegación: atrás de Android en el equipo → portada; en la portada → segundo plano. Volver de la campaña o salir del tutorial → portada. Abandonar o terminar una partida libre → equipo (como antes).
 
-## Estuche inicial surtido: 2026-11-15, rama `equipo-surtido` (sin publicar)
+## Estuche inicial surtido: 2026-11-15, rama `equipo-surtido`, publicada como 0.9.0 (junto con el audio)
 - d01 entrega una común por tipo: Tizonaje, Pulpiza, Erizarza, Corazamba, Crestrayo (mp 9). Con Zumbiza de Teo (d02) el jugador llega al duelo 3 con 6 figuras: 5 tipos, mp 12, sin épica (es el equipo por defecto).
 - **Cambia el guion y la biblia** (aprobado por Andrés): Tamsin entrega «un estuche con una figura de cada linaje… Cada hilo sirve contra otro»; Sira (l. 134) «ya sabes qué figura de tu estuche sacar»; Lucio (l. 360) «tus figuras de Fuego sufren hoy»; biblia l. 74 y tabla de duelos. Sin cambiar: Sira l. 139 y Nuri l. 203 (siguen siendo ciertas con Tizonaje).
 - Progresos viejos: conservan las 5 de Fuego y su equipo; `normalizar` les suma Pulpiza, Corazamba y Crestrayo (sin migración nueva).
 - Simulación (jugador IA Normal, 400 partidas, equipo por defecto): Sira (Fácil) 95 → 87 %; Sira con IA Normal 78 → 65 %; Madre Lino 70 → 58 % (dentro del objetivo 40–60 %). Partidas al límite contra Lino: 8 → 16 %.
 - Verificado: `npm test` (huella idéntica, 12 de campaña), `run.js` igual a la referencia; en el navegador, texto de Tamsin, recompensa de d01, equipo por defecto y progreso viejo, sin errores en consola.
 
-## Audio, parte A (Fase 6a adelantada): 2026-11-15, rama `audio` (desde `equipo-surtido`, sin publicar)
+## Audio, parte A (Fase 6a adelantada): 2026-11-15, rama `audio` (desde `equipo-surtido`), publicada como 0.9.0
 Plan: `docs/plan-audio.md`. Créditos y licencias: `docs/creditos.md`.
 - Entrada con nubes en cada carga fría (salvo música y efectos apagados). "Sin sonido" no crea `AudioContext` y guarda ambos apagados. La intro corre completa tras el toque (el toque no la salta); si ya se vio en la sesión, entra directo a la portada con música.
 - Decisiones (aprobadas): `combate-gana`/`combate-pierde` según **tu** figura (no según quién ataca); `hilo` fuera (18 sonidos justos); volúmenes en un modal "Sonido" que abre el Menú; botón de altavoz en la portada (silencia o activa todo); no se usa `navigator.audioSession` (se respeta el interruptor de silencio del iPhone: el modal lo avisa).
@@ -217,7 +217,7 @@ Plan: `docs/plan-audio.md`. Créditos y licencias: `docs/creditos.md`.
 - Si `dialogo` o `mover` cansan, retirarlos.
 
 ## Siguiente
-Prueba del audio en iPhone; publicar la rama `audio` cuando Andrés lo pida (subir a 0.9.0). Testers del Arco 1 (link, iPhone). Después, Fase 5 de `ROADMAP.md`.
+Prueba del audio en iPhone. Testers del Arco 1 (link, iPhone). Después, Fase 5 de `ROADMAP.md`.
 
 ## Después (no empezar sin pedirlo)
 - Fases 2 a 7 de `ROADMAP.md`. Multijugador online (requiere servidor autoritativo; versión 2).
