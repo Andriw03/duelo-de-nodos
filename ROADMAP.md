@@ -64,6 +64,7 @@ Objetivo: que alguien que nunca vio el juego entienda las reglas en 5 minutos, s
 ## Fase 6 — Pulido
 - **Accesibilidad:** los segmentos de la ruleta se distinguen por color (rojo, dorado, morado, azul, blanco). Agregar icono o patrón a cada tipo para quien no distinga colores.
 - Ajustes: sonido, vibración (solo app), borrar progreso.
+- **Sonido (parte A) hecho** (adelantado como Fase 6a, ver `docs/plan-audio.md`): entrada que desbloquea el audio, efectos sintetizados, música generativa provisional, interruptores y volúmenes. Falta la parte B (música de archivo con licencia).
 - Animaciones de movimiento y combate, sonido y música originales (o con licencia clara). Cuidar el peso: la web se descarga entera en cada visita sin caché.
 - Arte propio para criaturas, jefes y retratos; íconos (web y app) y pantalla de carga.
 - Rendimiento y consumo en un teléfono de gama baja (navegador y app).
