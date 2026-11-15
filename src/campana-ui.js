@@ -6,6 +6,7 @@
 (function () {
   'use strict';
   const C = window.DuelCampana, D = window.Duel, P = window.Platform;
+  const S = window.DuelSonido || { efecto() {}, musica() {}, bajarMusica() {} };
   const U = window.DuelUI && window.DuelUI.api;
   if (!C || !U) return;
   const $ = s => document.querySelector(s);
@@ -39,7 +40,7 @@
     return '<span class="mini" style="background:' + per.color + '">' + (r ? '<img src="' + r + '" alt="" data-ini="' + ini + '">' : ini) + '</span>';
   }
   function mapa() {
-    U.hideScreens(); $('#scr-camp').hidden = false; window.scrollTo(0, 0);
+    U.hideScreens(); $('#scr-camp').hidden = false; window.scrollTo(0, 0); S.musica('portada');
     $('#camp-head').innerHTML = '<span>Tejedor/a: <b>' + esc(prog.jugador) + '</b></span><span>· Sellos <b>' + prog.sellos.length + '/5</b></span>' +
       (prog.figuras.length ? '<span>· Figuras</span><span class="figs">' + prog.figuras.map(k => U.creatureImg(D.CREATURE[k], 'token')).join('') + '</span>' : '');
     let html = '';
@@ -83,6 +84,7 @@
       await escenas(d.despues || [], d);
       const nuevas = prog.figuras.filter(k => !antes.includes(k));
       const rec = d.recompensa || {};
+      S.efecto('sello');
       await U.openModal('¡Ganaste a ' + esc(C.conJugador(C.personaje(d.rival).nombre, prog)) + '!',
         '<p><b>Recompensa:</b> ' + esc(rec.texto || '—') + '</p>' +
         (nuevas.length ? '<div class="camp-head"><span class="figs">' + nuevas.map(k => U.creatureImg(D.CREATURE[k], 'token')).join('') + '</span><span>' + nuevas.map(k => esc(D.CREATURE[k].name)).join(', ') + '</span></div>' : '') +
@@ -145,7 +147,7 @@
       if (e.escenario) cola.push({ narracion: true, texto: e.escenario, quien: 'narracion' });
       e.lineas.forEach(l => cola.push(l));
       dlg = { resolve, cola, i: -1, esperando: false };
-      const el = $('#dialogo'); el.hidden = false;
+      const el = $('#dialogo'); el.hidden = false; S.bajarMusica(true);
       const fondo = el.querySelector('.dlg-fondo');
       fondo.style.backgroundImage = '';
       if (e.fondo) { const img = new Image(); img.onload = () => { fondo.style.backgroundImage = 'url("' + e.fondo + '")'; }; img.src = e.fondo; }
@@ -186,12 +188,13 @@
     if (!dlg || dlg.esperando) return;
     dlg.i++;
     if (dlg.i >= dlg.cola.length) { cerrarDialogo(); return; }
+    if (dlg.i > 0) S.efecto('dialogo');
     mostrar(dlg.cola[dlg.i]);
   }
   function cerrarDialogo() {
     if (!dlg) return;
     const r = dlg.resolve; dlg = null;
-    $('#dialogo').hidden = true;
+    $('#dialogo').hidden = true; S.bajarMusica(false);
     r();
   }
 

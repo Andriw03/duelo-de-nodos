@@ -12,6 +12,9 @@
 
   /* ---------- Guardado opcional (localStorage en la web; con respaldo nativo en la app, ver platform.js) ---------- */
   const P = window.Platform;
+  // Sonido (audio.js). Si faltara, un reemplazo mudo: el juego no depende de él.
+  const S = window.DuelSonido || { iniciar() {}, efecto() {}, musica() {}, bajarMusica() {}, desbloquear() {}, reanudar() {}, visible() {}, fijar() {}, config: () => ({ musica: false, efectos: false, volMusica: 0, volEfectos: 0 }) };
+  const SND_KEY = 'duelo-nodos-sonido';
   const SAVE_KEY = 'duelo-nodos-v1';
   const store = {
     get() { try { const r = P.storage.get(SAVE_KEY); return r ? JSON.parse(r) : null; } catch (e) { return null; } },
@@ -472,6 +475,11 @@
     if (who) ui.log.unshift({ turn: ui.state.turn, text: who });
     ui.log.length = Math.min(ui.log.length, 80);
   }
+  // Sonido de los eventos de reglas: enredo (Hebras) y rodear (va a la enfermería)
+  function sonarEventos(events) {
+    if (events.some(e => e.type === 'hebras')) S.efecto('nudo');
+    if (events.some(e => e.type === 'surround')) S.efecto('enfermeria');
+  }
   function save() {
     if (!ui.state || ui.guide) return;
     if (ui.state.winner !== null) { store.del(); return; }
@@ -491,7 +499,7 @@
     if (f.loc === 'bench' && !dest.size) { ui.sel = null; say('Tus dos entradas están ocupadas.'); return; }
     if (f.enredo && f.owner === s.current && !dest.size) say(D.creatureOf(f).name + ' está enredada: este turno no puede moverse' + (targets.length ? ', pero sí atacar.' : '.'));
     ui.sel = { fig: id, dest, targets };
-    P.haptic('tap');
+    P.haptic('tap'); S.efecto('elegir');
   }
   // Tutorial: ¿el toque (figura o cruce) es parte del paso actual? Si no, se ignora y se avisa.
   function guideBlocks(kind, id) {
@@ -502,7 +510,7 @@
   }
   // Tras un toque permitido: si el paso pedía tocar esa figura, se avanza
   function guideAfterTap(id) { if (ui.guide && ui.sel && ui.sel.fig === id) ui.guide.tapped(id); }
-  function nudge() { const m = $('#msg'); m.classList.remove('nudge'); void m.offsetWidth; m.classList.add('nudge'); }
+  function nudge() { S.efecto('error'); const m = $('#msg'); m.classList.remove('nudge'); void m.offsetWidth; m.classList.add('nudge'); }
 
   function slotTapped(id) {
     if (guideBlocks('fig', id)) return;
@@ -540,8 +548,8 @@
     const path = act.path || [act.to];
     const tmp = { ...f, loc: 'board', node: path[0] };
     const g = figGroup(tmp); g.dataset.anim = '1';
-    if (act.type === 'enter') { placeFig(g, path[0]); await wait(200); }
-    for (let i = 1; i < path.length; i++) { placeFig(g, path[i]); await wait(150); }
+    if (act.type === 'enter') { placeFig(g, path[0]); S.efecto('meter'); await wait(200); }
+    for (let i = 1; i < path.length; i++) { placeFig(g, path[i]); S.efecto('mover'); await wait(150); }
     await wait(60);
     delete g.dataset.anim;
   }
@@ -552,7 +560,7 @@
     ui.busy = true; ui.sel = null; ui.confirm = null; ui.msg = '';
     if (act.type === 'enter' || act.type === 'move') await animateMove(act);
     const r = D.applyAction(ui.state, act);
-    ui.state = r.state; logEvents(r.events);
+    ui.state = r.state; logEvents(r.events); sonarEventos(r.events);
     const extra = r.events.filter(e => NOTE_EVENTS.includes(e.type) || e.type === 'heal' || e.type === 'cure').map(e => e.text).join(' ');
     say(extra);
     ui.busy = false;
@@ -570,6 +578,7 @@
   }
 
   /* ---------- Combate a pantalla completa ---------- */
+  const TONO_ESTADO = { poison: 0, para: 2, sleep: -3, freeze: 4 }; // un solo sonido de estado, con otro tono
   function runBattle(aId, dId) {
     ui.busy = true; refresh();
     const s = ui.state;
@@ -595,6 +604,8 @@
     $('#battle-text').textContent = 'Girando…';
     const go = $('#battle-go'); go.disabled = true; go.textContent = 'Continuar';
     $('#battle').hidden = false;
+    S.bajarMusica(true); S.efecto('ruleta-giro');
+    anims.forEach(a => { a.seg = D.segmentAtRotation(a.wheel, 0); });
     return new Promise(resolve => {
       let skip = false; const t0 = performance.now();
       const ease = t => 1 - Math.pow(1 - t, 3);
@@ -604,7 +615,11 @@
         let done = true;
         anims.forEach(a => {
           const t = skip ? 1 : Math.min(1, (now - t0) / a.dur);
-          drawWheel(a.cv, a.wheel, a.target * ease(t), { labels: true, pointer: true });
+          const rot = a.target * ease(t);
+          drawWheel(a.cv, a.wheel, rot, { labels: true, pointer: true });
+          // tic al pasar cada segmento bajo el puntero (audio.js limita a uno cada 60 ms); se atenúa al frenar
+          const sg = D.segmentAtRotation(a.wheel, rot);
+          if (sg !== a.seg) { a.seg = sg; if (!skip && t < 1) S.efecto('ruleta-tic', { vol: 1 - 0.65 * t }); }
           if (t < 1) done = false;
         });
         if (!done) { requestAnimationFrame(frame); return; }
@@ -615,12 +630,17 @@
         });
         const w = preview.battle.winner;
         if (w !== null) (w === top.id ? anims[0] : anims[1]).box.classList.add('win');
+        // desde el lado del jugador: gana tu figura (sube), pierde (baja), azul o empate (neutro)
+        S.efecto('ruleta-alto');
+        setTimeout(() => S.efecto(w === null ? 'combate-anula' : s.figs[w].owner === 0 ? 'combate-gana' : 'combate-pierde'), 180);
         $('#battle-text').textContent = preview.battle.text;
         if (w !== null) P.haptic('hit');
         go.disabled = false; go.focus();
         go.onclick = () => {
           go.onclick = null;
-          $('#battle').hidden = true;
+          $('#battle').hidden = true; S.bajarMusica(false);
+          if (preview.battle.outcome === 'ko') S.efecto('enfermeria');
+          else if (preview.battle.outcome === 'status') { const ws = w === aId ? sp.wa[sp.ai] : sp.wd[sp.di]; S.efecto('estado', { tono: TONO_ESTADO[ws.st] || 0 }); }
           const r = D.applyAction(ui.state, { type: 'attack', fig: aId, target: dId, spin: sp });
           ui.state = r.state; logEvents(r.events);
           const extra = r.events.filter(e => NOTE_EVENTS.includes(e.type)).map(e => e.text).join(' ');
@@ -663,7 +683,7 @@
     }
     if (act.type === 'enter' || act.type === 'move') {
       await animateMove(act);
-      const r = D.applyAction(ui.state, act); ui.state = r.state;
+      const r = D.applyAction(ui.state, act); ui.state = r.state; sonarEventos(r.events);
       moved = D.creatureOf(ui.state.figs[act.fig]).name;
       logEvents(r.events, (act.type === 'enter' ? 'La CPU metió a ' : 'La CPU movió a ') + moved + '.');
       say((act.type === 'enter' ? 'La CPU metió a <b>' : 'La CPU movió a <b>') + esc(moved) + '</b>. ' + esc(r.events.filter(e => NOTE_EVENTS.includes(e.type)).map(e => e.text).join(' ')));
@@ -688,18 +708,19 @@
     ui.busy = false; save(); afterAction();
   }
 
+  function sonarFin(w) { if (w === 0) S.efecto('victoria'); else if (w === 1) S.efecto('derrota'); }
   async function gameOver() {
     if (ui.guide) { finishLesson(); return; } // en el tutorial no se toca la partida guardada
     store.del();
     if (ui.campaign) {
       const c = ui.campaign, w = ui.state.winner; ui.campaign = null;
-      P.haptic(w === 0 ? 'win' : 'lose');
+      P.haptic(w === 0 ? 'win' : 'lose'); sonarFin(w);
       c.onEnd(w === 0 ? 'win' : w === 1 ? 'lose' : 'draw', ui.state.winReason);
       return;
     }
     const s = ui.state;
     const title = s.winner === 0 ? '¡Ganaste!' : s.winner === 1 ? 'Ganó la CPU' : 'Empate';
-    P.haptic(s.winner === 0 ? 'win' : 'lose');
+    P.haptic(s.winner === 0 ? 'win' : 'lose'); sonarFin(s.winner);
     const choice = await openModal(title, '<p>' + esc(s.winReason) + '</p><p class="note">Partida de ' + s.turn + ' turnos en nivel ' + AI.LEVELS[ui.level].name + '.</p>',
       [{ label: 'Cambiar equipo', value: 'team' }, { label: 'Revancha', value: 'again', primary: true }]);
     if (choice === 'again') startGame(ui.team, ui.cpuTeam); else showTeamScreen();
@@ -710,7 +731,7 @@
     ui.campaign = null;
     ui.team = team.slice(); ui.cpuTeam = cpuTeam || D.randomBalancedTeam();
     const first = Math.random() < 0.5 ? 0 : 1;
-    ui.state = D.newGame(ui.team, ui.cpuTeam, first, DUEL_LIBRE);
+    ui.state = D.newGame(ui.team, ui.cpuTeam, first, DUEL_LIBRE); S.musica('duelo');
     ui.log = []; ui.sel = null; ui.info = null; ui.confirm = null; ui.busy = false;
     hideScreens(); $('#scr-game').hidden = false;
     buildBoard();
@@ -722,7 +743,7 @@
     ui.campaign = sv.campana && window.DuelCampanaUI ? window.DuelCampanaUI.contexto(sv.campana) : null;
     ui.level = sv.level || 'normal'; ui.team = sv.team; ui.cpuTeam = sv.cpuTeam; ui.state = sv.state; ui.log = sv.log || [];
     ui.sel = null; ui.info = null; ui.confirm = null; ui.busy = false;
-    hideScreens(); $('#scr-game').hidden = false;
+    hideScreens(); $('#scr-game').hidden = false; S.musica('duelo');
     buildBoard(); say('Partida recuperada.'); afterAction();
   }
   /* ---------- Duelos de campaña (los lanza campana-ui.js) ---------- */
@@ -731,7 +752,7 @@
     ui.level = AI.LEVELS[cfg.ai] ? cfg.ai : 'normal';
     ui.cpuTeam = cfg.rival.team.slice();
     const first = Math.random() < 0.5 ? 0 : 1;
-    ui.state = D.newGame(team.slice(), ui.cpuTeam, first, cfg);
+    ui.state = D.newGame(team.slice(), ui.cpuTeam, first, cfg); S.musica('duelo');
     ui.log = []; ui.sel = null; ui.info = null; ui.confirm = null; ui.busy = false;
     hideScreens(); $('#scr-game').hidden = false;
     buildBoard();
@@ -759,12 +780,12 @@
   }
   function showHome() {
     hideScreens(); $('#scr-inicio').hidden = false;
-    prepararPortada(); updateContinue(); window.scrollTo(0, 0);
+    prepararPortada(); updateContinue(); pintarAltavoz(); S.musica('portada'); window.scrollTo(0, 0);
   }
   function hideScreens() { document.querySelectorAll('#app > .screen').forEach(sc => { sc.hidden = true; }); }
 
   function showTeamScreen() {
-    hideScreens(); $('#scr-team').hidden = false;
+    hideScreens(); $('#scr-team').hidden = false; S.musica('portada');
     renderTeam(); window.scrollTo(0, 0);
   }
 
@@ -802,11 +823,42 @@
       { label: 'Historial', onClick: () => setTimeout(openLog, 0) },
       { label: 'Prueba de ruletas', onClick: () => setTimeout(openWheelTest, 0) },
       { label: ui.fast ? 'Animación normal' : 'Animación rápida', onClick: () => { ui.fast = !ui.fast; } },
+      { label: 'Sonido', onClick: () => setTimeout(openSound, 0) },
     ].concat(feedbackUrl ? [{ label: 'Enviar comentarios', onClick: openFeedback }] : []).concat(P.canVibrate ? [{ label: P.vibra ? 'Vibración: sí' : 'Vibración: no', onClick: () => P.setVibra(!P.vibra) }] : []).concat([
       ui.guide ? { label: 'Salir del tutorial', danger: true, onClick: () => setTimeout(requestExitTutorial, 0) }
         : { label: 'Abandonar partida', danger: true, onClick: () => setTimeout(confirmQuit, 0) },
       { label: 'Seguir jugando', primary: true }
     ]));
+  }
+  /* ---------- Sonido: interruptores y volúmenes (Menú) y altavoz (portada) ----------
+     Activar el sonido es un gesto del jugador: ahí se crea o reanuda el contexto si no existía. */
+  function openSound() {
+    const c = S.config(), vol = v => Math.round(v * 100);
+    const fila = (id, nombre, on, v) => '<div class="snd-fila"><label for="snd-' + id + '">' + nombre + '</label><input type="checkbox" id="snd-' + id + '"' + (on ? ' checked' : '') + '></div>' +
+      '<div class="snd-fila"><label for="snd-v' + id + '" class="note">Volumen</label><input type="range" id="snd-v' + id + '" min="0" max="100" step="5" value="' + vol(v) + '"' + (on ? '' : ' disabled') + '></div>';
+    openModal('Sonido', fila('m', 'Música', c.musica, c.volMusica) + fila('e', 'Efectos', c.efectos, c.volEfectos) +
+      '<p class="note">En iPhone, el interruptor de silencio del teléfono también apaga el sonido del juego.</p>', [{ label: 'Listo', primary: true }]);
+    const body = $('#modal-body');
+    const aplicar = () => {
+      const o = { musica: $('#snd-m').checked, efectos: $('#snd-e').checked, volMusica: +$('#snd-vm').value / 100, volEfectos: +$('#snd-ve').value / 100 };
+      $('#snd-vm').disabled = !o.musica; $('#snd-ve').disabled = !o.efectos;
+      S.fijar(o); S.desbloquear(); pintarAltavoz();
+    };
+    body.querySelectorAll('input[type="checkbox"]').forEach(i => i.addEventListener('change', aplicar));
+    body.querySelectorAll('input[type="range"]').forEach(i => i.addEventListener('input', aplicar));
+    $('#snd-ve').addEventListener('change', () => S.efecto('toque'));
+  }
+  function pintarAltavoz() {
+    const c = S.config(), on = c.musica || c.efectos, b = $('#btn-sonido-i');
+    b.setAttribute('aria-pressed', String(!on));
+    b.setAttribute('aria-label', on ? 'Silenciar el sonido' : 'Activar el sonido');
+    b.querySelector('use').setAttribute('href', on ? '#snd-on' : '#snd-off');
+  }
+  function toggleAltavoz() {
+    const c = S.config(), on = c.musica || c.efectos;
+    S.fijar({ musica: !on, efectos: !on });
+    if (!on) { S.desbloquear(); S.efecto('toque'); }
+    pintarAltavoz();
   }
   async function confirmQuit() {
     const v = await openModal('¿Abandonar la partida?', '<p>Se pierde la partida en curso y vuelves a elegir equipo.</p>', [{ label: 'Cancelar', value: 'no' }, { label: 'Abandonar', value: 'yes', danger: true }]);
@@ -819,7 +871,7 @@
   /* ---------- Tutorial ---------- */
   function startLesson(L, titulo) {
     ui.guide = TUT.createGuide(L);
-    ui.state = ui.guide.start();
+    ui.state = ui.guide.start(); S.musica('duelo');
     ui.log = []; ui.sel = null; ui.info = null; ui.confirm = null; ui.busy = false;
     hideScreens(); $('#scr-game').hidden = false;
     $('#guide-bar').hidden = false;
@@ -834,12 +886,12 @@
     const L = ui.guide.lesson; ui.busy = true; refresh();
     if (ui.campaign) { // duelo guiado de campaña: lo cierra campana-ui.js
       const c = ui.campaign; ui.campaign = null; ui.guide = null; ui.busy = false; $('#guide-bar').hidden = true;
-      P.haptic('win'); c.onEnd('win'); return;
+      P.haptic('win'); S.efecto('victoria'); c.onEnd('win'); return;
     }
     const p = TUT.readProgress(P.storage);
     if (!p.hechas.includes(L.id)) p.hechas.push(L.id);
     p.ofrecido = true; TUT.writeProgress(P.storage, p);
-    P.haptic('win');
+    P.haptic('win'); S.efecto('victoria');
     const next = TUT.LESSONS[TUT.LESSONS.indexOf(L) + 1];
     const v = await openModal(next ? '¡Lección completada!' : '¡Terminaste el tutorial!', '<p>' + esc(L.fin) + '</p>',
       next ? [{ label: 'Salir', value: 'exit' }, { label: 'Siguiente: ' + next.titulo, value: 'next', primary: true }]
@@ -869,8 +921,10 @@
   // Primera vez que se abre el juego (sin partida guardada): ofrecer el tutorial una sola vez
   // Ejecuta fn cuando termina la intro de la portada (o ya, si no hay intro)
   function despuesDeIntro(fn) {
-    if (!document.body.classList.contains('ini-anim')) { fn(); return; }
-    const mo = new MutationObserver(() => { if (!document.body.classList.contains('ini-anim')) { mo.disconnect(); fn(); } });
+    const b = document.body, listo = () => !b.classList.contains('entrada') && !b.classList.contains('ini-anim');
+    if (listo()) { fn(); return; }
+    // la entrada quita "entrada" a los 500 ms del toque; para entonces la intro (si hay) ya puso "ini-anim"
+    const mo = new MutationObserver(() => { if (listo()) { mo.disconnect(); fn(); } });
     mo.observe(document.body, { attributes: true, attributeFilter: ['class'] });
   }
   async function offerTutorial() {
@@ -884,6 +938,7 @@
 
   /* ---------- Botón "atrás" (Android) ---------- */
   function onBack() {
+    if (document.body.classList.contains('entrada')) { P.minimize(); return; } // entrada: como la portada
     if (!$('#modal').hidden) { closeModal(); return; }   // cierra la ventana abierta
     if (window.DuelCampanaUI && window.DuelCampanaUI.onBack()) return; // diálogo o mapa de campaña
     if (!$('#battle').hidden) return;                     // el combate se cierra con "Continuar"
@@ -894,7 +949,19 @@
 
   /* ---------- Arranque ---------- */
   function init() {
+    S.iniciar(P.storage);
+    P.onVisibility(v => S.visible(v));
     P.onBack(onBack);
+    // En cada toque: reanudar si el sistema interrumpió el audio (iOS) y crearlo si el jugador lo activó sin pasar
+    // por la entrada. Sonido genérico en los botones, salvo los que tienen uno propio o están en escenas.
+    document.addEventListener('pointerdown', () => S.reanudar(), true);
+    document.addEventListener('click', e => {
+      const b = e.target && e.target.closest && e.target.closest('button');
+      if (!b || b.closest('#scr-entrada')) return;   // la entrada decide sola (con o sin sonido)
+      S.desbloquear();
+      if (!b.closest('#dialogo, #scr-entrada, .slot, #btn-sonido-i')) S.efecto('toque');
+    }, true);
+    $('#btn-sonido-i').addEventListener('click', toggleAltavoz);
     document.querySelectorAll('#diff button').forEach(b => b.addEventListener('click', () => { ui.level = b.dataset.lv; renderTeam(); }));
     $('#btn-random').addEventListener('click', () => { ui.team = D.randomBalancedTeam(); renderTeam(); });
     $('#btn-play').addEventListener('click', () => { if (ui.team.length === 6) startGame(ui.team); });
@@ -925,6 +992,6 @@
     // para campana-ui.js (misma interfaz, otro archivo)
     api: { openModal, closeModal, esc, creatureImg, typeIcon, showTeamScreen, showHome, hideScreens, startCampaignDuel, startCampaignGuided, nudge }
   };
-  const start = () => P.restore([SAVE_KEY]).then(init);
+  const start = () => P.restore([SAVE_KEY, SND_KEY]).then(init);
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
 })();

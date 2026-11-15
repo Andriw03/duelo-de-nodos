@@ -57,6 +57,9 @@
     onBack(fn) { if (App) App.addListener('backButton', fn); },
     /* Mandar la app a segundo plano (como el botón de inicio) en vez de cerrarla. */
     minimize() { if (App) App.minimizeApp().catch(ignore); },
-    hideSplash() { if (Splash) Splash.hide().catch(ignore); }
+    hideSplash() { if (Splash) Splash.hide().catch(ignore); },
+    /* Pestaña o app en segundo plano: fn(false) al ocultarse, fn(true) al volver (pausa del sonido).
+       visibilitychange también llega en el WebView de la app al pasar a segundo plano. */
+    onVisibility(fn) { document.addEventListener('visibilitychange', () => fn(!document.hidden)); }
   };
 })();
