@@ -110,6 +110,9 @@ def main():
             origen = RAIZ / 'art' / 'web' / sub
             if origen.is_dir():
                 shutil.copytree(origen, destino / 'art' / 'web' / sub, dirs_exist_ok=True)
+        # Audio de archivo (Fase B de la música): art/web/audio/, si existe
+        if (RAIZ / 'art' / 'web' / 'audio').is_dir():
+            shutil.copytree(RAIZ / 'art' / 'web' / 'audio', destino / 'art' / 'web' / 'audio', dirs_exist_ok=True)
         # Fichas de criaturas (256 px): también como archivos
         (destino / 'art' / 'web').mkdir(parents=True, exist_ok=True)
         for f in (RAIZ / 'art' / 'web').glob('*-ficha-web.webp'):
@@ -125,7 +128,7 @@ def main():
                              ('/*CAMPANA*/', leer('campana.js')), ('/*CAMPANA_UI*/', leer('campana-ui.js')),
                              ('<!--CAPACITOR-->\n', capacitor + '\n' if capacitor else ''),
                              ('/*CONFIG*/', config_js()), ('/*ART*/', arte),
-                             ('/*PLATFORM*/', leer('platform.js')), ('/*UI*/', leer('ui.js'))]:
+                             ('/*PLATFORM*/', leer('platform.js')), ('/*AUDIO*/', leer('audio.js')), ('/*UI*/', leer('ui.js'))]:
         assert marca in s, 'falta el marcador ' + marca
         s = s.replace(marca, contenido)
 
