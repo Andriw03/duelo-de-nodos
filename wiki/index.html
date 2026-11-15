@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bestiario · Hilos del Tiempo</title>
+<meta name="description" content="Las 25 criaturas de Hilos del Tiempo: arte, descripción y ruleta de combate.">
+<style>
+@font-face{font-family:'Lilita One';font-weight:400;font-display:swap;src:url(../src/fonts/lilita-one-latin.woff2) format('woff2')}
+@font-face{font-family:'Nunito';font-weight:200 1000;font-display:swap;src:url(../src/fonts/nunito-latin.woff2) format('woff2')}
+:root{--bg:#0e1322;--panel:#171e35;--panel2:#1e2745;--line:#2c3860;--txt:#e9edff;--mut:#9aa6cf;--acc:#3ddbc4;--gold:#e8b730}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--txt);font-family:'Nunito',system-ui,sans-serif;line-height:1.5;
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+h1,h2,h3{font-family:'Lilita One','Nunito',sans-serif;font-weight:400;margin:0;letter-spacing:.2px}
+a{color:var(--acc)}
+.wrap{max-width:1080px;margin:0 auto;padding:20px 16px 48px}
+header.top{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 16px;margin-bottom:14px}
+header.top h1{font-size:clamp(28px,6vw,40px);color:var(--gold)}
+header.top p{margin:0;color:var(--mut);flex:1 1 260px}
+.controls{position:sticky;top:0;z-index:5;background:linear-gradient(var(--bg) 82%,transparent);padding:8px 0 12px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:8px}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--panel);color:var(--txt);
+  border-radius:999px;padding:6px 12px;font:inherit;font-weight:700;font-size:14px;cursor:pointer;min-height:36px}
+.chip[aria-pressed=true]{background:var(--panel2);border-color:var(--acc);box-shadow:0 0 0 1px var(--acc) inset}
+.chip .dot{width:10px;height:10px;border-radius:50%}
+.chip:focus-visible,.card:focus-visible,input:focus-visible,button:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+input[type=search]{flex:1 1 200px;min-width:0;background:var(--panel);border:1px solid var(--line);color:var(--txt);border-radius:999px;
+  padding:8px 14px;font:inherit;min-height:40px}
+.count{color:var(--mut);font-size:14px;margin-left:auto}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:10px 10px 12px;text-align:center;cursor:pointer;
+  color:inherit;font:inherit;display:flex;flex-direction:column;align-items:center;gap:4px;transition:transform .15s,border-color .15s}
+.card:hover{transform:translateY(-2px);border-color:var(--acc)}
+.card img{width:100%;max-width:150px;aspect-ratio:1;object-fit:contain}
+.card .n{font-family:'Lilita One',sans-serif;font-size:18px}
+.card .m{font-size:12.5px;color:var(--mut);display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap}
+.card[data-r=e]{border-color:#8a6d16;background:linear-gradient(160deg,#2a2410,var(--panel) 55%)}
+.empty{grid-column:1/-1;text-align:center;color:var(--mut);padding:40px 0}
+.tag{display:inline-block;border-radius:999px;padding:1px 9px;font-size:12px;font-weight:800;border:1px solid var(--line)}
+.tag.e{color:var(--gold);border-color:var(--gold)}.tag.r{color:#9ad0ff;border-color:#4a78a8}
+section.ley{margin-top:36px;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px}
+section.ley h2{font-size:22px;margin-bottom:8px}
+.ley ul{margin:6px 0 0;padding-left:20px}.ley li{margin:4px 0}
+.cycle{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:8px 0}
+.sw{display:inline-block;width:18px;height:18px;border-radius:5px;vertical-align:-4px;margin-right:6px;border:1px solid #0006}
+footer{margin-top:28px;color:var(--mut);font-size:13px;text-align:center}
+/* detalle */
+dialog{border:1px solid var(--line);border-radius:20px;background:var(--panel);color:var(--txt);padding:0;width:min(760px,calc(100vw - 20px));
+  max-height:calc(100dvh - 20px);overflow:auto}
+dialog::backdrop{background:#050810cc}
+.det{padding:18px 18px 22px;display:grid;gap:16px;grid-template-columns:1fr}
+@media(min-width:640px){.det{grid-template-columns:minmax(0,260px) 1fr}}
+.det .art{background:radial-gradient(circle at 50% 40%,var(--panel2),var(--bg));border-radius:16px;padding:8px;align-self:start}
+.det .art img{width:100%;aspect-ratio:1;object-fit:contain;display:block}
+.det h2{font-size:32px;line-height:1.1}
+.det .chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 12px}
+.det .chips .tag{padding:3px 10px;font-size:13px}
+.det p{margin:0 0 10px}.det .k{color:var(--mut);font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;margin:12px 0 2px}
+.wheelbox{grid-column:1/-1;display:grid;gap:16px;grid-template-columns:1fr;align-items:center;border-top:1px solid var(--line);padding-top:14px}
+@media(min-width:640px){.wheelbox{grid-template-columns:200px 1fr}}
+.wheelbox svg{width:100%;max-width:220px;margin:0 auto;display:block}
+.moves{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.moves li{display:grid;grid-template-columns:22px 1fr auto;gap:8px;align-items:start;background:var(--panel2);border-radius:10px;padding:7px 10px;font-size:14px}
+.moves .b{font-weight:800}.moves .s{color:var(--mut);font-size:12.5px;display:block;font-weight:600}
+.moves .pc{font-weight:800;color:var(--mut);white-space:nowrap}
+.nav{position:sticky;top:0;display:flex;justify-content:space-between;gap:8px;padding:10px 14px;background:var(--panel);border-bottom:1px solid var(--line);z-index:2}
+.nav button{background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:999px;padding:6px 14px;font:inherit;font-weight:700;cursor:pointer;min-height:38px}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1>Bestiario</h1>
+    <p>Las criaturas de <b>Hilos del Tiempo</b>, cosidas con el Gran Telar. Toca una figura para ver su arte, cómo es y su ruleta de combate.</p>
+  </header>
+
+  <div class="controls">
+    <div class="row" id="f-tipo" role="group" aria-label="Filtrar por tipo"></div>
+    <div class="row">
+      <span id="f-rareza" class="row" style="margin:0" role="group" aria-label="Filtrar por rareza"></span>
+      <input type="search" id="q" placeholder="Buscar criatura…" aria-label="Buscar criatura">
+      <span class="count" id="cuenta" aria-live="polite"></span>
+    </div>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+  <section class="ley" id="ley">
+    <h2>Cómo leer una ficha</h2>
+    <ul>
+      <li><b>MP</b> es el movimiento: cuántas casillas puede avanzar la figura por turno (1 a 3). Las de MP bajo suelen golpear más fuerte; las de MP alto, más suave.</li>
+      <li><b>La ruleta</b> es el combate: cada segmento ocupa un trozo proporcional a su peso (todas suman 96). Se compara el segmento de cada bando según el color:</li>
+    </ul>
+    <ul id="leg-seg"></ul>
+    <ul>
+      <li><b>Tipos:</b> cada uno vence al siguiente y la ventaja suma +10 al daño de los segmentos blancos.</li>
+    </ul>
+    <div class="cycle" id="ciclo"></div>
+  </section>
+
+  <footer>Hilos del Tiempo · v0.9.0 · <a href="../">Jugar</a></footer>
+</div>
+
+<dialog id="dlg" aria-label="Ficha de criatura"></dialog>
+
+<script id="datos" type="application/json">{"tipos":{"fuego":{"name":"Fuego","color":"#ff7a45","beats":"planta"},"planta":{"name":"Planta","color":"#4fc46a","beats":"tierra"},"tierra":{"name":"Tierra","color":"#c8955a","beats":"rayo"},"rayo":{"name":"Rayo","color":"#f2c94c","beats":"agua"},"agua":{"name":"Agua","color":"#4aa8ff","beats":"fuego"}},"orden":["fuego","planta","tierra","rayo","agua"],"seg":{"g":{"name":"Dorado","rank":3,"color":"#e8b730","ink":"#3a2a00"},"p":{"name":"Morado","rank":2,"color":"#8e5ce6","ink":"#ffffff"},"w":{"name":"Blanco","rank":1,"color":"#f3f1ea","ink":"#1d2030"},"r":{"name":"Rojo","rank":0,"color":"#e5484d","ink":"#ffffff"},"b":{"name":"Azul","rank":-1,"color":"#3d8bfd","ink":"#ffffff"}},"estados":{"poison":{"name":"Veneno","adj":"envenenada","icon":"☠","dur":3,"color":"#9b5de5"},"para":{"name":"Parálisis","adj":"paralizada","icon":"ϟ","dur":3,"color":"#e0b100"},"sleep":{"name":"Sueño","adj":"dormida","icon":"z","dur":2,"color":"#7aa2ff"},"freeze":{"name":"Congelación","adj":"congelada","icon":"❄","dur":3,"color":"#7fe3ff"}},"fx":{"cure":"y se cura de su estado","area_para":"y paraliza a los rivales que tenga al lado","area_sleep":"y duerme a los rivales que tenga al lado","remiendo":"y saca de la enfermería a una figura propia","embestida":"y avanza al cruce que deja el rival"},"rareza":{"c":"Común","r":"Rara","e":"Épica"},"criaturas":[{"id":"tizonaje","nombre":"Tizonaje","tipo":"fuego","mp":2,"rareza":"c","ruleta":[{"t":"w","name":"Aguijón ígneo","dmg":60,"w":28},{"t":"w","name":"Pinza ardiente","dmg":40,"w":24},{"t":"p","name":"Toxina candente","stars":1,"st":"poison","w":16},{"t":"g","name":"Llamarada","dmg":50,"w":12,"fx":null},{"t":"b","name":"Esquiva","w":8},{"t":"r","name":"Fallo","w":8}],"descripcion":"Escorpión de caparazón oscuro y remendado, con pinzas amarillas y una cola curvada que remata en un aguijón encendido.","juego":"Ataque directo y constante: dos golpes blancos fiables, una toxina que envenena y un dorado ligero. La figura de Fuego más sencilla de usar."},{"id":"magmuz","nombre":"Magmuz","tipo":"fuego","mp":1,"rareza":"r","ruleta":[{"t":"w","name":"Embestida volcánica","dmg":110,"w":32},{"t":"w","name":"Pisotón","dmg":80,"w":24},{"t":"g","name":"Erupción","dmg":100,"w":8,"fx":"area_para"},{"t":"b","name":"Coraza de magma","w":12},{"t":"r","name":"Fallo","w":20}],"descripcion":"Bisonte corpulento de pelaje oscuro, surcado por grietas de magma que brillan bajo la piel.","juego":"Lento pero devastador: de los golpes más pesados del juego, y su dorado paraliza a los rivales que tenga al lado. Falla seguido."},{"id":"pavorasa","nombre":"Pavorasa","tipo":"fuego","mp":3,"rareza":"e","ruleta":[{"t":"w","name":"Abanico de brasas","dmg":70,"w":24},{"t":"g","name":"Danza solar","dmg":90,"w":12,"fx":"cure"},{"t":"p","name":"Destello hipnótico","stars":2,"st":"sleep","w":16},{"t":"w","name":"Picotazo","dmg":30,"w":20},{"t":"b","name":"Vuelo","w":12},{"t":"r","name":"Fallo","w":12}],"descripcion":"Pavo real de cola en abanico, en rojos y naranjas con borlas colgantes y una cresta de brasas.","juego":"La más versátil de Fuego: rápida, con sueño, un dorado que la cura de su estado y varios golpes medios. Una épica de recursos más que de fuerza bruta."},{"id":"pulpiza","nombre":"Pulpiza","tipo":"agua","mp":2,"rareza":"c","ruleta":[{"t":"w","name":"Tentáculo","dmg":50,"w":28},{"t":"p","name":"Tinta paralizante","stars":2,"st":"para","w":20},{"t":"w","name":"Chorro","dmg":30,"w":20},{"t":"b","name":"Nube de tinta","w":16},{"t":"r","name":"Fallo","w":12}],"descripcion":"Pulpo azul de manchas claras, con tentáculos bordados y una mirada curiosa.","juego":"Controladora de Agua: su tinta paraliza y su nube de tinta le da una defensa decente. Sin dorado, pierde ante figuras que sí lo tienen."},{"id":"cetamar","nombre":"Cetamar","tipo":"agua","mp":1,"rareza":"e","ruleta":[{"t":"w","name":"Ola gigante","dmg":120,"w":28},{"t":"g","name":"Canto abisal","dmg":80,"w":12,"fx":"area_sleep"},{"t":"p","name":"Escarcha marina","stars":3,"st":"freeze","w":12},{"t":"b","name":"Inmersión","w":16},{"t":"r","name":"Fallo","w":28}],"descripcion":"Ballena azul adornada con filigranas doradas y una cola que parece una ola bordada.","juego":"Épica de Agua: una ola gigante de daño máximo, canto que duerme a los vecinos y escarcha que congela. A cambio, tiene el Fallo más grande de su tipo."},{"id":"lodocaiman","nombre":"Lodocaimán","tipo":"agua","mp":2,"rareza":"c","ruleta":[{"t":"w","name":"Mordisco","dmg":80,"w":32},{"t":"w","name":"Coletazo","dmg":50,"w":24},{"t":"p","name":"Lodo tóxico","stars":2,"st":"poison","w":12},{"t":"b","name":"Sumergirse","w":12},{"t":"r","name":"Fallo","w":16}],"descripcion":"Caimán de lomo verde con placas remendadas y piel turquesa, siempre medio hundido en el lodo.","juego":"Sólida y sin sorpresas: un mordisco fuerte, un coletazo y lodo que envenena. Una base confiable para un equipo de Agua."},{"id":"erizarza","nombre":"Erizarza","tipo":"planta","mp":2,"rareza":"c","ruleta":[{"t":"w","name":"Púas","dmg":50,"w":32},{"t":"p","name":"Espinas venenosas","stars":2,"st":"poison","w":20},{"t":"b","name":"Bola de espinas","w":20},{"t":"w","name":"Rodada","dmg":30,"w":12},{"t":"r","name":"Fallo","w":12}],"descripcion":"Erizo cubierto de hojas, enredaderas y una flor rosada que asoma entre las púas.","juego":"Defensiva y molesta: púas constantes, espinas que envenenan y una bola de espinas con buena parte de su ruleta en azul."},{"id":"musgoso","nombre":"Musgoso","tipo":"planta","mp":1,"rareza":"r","ruleta":[{"t":"p","name":"Esporas","stars":3,"st":"sleep","w":24},{"t":"w","name":"Garra musgosa","dmg":70,"w":28},{"t":"g","name":"Fotosíntesis","dmg":60,"w":12,"fx":"cure"},{"t":"b","name":"Camuflaje","w":16},{"t":"r","name":"Fallo","w":16}],"descripcion":"Perezoso envuelto en musgo y hongos, con una bufanda tejida y garras largas.","juego":"Lento y paciente: esporas que duermen, una garra firme y un dorado que lo cura. Gana por desgaste."},{"id":"tejonrock","nombre":"Tejonrock","tipo":"tierra","mp":2,"rareza":"r","ruleta":[{"t":"w","name":"Excavar","dmg":70,"w":28},{"t":"w","name":"Zarpazo","dmg":90,"w":20},{"t":"g","name":"Terremoto","dmg":80,"w":8,"fx":"area_para"},{"t":"b","name":"Madriguera","w":16},{"t":"r","name":"Fallo","w":24}],"descripcion":"Tejón de pelaje pardo con placas de piedra cosidas al lomo y expresión huraña.","juego":"Pegador equilibrado de Tierra: zarpazos fuertes y un dorado que paraliza en área, con un Fallo algo alto."},{"id":"corazamba","nombre":"Corazamba","tipo":"tierra","mp":1,"rareza":"c","ruleta":[{"t":"w","name":"Cornada","dmg":60,"w":28},{"t":"b","name":"Caparazón","w":28},{"t":"p","name":"Polvo aturdidor","stars":1,"st":"para","w":16},{"t":"w","name":"Rodar","dmg":40,"w":12},{"t":"r","name":"Fallo","w":12}],"descripcion":"Escarabajo de caparazón con rombos tejidos, un cuerno corto y patas espinosas.","juego":"Muro de Tierra: el caparazón ocupa buena parte de su ruleta y cede poco. Ataca poco, pero aguanta mucho."},{"id":"zumbiza","nombre":"Zumbiza","tipo":"rayo","mp":3,"rareza":"c","ruleta":[{"t":"w","name":"Aguijón eléctrico","dmg":40,"w":32},{"t":"p","name":"Zumbido paralizante","stars":2,"st":"para","w":16},{"t":"b","name":"Vuelo zigzag","w":16},{"t":"w","name":"Picada","dmg":20,"w":16},{"t":"r","name":"Fallo","w":16}],"descripcion":"Abeja de alas casi transparentes, rayas amarillas y negras y un gesto decidido.","juego":"De las más veloces de la plantilla, con golpes suaves y un zumbido que paraliza. Su fuerte es el movimiento, no el daño."},{"id":"chispabuho","nombre":"Chispabúho","tipo":"rayo","mp":2,"rareza":"r","ruleta":[{"t":"w","name":"Garra voltaica","dmg":70,"w":28},{"t":"g","name":"Relámpago","dmg":90,"w":12,"fx":null},{"t":"p","name":"Ojos hipnóticos","stars":2,"st":"sleep","w":12},{"t":"w","name":"Picotazo","dmg":30,"w":12},{"t":"b","name":"Planeo","w":16},{"t":"r","name":"Fallo","w":16}],"descripcion":"Búho de plumaje amarillo y morado, con penachos en zigzag como relámpagos y borlas en las alas.","juego":"Equilibrada de Rayo: garra fuerte, relámpago dorado y una mirada que duerme. Un poco de todo."},{"id":"brasapo","nombre":"Brasapo","tipo":"fuego","mp":2,"rareza":"c","ruleta":[{"t":"w","name":"Lengüetazo ardiente","dmg":60,"w":28},{"t":"p","name":"Humo tóxico","stars":2,"st":"poison","w":24},{"t":"w","name":"Salto de brasa","dmg":40,"w":16},{"t":"b","name":"Hollín","w":12},{"t":"r","name":"Fallo","w":16}],"descripcion":"Sapo redondo con forma de pequeña estufa de hierro: tubo de chimenea en la espalda, boca ancha y una puertita con brasas en la panza.","juego":"Envenenadora de golpe medio: el humo tóxico es el morado más pesado de las comunes de Fuego.","guiño":"Estufa a leña tipo salamandra."},{"id":"lanaflama","nombre":"Lanaflama","tipo":"fuego","mp":3,"rareza":"r","ruleta":[{"t":"b","name":"Vellón de humo","w":26},{"t":"w","name":"Coz caliente","dmg":60,"w":24},{"t":"p","name":"Escupitajo de ceniza","stars":2,"st":"para","w":16},{"t":"w","name":"Cabezazo lanudo","dmg":40,"w":16},{"t":"r","name":"Fallo","w":14}],"descripcion":"Llama alta y esbelta, de lana rizada que se convierte en llamitas y orejas con forma de chimeneas de fábrica que echan humo.","juego":"Molestosa: mucho azul, un escupitajo de ceniza que paraliza y poco daño. Gana tiempo más que combates.","guiño":"Orejas como chimeneas de fábrica."},{"id":"picobuzo","nombre":"Picobuzo","tipo":"agua","mp":1,"rareza":"r","ruleta":[{"t":"w","name":"Coletazo de pala","dmg":80,"w":26},{"t":"b","name":"Zambullida","w":24},{"t":"p","name":"Espolón venenoso","stars":3,"st":"poison","w":20},{"t":"w","name":"Pico de cuchara","dmg":40,"w":10},{"t":"r","name":"Fallo","w":16}],"descripcion":"Ornitorrinco robusto de pico ancho, patas palmeadas con espolón y una cola plana como timón de galeón con remaches de bronce.","juego":"Tanque venenoso: se defiende bien y su espolón es el veneno más fuerte de Agua.","guiño":"Cola como timón de galeón."},{"id":"velaguja","nombre":"Velaguja","tipo":"agua","mp":3,"rareza":"r","ruleta":[{"t":"w","name":"Estocada","dmg":70,"w":32},{"t":"w","name":"Puntada","dmg":50,"w":24},{"t":"w","name":"Corte de aleta","dmg":40,"w":20},{"t":"b","name":"Vela al viento","w":16},{"t":"r","name":"Fallo","w":4}],"descripcion":"Pez vela en pleno salto, con el pico como aguja de coser y una aleta dorsal de lona con jarcia cosida.","juego":"Precisa: casi nunca falla y reparte su ruleta en tres golpes blancos. Sin morado, sufre ante los controladores.","guiño":"Pico como aguja de coser."},{"id":"cestacol","nombre":"Cestacol","tipo":"planta","mp":1,"rareza":"c","ruleta":[{"t":"b","name":"Refugio de mimbre","w":32},{"t":"w","name":"Cabezazo de concha","dmg":70,"w":30},{"t":"p","name":"Baba adormecedora","stars":1,"st":"sleep","w":14},{"t":"r","name":"Fallo","w":20}],"descripcion":"Caracol redondo y amistoso cuya concha es una canasta de mimbre trenzada en espiral, con hojitas pegadas al pie.","juego":"Tanque lento y simple: el azul más grande de Planta y un cabezazo de concha que pega fuerte.","guiño":"Concha de cestería."},{"id":"hormihoja","nombre":"Hormihoja","tipo":"planta","mp":3,"rareza":"r","ruleta":[{"t":"w","name":"Golpe de hoja","dmg":30,"w":24},{"t":"b","name":"Escudo de hoja","w":18},{"t":"w","name":"Tijeretazo","dmg":60,"w":16},{"t":"w","name":"Mordida de cortadora","dmg":100,"w":14},{"t":"p","name":"Savia pegajosa","stars":1,"st":"poison","w":12},{"t":"r","name":"Fallo","w":12}],"descripcion":"Hormiga cortadora que carga sobre la cabeza una hoja enorme recortada como una hoz de sílex.","juego":"Errática: seis segmentos con daños que van de suave a muy fuerte. Nunca se sabe qué saldrá.","guiño":"Hoja recortada como hoz de sílex."},{"id":"cascoriza","nombre":"Cascoriza","tipo":"planta","mp":1,"rareza":"e","ruleta":[{"t":"w","name":"Patada de garra","dmg":120,"w":30},{"t":"g","name":"Llamado del nido","dmg":70,"w":10,"fx":"remiendo"},{"t":"p","name":"Casco aturdidor","stars":2,"st":"para","w":14},{"t":"b","name":"Plumaje de flecos","w":14},{"t":"r","name":"Fallo","w":28}],"descripcion":"Ave alta e imponente, de patas poderosas y plumaje que cae como flecos de cesto, con un casco como hacha de piedra pulida.","juego":"Pegadora con apoyo: una patada de las más fuertes del juego y un dorado que devuelve a la banca a una figura propia que esté en la enfermería.","guiño":"Casco como hacha de piedra pulida."},{"id":"capiganso","nombre":"Capiganso","tipo":"tierra","mp":2,"rareza":"c","ruleta":[{"t":"p","name":"Graznido de alarma","stars":1,"st":"para","w":26},{"t":"w","name":"Picotazo de guardia","dmg":60,"w":22},{"t":"b","name":"Alas en guardia","w":22},{"t":"w","name":"Pisotón palmeado","dmg":40,"w":12},{"t":"r","name":"Fallo","w":14}],"descripcion":"Ganso erguido, con el pico abierto en pleno graznido, las alas a medio alzar y una pequeña corona de laurel.","juego":"Alarma: el morado más frecuente del juego, pero débil; paraliza seguido y pierde ante morados más fuertes.","guiño":"Los gansos del Capitolio."},{"id":"pinzanfora","nombre":"Pinzánfora","tipo":"tierra","mp":1,"rareza":"r","ruleta":[{"t":"w","name":"Pinza de bronce","dmg":100,"w":36},{"t":"b","name":"Dentro del ánfora","w":32},{"t":"w","name":"Pinza chica","dmg":40,"w":12},{"t":"r","name":"Fallo","w":16}],"descripcion":"Cangrejo ermitaño que vive dentro de un ánfora tendida de lado, con una pinza grande y otra chica asomando por la boca.","juego":"Tanque puro: comparte con Cestacol el azul más alto del juego y su pinza de bronce pega muy fuerte. La parálisis le quita su mejor golpe.","guiño":"Vive dentro de un ánfora."},{"id":"columnero","nombre":"Columnero","tipo":"tierra","mp":3,"rareza":"e","ruleta":[{"t":"w","name":"Topetazo","dmg":60,"w":24},{"t":"w","name":"Coz de risco","dmg":40,"w":18},{"t":"p","name":"Mirada de mármol","stars":3,"st":"freeze","w":14},{"t":"g","name":"Carga de carnero","dmg":70,"w":12,"fx":"embestida"},{"t":"b","name":"Salto de cornisa","w":14},{"t":"r","name":"Fallo","w":14}],"descripcion":"Carnero de montaña con cuernos en espiral como las volutas de un capitel jónico y un pelaje con vetas de mármol.","juego":"Petrificador: su mirada congela y su carga avanza al cruce que deja el rival. Es la única criatura que gana terreno peleando.","guiño":"Cuernos como volutas de capitel."},{"id":"crestrayo","nombre":"Crestrayo","tipo":"rayo","mp":2,"rareza":"c","ruleta":[{"t":"w","name":"Latigazo de cola","dmg":70,"w":26},{"t":"w","name":"Chispazo","dmg":40,"w":22},{"t":"p","name":"Cresta estática","stars":1,"st":"para","w":16},{"t":"b","name":"Escabullirse","w":16},{"t":"r","name":"Fallo","w":16}],"descripcion":"Tritón crestado de cuerpo liso, con una cresta en zigzag como un rayo y la cola rematada en un gallardete heráldico.","juego":"Equilibrada: dos golpes blancos útiles, parálisis leve y una esquiva. La más sencilla de Rayo.","guiño":"Cola como gallardete heráldico."},{"id":"campanala","nombre":"Campanala","tipo":"rayo","mp":2,"rareza":"r","ruleta":[{"t":"w","name":"Mordida nocturna","dmg":60,"w":24},{"t":"p","name":"Tañido adormecedor","stars":2,"st":"sleep","w":22},{"t":"w","name":"Aleteo","dmg":30,"w":14},{"t":"g","name":"Repique","dmg":60,"w":8,"fx":"area_para"},{"t":"b","name":"Colgarse del campanario","w":14},{"t":"r","name":"Fallo","w":14}],"descripcion":"Murciélago redondo con cuerpo en forma de campana, orejas que se abren como el borde y una cola de badajo.","juego":"Controladora: su tañido duerme y su dorado, Repique, paraliza a los rivales vecinos.","guiño":"Cuerpo de campana, cola de badajo."},{"id":"jabatrueno","nombre":"Jabatrueno","tipo":"rayo","mp":1,"rareza":"e","ruleta":[{"t":"w","name":"Colmillazo","dmg":120,"w":28},{"t":"g","name":"Carga del estandarte","dmg":80,"w":18,"fx":null},{"t":"w","name":"Hocicazo","dmg":60,"w":12},{"t":"b","name":"Pechera de escudo","w":12},{"t":"r","name":"Fallo","w":26}],"descripcion":"Jabalí en plena carga, con la cerda erizada como chispas y una pechera en forma de escudo de armas con un rayo.","juego":"Dorado pesado: el dorado más frecuente del juego, que vence a cualquier morado, y un colmillazo de los más fuertes. Falla bastante.","guiño":"Pechera de escudo de armas."}]}</script>
+<script>
+(function(){
+'use strict';
+var DB = JSON.parse(document.getElementById('datos').textContent);
+var C = DB.criaturas, $ = function(s,r){return (r||document).querySelector(s)};
+var esc = function(t){return String(t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})};
+var ART = '../art/web/';
+var filtro = {tipo:null, rareza:null, q:''};
+
+function norm(t){return t.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase()}
+function debilAnte(t){return DB.orden.filter(function(x){return DB.tipos[x].beats===t})[0]}
+
+/* ---- filtros ---- */
+var ft = $('#f-tipo');
+ft.innerHTML = DB.orden.map(function(t){return '<button class="chip" data-t="'+t+'" aria-pressed="false"><span class="dot" style="background:'+DB.tipos[t].color+'"></span>'+DB.tipos[t].name+'</button>'}).join('');
+var fr = $('#f-rareza');
+fr.innerHTML = ['c','r','e'].map(function(r){return '<button class="chip" data-r="'+r+'" aria-pressed="false">'+DB.rareza[r]+'</button>'}).join('');
+function alternar(cont, attr, clave){
+  cont.addEventListener('click', function(e){
+    var b = e.target.closest('button'); if(!b) return;
+    var v = b.getAttribute(attr);
+    filtro[clave] = filtro[clave]===v ? null : v;
+    [].forEach.call(cont.querySelectorAll('button'), function(x){x.setAttribute('aria-pressed', x.getAttribute(attr)===filtro[clave])});
+    pintar();
+  });
+}
+alternar(ft,'data-t','tipo'); alternar(fr,'data-r','rareza');
+$('#q').addEventListener('input', function(e){filtro.q = norm(e.target.value.trim()); pintar()});
+
+/* ---- cuadrícula ---- */
+function lista(){
+  return C.filter(function(c){
+    return (!filtro.tipo||c.tipo===filtro.tipo) && (!filtro.rareza||c.rareza===filtro.rareza) &&
+      (!filtro.q || norm(c.nombre).indexOf(filtro.q)>=0);
+  });
+}
+function pintar(){
+  var l = lista();
+  $('#grid').innerHTML = l.length ? l.map(function(c){
+    var t = DB.tipos[c.tipo];
+    return '<button class="card" data-id="'+c.id+'" data-r="'+c.rareza+'" aria-label="'+esc(c.nombre)+', '+t.name+', '+DB.rareza[c.rareza]+'">'+
+      '<img loading="lazy" decoding="async" width="150" height="150" src="'+ART+c.id+'-ficha-web.webp" alt="">'+
+      '<span class="n">'+esc(c.nombre)+'</span>'+
+      '<span class="m"><span class="chip" style="min-height:0;padding:1px 9px;font-size:12px;cursor:default"><span class="dot" style="background:'+t.color+'"></span>'+t.name+'</span>'+
+      '<span class="tag '+c.rareza+'">'+DB.rareza[c.rareza]+'</span><span>MP '+c.mp+'</span></span></button>';
+  }).join('') : '<div class="empty">Ninguna criatura coincide con el filtro.</div>';
+  $('#cuenta').textContent = l.length+' de '+C.length;
+}
+$('#grid').addEventListener('click', function(e){var b=e.target.closest('.card'); if(b) abrir(b.getAttribute('data-id'))});
+
+/* ---- ruleta (dona SVG con patrones por color) ---- */
+var PAT = {
+  r:'<pattern id="p-r" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="8" height="8" fill="#e5484d"/><rect width="3" height="8" fill="#0003"/></pattern>',
+  g:'<pattern id="p-g" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="8" fill="#e8b730"/><circle cx="4" cy="4" r="1.6" fill="#0004"/></pattern>',
+  p:'<pattern id="p-p" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="8" fill="#8e5ce6"/><path d="M0 .5H8M.5 0V8" stroke="#fff4" stroke-width="1"/></pattern>',
+  b:'<pattern id="p-b" width="12" height="8" patternUnits="userSpaceOnUse"><rect width="12" height="8" fill="#3d8bfd"/><path d="M0 4Q3 0 6 4T12 4" fill="none" stroke="#fff5" stroke-width="1.2"/></pattern>',
+  w:'<pattern id="p-w" width="4" height="4" patternUnits="userSpaceOnUse"><rect width="4" height="4" fill="#f3f1ea"/></pattern>'
+};
+function punto(cx,cy,r,a){return [cx+r*Math.cos(a), cy+r*Math.sin(a)]}
+function dona(rul){
+  var tot = rul.reduce(function(a,s){return a+s.w},0), a0 = -Math.PI/2, out = '', R=100, r=52, cx=110, cy=110;
+  rul.forEach(function(s){
+    var a1 = a0 + s.w/tot*2*Math.PI, g = a1-a0>Math.PI?1:0;
+    var p1=punto(cx,cy,R,a0), p2=punto(cx,cy,R,a1), p3=punto(cx,cy,r,a1), p4=punto(cx,cy,r,a0);
+    out += '<path d="M'+p1+'A'+R+' '+R+' 0 '+g+' 1 '+p2+'L'+p3+'A'+r+' '+r+' 0 '+g+' 0 '+p4+'Z" fill="url(#p-'+s.t+')" stroke="#0e1322" stroke-width="2.5"><title>'+esc(s.name)+'</title></path>';
+    a0 = a1;
+  });
+  return '<svg viewBox="0 0 220 220" role="img" aria-label="Ruleta de combate"><defs>'+Object.keys(PAT).map(function(k){return PAT[k]}).join('')+'</defs>'+out+'</svg>';
+}
+function detalleSeg(s){
+  if(s.t==='w') return 'Daño '+s.dmg;
+  if(s.t==='g') return 'Daño '+s.dmg+(s.fx?' '+DB.fx[s.fx]:'');
+  if(s.t==='p') return s.stars+(s.stars>1?' estrellas':' estrella')+' · '+DB.estados[s.st].name;
+  if(s.t==='b') return 'Anula el combate';
+  return 'No pasa nada';
+}
+
+/* ---- detalle ---- */
+var dlg = $('#dlg'), actual = null;
+function abrir(id, sinHash){
+  var l = lista(), i = l.findIndex(function(c){return c.id===id});
+  if(i<0){ l = C; i = C.findIndex(function(c){return c.id===id}); }
+  var c = l[i], t = DB.tipos[c.tipo], tot = c.ruleta.reduce(function(a,s){return a+s.w},0);
+  actual = {l:l, i:i};
+  var vence = DB.tipos[t.beats], debil = DB.tipos[debilAnte(c.tipo)];
+  dlg.innerHTML =
+    '<div class="nav"><button data-nav="-1" aria-label="Anterior">‹ Anterior</button><button data-nav="0" aria-label="Cerrar">Cerrar</button><button data-nav="1" aria-label="Siguiente">Siguiente ›</button></div>'+
+    '<div class="det"><div class="art"><img src="'+ART+c.id+'-ficha-web.webp" width="256" height="256" alt="'+esc(c.nombre)+'"></div>'+
+    '<div><h2>'+esc(c.nombre)+'</h2><div class="chips">'+
+      '<span class="tag" style="color:'+t.color+';border-color:'+t.color+'">'+t.name+'</span>'+
+      '<span class="tag '+c.rareza+'">'+DB.rareza[c.rareza]+'</span><span class="tag">MP '+c.mp+'</span>'+
+      '<span class="tag">Vence a '+vence.name+'</span><span class="tag">Débil ante '+debil.name+'</span></div>'+
+      '<div class="k">Cómo es</div><p>'+esc(c.descripcion)+'</p>'+
+      (c.guiño?'<div class="k">Guiño de época</div><p>'+esc(c.guiño)+'</p>':'')+
+      '<div class="k">En combate</div><p>'+esc(c.juego)+'</p></div>'+
+    '<div class="wheelbox">'+dona(c.ruleta)+'<ul class="moves">'+
+      c.ruleta.map(function(s){return '<li><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><defs>'+PAT[s.t]+'</defs><rect x="1" y="1" width="20" height="20" rx="5" fill="url(#p-'+s.t+')" stroke="#0e1322"/></svg>'+
+        '<span><span class="b">'+esc(s.name)+'</span><span class="s">'+DB.seg[s.t].name+' · '+detalleSeg(s)+'</span></span>'+
+        '<span class="pc">'+Math.round(s.w/tot*100)+' %</span></li>'}).join('')+
+    '</ul></div></div>';
+  if(!dlg.open) dlg.showModal();
+  dlg.scrollTop = 0;
+  if(!sinHash) history.replaceState(null,'','#'+id);
+}
+dlg.addEventListener('click', function(e){
+  if(e.target===dlg){dlg.close();return}
+  var b = e.target.closest('[data-nav]'); if(!b) return;
+  var d = +b.getAttribute('data-nav'); if(d===0){dlg.close();return}
+  var n = actual.l.length; abrir(actual.l[(actual.i+d+n)%n].id);
+});
+dlg.addEventListener('close', function(){history.replaceState(null,'',location.pathname+location.search)});
+document.addEventListener('keydown', function(e){
+  if(!dlg.open) return;
+  if(e.key==='ArrowLeft'){e.preventDefault();var n=actual.l.length;abrir(actual.l[(actual.i-1+n)%n].id)}
+  if(e.key==='ArrowRight'){e.preventDefault();var m=actual.l.length;abrir(actual.l[(actual.i+1)%m].id)}
+});
+
+/* ---- leyenda ---- */
+var SEGTXT = {
+  g:'gana a todos los demás colores (salvo azul); algunos traen un efecto extra.',
+  p:'gana a blanco y rojo; el rival recibe un estado (veneno, parálisis, sueño o congelación).',
+  w:'gana a rojo; el rival va a la enfermería. Entre blancos gana el mayor daño.',
+  r:'el Fallo: pierde contra todo, y rojo contra rojo empata.',
+  b:'anula el combate contra cualquier color.'
+};
+$('#leg-seg').innerHTML = ['g','p','w','r','b'].map(function(k){
+  return '<li><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true" style="vertical-align:-4px;margin-right:6px"><defs>'+PAT[k]+'</defs><rect x="1" y="1" width="16" height="16" rx="4" fill="url(#p-'+k+')" stroke="#0e1322"/></svg><b>'+DB.seg[k].name+':</b> '+SEGTXT[k]+'</li>';
+}).join('');
+$('#ciclo').innerHTML = DB.orden.map(function(t){
+  return '<span class="chip" style="cursor:default"><span class="dot" style="background:'+DB.tipos[t].color+'"></span>'+DB.tipos[t].name+'</span><span aria-label="vence a">›</span>';
+}).join('')+'<span class="chip" style="cursor:default"><span class="dot" style="background:'+DB.tipos[DB.orden[0]].color+'"></span>'+DB.tipos[DB.orden[0]].name+'</span>';
+
+pintar();
+function porHash(){ var h = location.hash.slice(1); if(h && C.some(function(c){return c.id===h})) abrir(h,true); }
+window.addEventListener('hashchange', porHash);
+porHash();
+})();
+</script>
+</body>
+</html>
