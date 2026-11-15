@@ -12,7 +12,7 @@
   "duelos": [
     { "id": "d01", "num": 1, "capitulo": "prologo", "rival": "maru", "titulo": "Maru", "subtitulo": "Tutorial guiado",
       "antes": ["escena-0", "escena-0b", "duelo-1-antes"], "guiado": "duelo-1", "despues": ["duelo-1-despues"],
-      "recompensa": { "figuras": ["tizonaje", "magmuz", "pavorasa", "brasapo", "lanaflama"], "texto": "Equipo inicial de Fuego" } },
+      "recompensa": { "figuras": ["tizonaje", "pulpiza", "erizarza", "corazamba", "crestrayo"], "texto": "Equipo inicial: una figura de cada tipo" } },
     { "id": "d02", "num": 2, "capitulo": "prologo", "rival": "teo", "titulo": "Teo, vecino de Hebra", "subtitulo": "Combate y estados",
       "antes": ["duelo-2-antes"], "guiado": "duelo-2", "despues": ["duelo-2-despues"],
       "recompensa": { "figuras": ["zumbiza"], "texto": "Primera figura de reserva" } },

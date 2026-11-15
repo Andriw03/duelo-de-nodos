@@ -79,7 +79,7 @@ prueba('progreso: desbloqueo lineal, recompensas y equipo con repetidas', () => 
   assert.strictEqual(C.estado(p, C.duelo('d02')), 'bloqueado');
   assert.strictEqual(C.estado(p, C.duelo('d05')), 'proximamente');
   p = C.ganar(p, 'd01');
-  assert.deepStrictEqual(p.figuras, ['tizonaje', 'magmuz', 'pavorasa', 'brasapo', 'lanaflama']);
+  assert.deepStrictEqual(p.figuras, ['tizonaje', 'pulpiza', 'erizarza', 'corazamba', 'crestrayo']);
   assert.strictEqual(C.estado(p, C.duelo('d01')), 'ganado');
   assert.strictEqual(C.siguiente(p).id, 'd02');
   p = C.ganar(C.ganar(p, 'd02'), 'd02');
@@ -96,7 +96,7 @@ prueba('progreso: desbloqueo lineal, recompensas y equipo con repetidas', () => 
 prueba('un progreso de antes (0.6.0) recibe las figuras que se sumaron a duelos ya ganados', () => {
   const viejo = { v: 1, jugador: 'Ari', ganados: ['d01', 'd02', 'd03'], sellos: [], figuras: ['tizonaje', 'magmuz', 'pavorasa', 'zumbiza', 'erizarza', 'musgoso'], equipo: [] };
   const p = C.normalizar(viejo);
-  ['brasapo', 'lanaflama', 'cestacol', 'hormihoja'].forEach(k => assert(p.figuras.includes(k), 'falta ' + k));
+  ['pulpiza', 'corazamba', 'crestrayo', 'cestacol', 'hormihoja'].forEach(k => assert(p.figuras.includes(k), 'falta ' + k));
   assert(!p.figuras.includes('cascoriza'), 'no da la recompensa de un duelo sin ganar');
 });
 
@@ -106,6 +106,22 @@ prueba('el duelo de Madre Lino trae Hebras enredadas y se apaga desde los datos'
   const s = D.newGame(cfg.rival.team, cfg.rival.team, 0, cfg);
   assert.deepStrictEqual(D.markedNodes(s), [8, 12, 16, 20]);
   assert.deepStrictEqual(D.markedNodes(D.newGame(cfg.rival.team, cfg.rival.team, 0, { ...cfg, rules: [] })), []);
+});
+
+prueba('un progreso con el equipo inicial de Fuego (≤ 0.8.0) lo conserva y recibe el surtido', () => {
+  const viejo = { v: 1, jugador: 'Ari', ganados: ['d01', 'd02'], sellos: [], figuras: ['tizonaje', 'magmuz', 'pavorasa', 'brasapo', 'lanaflama', 'zumbiza'], equipo: ['tizonaje', 'magmuz', 'pavorasa', 'brasapo', 'lanaflama', 'zumbiza'] };
+  const p = C.normalizar(viejo);
+  ['magmuz', 'pavorasa', 'brasapo', 'lanaflama', 'pulpiza', 'erizarza', 'corazamba', 'crestrayo'].forEach(k => assert(p.figuras.includes(k), 'falta ' + k));
+  assert.deepStrictEqual(p.equipo, viejo.equipo, 'el equipo guardado sigue valiendo');
+  assert(C.equipoValido(p.equipo, p));
+});
+
+prueba('el equipo por defecto al llegar al duelo 3 son las 6 figuras del prólogo', () => {
+  const p = C.ganar(C.ganar(C.nuevo('Ari'), 'd01'), 'd02');
+  const eq = C.equipoPorDefecto(p);
+  assert.deepStrictEqual(eq, ['tizonaje', 'pulpiza', 'erizarza', 'corazamba', 'crestrayo', 'zumbiza']);
+  const tipos = new Set(eq.map(k => D.CREATURE[k].type)), mp = eq.reduce((a, k) => a + D.CREATURE[k].mp, 0);
+  assert(tipos.size >= 4 && mp >= 10 && mp <= 12 && eq.filter(k => D.CREATURE[k].rarity === 'e').length <= 1, 'equipo fuera de las reglas de equipo');
 });
 
 prueba('exportar e importar el progreso', () => {
