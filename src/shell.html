@@ -9,31 +9,77 @@
 /*CSS*/
 </style>
 </head>
-<body class="cargando">
+<body class="cargando entrada">
 <script>
-/* Portada: la intro se ve completa solo la primera vez por sesión. Va aquí (y no en ui.js) para que empiece
-   apenas se pinta la pantalla, aunque con red lenta el resto del juego tarde varios segundos en llegar.
-   Un toque la completa; un toque sobre un botón que aún no se veía no lo activa. */
+/* Entrada y portada. Va aquí, antes que todo (y no en ui.js), para funcionar apenas se pinta la pantalla, aunque
+   con red lenta el resto del juego tarde varios segundos en llegar. Va ANTES del botón de la entrada: así ningún
+   toque llega a un botón sin manejador (los clics se escuchan en document).
+   - El toque de la entrada crea o reanuda el AudioContext DENTRO del manejador (iOS lo exige) y lo deja en
+     window.__ctxAudio; audio.js lo adopta al cargar. Si audio.js ya cargó, se le pide a él.
+   - La entrada no se muestra si el jugador apagó música y efectos (CSS: body sin la clase "entrada").
+   - La intro de la portada empieza después de ese toque (y solo la primera vez por sesión). Un toque posterior
+     la completa; un toque sobre un botón que aún no se veía no lo activa. */
 (function () {
-  var b = document.body, ya = false;
+  var b = document.body, d = document, ya = false, mudo = false, cerrada = false;
   // "Continuar" se decide aquí para que no aparezca después y empuje los botones (ui.js lo confirma al arrancar)
   try { if (localStorage.getItem('duelo-nodos-v1')) b.classList.add('hay-partida'); } catch (e) {}
   try { ya = !!sessionStorage.getItem('hilos-intro'); sessionStorage.setItem('hilos-intro', '1'); } catch (e) {}
-  if (ya || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) return;
-  b.classList.add('ini-anim');
-  var fin = function () { b.classList.remove('ini-anim'); document.removeEventListener('pointerdown', toque, true); };
-  var toque = function (e) {
-    var bt = e.target && e.target.closest && e.target.closest('button');
-    if (bt && +getComputedStyle(bt).opacity < 0.6) document.addEventListener('click', function (c) { c.stopPropagation(); c.preventDefault(); }, { capture: true, once: true });
-    fin();
-  };
-  document.addEventListener('pointerdown', toque, true);
-  setTimeout(fin, 3000);
+  try { var c = JSON.parse(localStorage.getItem('duelo-nodos-sonido') || 'null'); mudo = !!c && c.musica === false && c.efectos === false; } catch (e) {}
+  var quieto = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function intro() {
+    if (ya || quieto) return;
+    b.classList.add('ini-anim');
+    var fin = function () { b.classList.remove('ini-anim'); d.removeEventListener('pointerdown', toque, true); };
+    var toque = function (e) {
+      var bt = e.target && e.target.closest && e.target.closest('button');
+      if (bt && +getComputedStyle(bt).opacity < 0.6) d.addEventListener('click', function (k) { k.stopPropagation(); k.preventDefault(); }, { capture: true, once: true });
+      fin();
+    };
+    // en el cuadro siguiente: el toque que cerró la entrada no cuenta como "saltar intro"
+    requestAnimationFrame(function () { d.addEventListener('pointerdown', toque, true); });
+    setTimeout(fin, 3000);
+  }
+  if (mudo) { b.classList.remove('entrada'); intro(); return; }
+  function desbloquear() {
+    if (window.DuelSonido) { window.DuelSonido.desbloquear(); return; }
+    try {
+      var AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
+      var ctx = window.__ctxAudio || (window.__ctxAudio = new AC());
+      if (ctx.resume) ctx.resume();
+      var src = ctx.createBufferSource(); src.buffer = ctx.createBuffer(1, 1, 22050); src.connect(ctx.destination); src.start(0);
+    } catch (e) { /* sin audio: el juego sigue en silencio */ }
+  }
+  function cerrar(conSonido) {
+    var ent = d.getElementById('scr-entrada');
+    if (cerrada || !ent) return;
+    cerrada = true; d.removeEventListener('click', alClic, true);
+    if (conSonido) desbloquear();
+    else {
+      try { localStorage.setItem('duelo-nodos-sonido', JSON.stringify({ musica: false, efectos: false, volMusica: 0.35, volEfectos: 0.6 })); } catch (e) {}
+      if (window.DuelSonido) window.DuelSonido.fijar({ musica: false, efectos: false });
+    }
+    ent.classList.add('sale');
+    intro();
+    setTimeout(function () { ent.hidden = true; b.classList.remove('entrada'); }, 500);
+  }
+  function alClic(e) {
+    var t = e.target && e.target.closest && e.target.closest('#btn-entrada, #btn-sin-sonido');
+    if (t) cerrar(t.id === 'btn-entrada');
+  }
+  d.addEventListener('click', alClic, true);
 })();
 </script>
+<!-- Entrada: nubes y "Toca para comenzar". El toque desbloquea el audio (los navegadores lo exigen) y da paso a la portada. -->
+<div id="scr-entrada" class="entrada-scr">
+  <div class="ent-cielo" aria-hidden="true"><i class="ent-nube n1"></i><i class="ent-nube n2"></i><i class="ent-nube n3"></i><i class="ent-nube n4"></i></div>
+  <button type="button" id="btn-entrada" class="ent-toque" aria-label="Toca para comenzar (con sonido)"><span class="ent-texto">Toca para comenzar</span></button>
+  <button type="button" id="btn-sin-sonido" class="linkbtn ent-mudo">Sin sonido</button>
+</div>
 <!-- Íconos propios (estados y tipos). Se usan con <use href="#id">; color = currentColor. -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
   <symbol id="mk-knot" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" d="M3 8c5 0 6 8 11 8s5-6 2-7.5S9 12 8 16M21 8c-2 0-3 1-4 2.5M3 16c2 0 3-1 4-2.5"/></symbol>
+  <symbol id="snd-on" viewBox="0 0 24 24"><path fill="currentColor" d="M3 9.5h4l5-4.5v14l-5-4.5H3z"/><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M15.5 9a4.2 4.2 0 0 1 0 6M18.3 6.4a8 8 0 0 1 0 11.2"/></symbol>
+  <symbol id="snd-off" viewBox="0 0 24 24"><path fill="currentColor" d="M3 9.5h4l5-4.5v14l-5-4.5H3z"/><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" d="M15.5 9.5l5 5M20.5 9.5l-5 5"/></symbol>
   <symbol id="st-poison" viewBox="0 0 24 24"><path fill="currentColor" d="M9 2.5h6v2h-1.2v4.3l4.9 8.4A2.6 2.6 0 0 1 16.4 21H7.6a2.6 2.6 0 0 1-2.3-3.8l4.9-8.4V4.5H9z"/><circle cx="10.5" cy="16.2" r="1.6" fill="#fff" opacity=".8"/><circle cx="14" cy="13.6" r="1.1" fill="#fff" opacity=".8"/></symbol>
   <symbol id="st-para" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" d="M3 8.5l3.5-3 3.5 3 3.5-3 3.5 3 3.5-3M3 15.5l3.5-3 3.5 3 3.5-3 3.5 3 3.5-3M3 21l3.5-3 3.5 3"/></symbol>
   <symbol id="st-sleep" viewBox="0 0 24 24"><path fill="currentColor" d="M14.5 2.5A9.5 9.5 0 1 0 21.5 16 7.7 7.7 0 0 1 14.5 2.5z"/></symbol>
@@ -47,6 +93,7 @@
 <div id="app">
   <section id="scr-inicio" class="screen inicio">
     <div class="ini-img" aria-hidden="true"></div>
+    <button type="button" id="btn-sonido-i" class="btn icon ini-sonido" aria-label="Silenciar el sonido" aria-pressed="false"><svg class="ic" aria-hidden="true"><use href="#snd-on"/></svg></button>
     <div class="ini-motas" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
     <div class="ini-cuerpo">
       <h1 class="ini-titulo">Hilos del <span>Tiempo</span></h1>
@@ -164,6 +211,9 @@
 /*CONFIG*/
 /*ART*/
 /*PLATFORM*/
+</script>
+<script>
+/*AUDIO*/
 </script>
 <script>
 /*UI*/

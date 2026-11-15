@@ -369,3 +369,43 @@ body.ini-anim .ini-pie { animation: ini-sube .45s 2.4s ease-out both; }
   .ini-fig > * { animation: none; }
   .ini-img { transition: none; }
 }
+
+/* ---------- Entrada (antes de la portada) ----------
+   Nubes en 4 capas que derivan lento (solo transform). Cada capa mide el doble de ancho y repite su dibujo
+   cada mitad, así que correrla -50 % vuelve al mismo cuadro sin costura. Sin filter: blur (caro en gama baja):
+   la blandura sale de radial-gradient. El toque es un <button> a pantalla completa. */
+.entrada-scr { position: fixed; inset: 0; z-index: 50; overflow: hidden; transition: opacity .5s ease;
+  background: radial-gradient(120% 55% at 50% -8%, rgba(170, 192, 255, .2), transparent 70%), linear-gradient(180deg, #22365f 0%, #172748 42%, var(--bg) 100%); }
+.entrada-scr.sale { opacity: 0; pointer-events: none; }
+body:not(.entrada) #scr-entrada { display: none; } /* sonido apagado (o ya se tocó) */
+body.cargando #scr-entrada button { pointer-events: auto; opacity: 1; } /* responde aunque el juego no haya cargado */
+.ent-cielo { position: absolute; inset: 0; pointer-events: none; }
+.ent-nube { position: absolute; left: 0; width: 200%; background-repeat: repeat-x; background-size: 50% 100%; animation: ent-deriva var(--d) linear infinite; will-change: transform; }
+.ent-nube.n1 { top: 4%; height: 30%; --d: 70s; opacity: .8;
+  background-image: radial-gradient(closest-side, rgba(160, 182, 235, .5), transparent), radial-gradient(closest-side, rgba(160, 182, 235, .38), transparent);
+  background-size: 50% 100%; background-position: 10% 30%, 60% 60%; }
+.ent-nube.n2 { top: 24%; height: 26%; --d: 55s; opacity: .8;
+  background-image: radial-gradient(40% 45% at 25% 50%, rgba(130, 154, 212, .55), transparent), radial-gradient(35% 40% at 75% 40%, rgba(130, 154, 212, .45), transparent); }
+.ent-nube.n3 { top: 52%; height: 28%; --d: 46s; opacity: .75; animation-direction: reverse;
+  background-image: radial-gradient(45% 40% at 35% 55%, rgba(105, 128, 190, .55), transparent), radial-gradient(30% 35% at 85% 45%, rgba(105, 128, 190, .45), transparent); }
+.ent-nube.n4 { bottom: -6%; height: 34%; --d: 40s; opacity: .6;
+  background-image: radial-gradient(50% 45% at 20% 60%, rgba(40, 56, 98, .9), transparent), radial-gradient(45% 50% at 70% 55%, rgba(40, 56, 98, .85), transparent); }
+@keyframes ent-deriva { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(-50%, 0, 0); } }
+.ent-toque { position: absolute; inset: 0; width: 100%; border: 0; background: none; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0 16px; }
+.ent-texto { font-family: var(--font-display); font-size: 28px; letter-spacing: .5px; color: #eaf0ff; text-shadow: 0 0 18px rgba(170, 192, 255, .45); animation: ent-pulso 2.6s ease-in-out infinite; }
+@keyframes ent-pulso { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
+.ent-mudo { position: absolute; left: 50%; bottom: calc(28px + var(--sab)); transform: translateX(-50%); min-width: 120px; color: var(--muted); font-size: 14px; }
+.ent-toque:focus-visible { outline: none; } .ent-toque:focus-visible .ent-texto { outline: 3px solid var(--go); outline-offset: 8px; border-radius: 8px; }
+@media (prefers-reduced-motion: reduce) { .ent-nube, .ent-texto { animation: none; } .ent-texto { opacity: 1; } .entrada-scr { transition: none; } }
+
+/* Botón de altavoz de la portada: posición absoluta, no mueve nada */
+.ini-sonido { position: absolute; top: 10px; right: 12px; z-index: 2; background: rgba(14, 19, 34, .55); border-color: rgba(255, 255, 255, .14); color: var(--ink); }
+.ini-sonido .ic { width: 22px; height: 22px; }
+.ini-sonido[aria-pressed="true"] { color: var(--muted); }
+
+/* Modal "Sonido" (desde el Menú) */
+.snd-fila { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; }
+.snd-fila label { font-weight: 800; }
+.snd-fila input[type="checkbox"] { width: 26px; height: 26px; accent-color: var(--p0); }
+.snd-fila input[type="range"] { flex: 1; max-width: 220px; height: 44px; accent-color: var(--p0); }
+.snd-fila input:disabled { opacity: .4; }
