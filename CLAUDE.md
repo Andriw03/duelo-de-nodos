@@ -108,7 +108,9 @@ Juego de estrategia por turnos para celular, contra la CPU. Es web (un HTML gene
 - Ícono de la app y del splash: siguen los de Capacitor por defecto (Fase 6).
 - Vibración sin probar en un teléfono real (el emulador no vibra).
 - Formulario de comentarios sin la versión del juego: si Andrés agrega una pregunta "Versión", poner en `src/config.json` el link "rellenado previamente" con `{version}`.
-- Sira (duelo 3, Fácil) se gana ~96 % con el equipo inicial (IA Normal de jugador): intencional por ahora, revisar con testers.
+- Sira (duelo 3, Fácil) se gana ~87 % con el equipo inicial surtido (IA Normal de jugador): intencional por ahora, revisar con testers.
+- Con el estuche surtido, las partidas contra Madre Lino que llegan al límite de turnos suben de ~8 % a ~16 % (simulación). Vigilar; no se tocó la IA.
+- La campaña no exige las reglas de equipo de la CPU (≥ 4 tipos, ≤ 1 épica, mp 10–12): `equipoValido` acepta 6 repetidas (p. ej. 6 Tizonaje contra Lino). Decidir aparte si se exige.
 - Vocabulario del mundo frente al de la interfaz: el guion dice "rodillo" (meta), "lizo" (entrada), "calada" (carril central), "remiendo" (enfermería), "cruce" (nodo); la UI y el tutorial dicen META, entrada y enfermería. Decidir si la interfaz adopta el vocabulario del telar.
 - El guion trata a Ari en masculino ("hijo", "forastero", "sorprendido") y la biblia decide nombre elegible: si el jugador también elige cómo se le trata, hay que neutralizar o variar esas líneas.
 - Los duelos 1 y 2 del guion son tutoriales guiados con Maru y Teo; ya existe el tutorial genérico de la Fase 2. Decidir en la Fase 3 si se reemplaza, se reutiliza su motor con los textos del guion o conviven.
@@ -173,7 +175,7 @@ Rama `capacitor-android` (en GitHub). App probada en emulador: toque, splash, zo
 
 ## Arco 1 para testers + Fase 4 (Madre Lino): 2026-11-13, rama `arco1-testers`, publicada como 0.7.0
 - **Arte:** las 25 procesadas; `data/art.json` con todas. HTML: 206 → 303 KB comprimido (tope 450). A 40 px, Cascoriza y Hormihoja se ven delgadas pero se reconocen.
-- **Recompensas** (aprobadas): d01 Fuego ×5 (suma Brasapo y Lanaflama); d03 las 4 de Planta (Erizarza, Musgoso, Cestacol, Hormihoja; ninguna otra época da Planta); d04 Sello de Lino + Cascoriza (la biblia pone las figuras de linaje en el rival previo al jefe: es una extensión, no un choque). `normalizar` entrega a progresos viejos lo que se sumó a duelos ya ganados.
+- **Recompensas** (aprobadas): d01 Fuego ×5 (suma Brasapo y Lanaflama; **reemplazado el 2026-11-15** por el estuche surtido, ver abajo); d03 las 4 de Planta (Erizarza, Musgoso, Cestacol, Hormihoja; ninguna otra época da Planta); d04 Sello de Lino + Cascoriza (la biblia pone las figuras de linaje en el rival previo al jefe: es una extensión, no un choque). `normalizar` entrega a progresos viejos lo que se sumó a duelos ya ganados.
 - **Sira (c03, Fácil):** Erizarza, Cestacol, Musgoso, Hormihoja, Erizarza, Cestacol.
 - **Hebras enredadas** (interpretación aprobada): llegar a un cruce marcado (entrar, moverse o embestida) enreda; en el siguiente turno de su dueño no se mueve, sí ataca; quedarse no re-enreda; afecta a los dos bandos; una figura de Fuego que ataca desde un cruce vecino quema esa marca para todo el duelo (gane o pierda) y suelta a la enredada. Cruces 8, 12, 16, 20. Se apaga con `"rules": []` en `data/duels/c04.json`.
 - **Madre Lino (c04, Normal):** Hormihoja ×3, Erizarza ×2, Cascoriza (decidido por simulación). Con IA Normal de jugador, 400 partidas: gana 70 % con 5 Fuego + Zumbiza, 61 % mixto, 35 % sin Fuego. Con Planta lenta (mp 9 contra 14) el Fuego ganaba ~85 %. La regla casi no cambia el % (la IA la sortea): su peso es de decisión para una persona.
@@ -188,6 +190,13 @@ Rama `capacitor-android` (en GitHub). App probada en emulador: toque, splash, zo
 - Peso: fondo 91 KB (archivo aparte) + HTML 303 → 306 KB comprimido. Total extra ~94 KB.
 - Red lenta (50 KB/s): la portada se pinta a ~1,5 s y la intro corre ahí; el juego responde a ~6,4 s; el fondo se pide al arrancar y aparece ~2 s después. Pedirlo antes compite con el HTML en una red real (~1,8 s más de espera para jugar).
 - Navegación: atrás de Android en el equipo → portada; en la portada → segundo plano. Volver de la campaña o salir del tutorial → portada. Abandonar o terminar una partida libre → equipo (como antes).
+
+## Estuche inicial surtido: 2026-11-15, rama `equipo-surtido` (sin publicar)
+- d01 entrega una común por tipo: Tizonaje, Pulpiza, Erizarza, Corazamba, Crestrayo (mp 9). Con Zumbiza de Teo (d02) el jugador llega al duelo 3 con 6 figuras: 5 tipos, mp 12, sin épica (es el equipo por defecto).
+- **Cambia el guion y la biblia** (aprobado por Andrés): Tamsin entrega «un estuche con una figura de cada linaje… Cada hilo sirve contra otro»; Sira (l. 134) «ya sabes qué figura de tu estuche sacar»; Lucio (l. 360) «tus figuras de Fuego sufren hoy»; biblia l. 74 y tabla de duelos. Sin cambiar: Sira l. 139 y Nuri l. 203 (siguen siendo ciertas con Tizonaje).
+- Progresos viejos: conservan las 5 de Fuego y su equipo; `normalizar` les suma Pulpiza, Corazamba y Crestrayo (sin migración nueva).
+- Simulación (jugador IA Normal, 400 partidas, equipo por defecto): Sira (Fácil) 95 → 87 %; Sira con IA Normal 78 → 65 %; Madre Lino 70 → 58 % (dentro del objetivo 40–60 %). Partidas al límite contra Lino: 8 → 16 %.
+- Verificado: `npm test` (huella idéntica, 12 de campaña), `run.js` igual a la referencia; en el navegador, texto de Tamsin, recompensa de d01, equipo por defecto y progreso viejo, sin errores en consola.
 
 ## Siguiente
 Testers del Arco 1 (link, iPhone). Después, Fase 5 de `ROADMAP.md`.
