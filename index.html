@@ -3050,9 +3050,14 @@ window.DUEL_ART = {"brasapo":{"token":"data:image/webp;base64,UklGRloeAABXRUJQVl
     openModal('Tutorial', html, [{ label: 'Cerrar', primary: true }]);
     document.querySelectorAll('#modal-body .lesson').forEach(b => b.addEventListener('click', () => { closeModal(); startLesson(TUT.LESSONS[+b.dataset.i]); }));
   }
-  // "Cómo jugar" con acceso al tutorial (no durante el turno de la CPU o un combate)
+  // Bestiario (wiki/, página aparte que publica Pages): pestaña nueva para no perder la partida.
+  // Solo en la web: build.py --out www no copia wiki/ a la app.
+  function openBestiario() { window.open('wiki/index.html', '_blank', 'noopener'); }
+  // "Cómo jugar" con acceso al tutorial (no durante el turno de la CPU o un combate) y al bestiario
   function openRules() {
-    openModal('Cómo jugar', rulesHTML(), (ui.busy ? [] : [{ label: 'Tutorial', onClick: () => setTimeout(openTutorialList, 0) }]).concat([{ label: 'Cerrar', primary: true }]));
+    openModal('Cómo jugar', rulesHTML(), (ui.busy ? [] : [{ label: 'Tutorial', onClick: () => setTimeout(openTutorialList, 0) }])
+      .concat(P.native ? [] : [{ label: 'Bestiario', keep: true, onClick: openBestiario }])
+      .concat([{ label: 'Cerrar', primary: true }]));
   }
   // Primera vez que se abre el juego (sin partida guardada): ofrecer el tutorial una sola vez
   // Ejecuta fn cuando termina la intro de la portada (o ya, si no hay intro)
