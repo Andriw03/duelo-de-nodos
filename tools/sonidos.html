@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Banco de sonidos</title>
+<!-- Solo de desarrollo: no entra al juego ni se enlaza desde él. Carga el src/audio.js real.
+     Abrir con doble clic (file://) o desde Pages en /tools/sonidos.html. No toca las preferencias del juego. -->
+<style>
+  :root { --bg: #0e1322; --panel: #171f36; --raise: #212b48; --line: #2f3b62; --ink: #eef1fb; --muted: #9ba6c9; --acc: #36d3c6; color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.4 system-ui, -apple-system, 'Segoe UI', sans-serif; padding: 16px; max-width: 900px; margin: 0 auto; }
+  h1 { font-size: 22px; margin: 0 0 4px; } h2 { font-size: 17px; margin: 22px 0 8px; }
+  p { color: var(--muted); margin: 4px 0 12px; }
+  button { font: inherit; font-weight: 700; color: var(--ink); background: var(--raise); border: 1px solid var(--line); border-radius: 10px; min-height: 40px; padding: 0 14px; cursor: pointer; }
+  button.prim { background: var(--acc); color: #06231f; border-color: transparent; }
+  .fila { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 8px; }
+  label { display: flex; align-items: center; gap: 8px; color: var(--muted); }
+  input[type=range] { accent-color: var(--acc); width: 150px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 10px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 10px; }
+  .card.cambiado { border-color: var(--acc); }
+  .card header { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .card header b { font-size: 16px; }
+  .voz { border-top: 1px dashed var(--line); padding-top: 6px; margin-top: 6px; font-size: 13px; }
+  .voz .t { color: var(--muted); }
+  .voz label { justify-content: space-between; font-size: 13px; }
+  .voz input[type=range] { width: 130px; }
+  .val { width: 52px; text-align: right; color: var(--ink); font-variant-numeric: tabular-nums; }
+  details summary { cursor: pointer; color: var(--muted); font-size: 13px; margin-top: 4px; }
+  #estado { font-size: 13px; color: var(--muted); }
+  textarea { width: 100%; min-height: 90px; background: var(--bg); color: var(--ink); border: 1px solid var(--line); border-radius: 10px; font: 12px ui-monospace, monospace; }
+</style>
+</head>
+<body>
+<h1>Banco de sonidos · Hilos del Tiempo</h1>
+<p>Toca un sonido para oírlo. Mueve los controles y vuelve a tocarlo. Cuando algo te guste, usa <b>Copiar parámetros</b> y pega el texto en el chat de Claude Code.</p>
+
+<div class="fila">
+  <button id="desbloquear" class="prim">Activar audio</button>
+  <span id="estado">Audio sin activar</span>
+</div>
+<div class="fila">
+  <label>Volumen de efectos <input type="range" id="vol-e" min="0" max="100" value="60"><span class="val" id="vol-e-v">60</span></label>
+  <label>Volumen de música <input type="range" id="vol-m" min="0" max="100" value="35"><span class="val" id="vol-m-v">35</span></label>
+</div>
+
+<h2>Música (provisional, generativa)</h2>
+<div class="fila">
+  <button data-mus="portada">Portada</button>
+  <button data-mus="duelo">Duelo</button>
+  <button data-mus="">Parar</button>
+  <label><input type="checkbox" id="agachar"> Bajar la música (como en diálogos y ruleta)</label>
+</div>
+
+<h2>Efectos</h2>
+<div class="fila">
+  <button id="todos">Reproducir todos en secuencia</button>
+  <button id="ruleta">Simular una ruleta (tics)</button>
+  <button id="estres">10 a la vez (prueba de chasquidos)</button>
+  <button id="copiar" class="prim">Copiar parámetros</button>
+  <button id="restaurar">Restaurar valores</button>
+</div>
+<div class="grid" id="grid"></div>
+<h2>Parámetros</h2>
+<p>Esto es lo que copia el botón (solo los sonidos que cambiaste; si no cambiaste ninguno, todos).</p>
+<textarea id="json" readonly></textarea>
+
+<script src="../src/audio.js"></script>
+<script>
+(function () {
+  'use strict';
+  const S = window.DuelSonido;
+  const $ = s => document.querySelector(s);
+  // almacenamiento en memoria: el banco no cambia las preferencias guardadas del juego
+  const mem = {}; S.iniciar({ get: k => mem[k] || null, set: (k, v) => { mem[k] = v; }, del: k => { delete mem[k]; } });
+  const ORIGINAL = JSON.parse(JSON.stringify(S.SONIDOS));
+  const cambiados = new Set();
+
+  function estado() { $('#estado').textContent = 'Audio: ' + S.estado() + (S.pista ? ' · música: ' + S.pista : ''); }
+  setInterval(estado, 500);
+  // cualquier clic sirve como gesto para desbloquear
+  document.addEventListener('click', () => { S.desbloquear(); S.reanudar(); }, true);
+
+  const ctl = (txt, val, min, max, step, fn) => {
+    const l = document.createElement('label');
+    l.innerHTML = '<span>' + txt + '</span><input type="range" min="' + min + '" max="' + max + '" step="' + step + '" value="' + val + '"><span class="val">' + val + '</span>';
+    const i = l.querySelector('input'), v = l.querySelector('.val');
+    i.addEventListener('input', () => { v.textContent = i.value; fn(+i.value); });
+    return l;
+  };
+  const tonos = {};
+  function pintar() {
+    const g = $('#grid'); g.innerHTML = '';
+    Object.keys(S.SONIDOS).forEach(id => {
+      const def = S.SONIDOS[id];
+      const c = document.createElement('div'); c.className = 'card' + (cambiados.has(id) ? ' cambiado' : '');
+      c.innerHTML = '<header><b>' + id + '</b><button type="button" class="prim">▶ Oír</button></header>';
+      c.querySelector('button').addEventListener('click', () => S.efecto(id, { tono: tonos[id] || 0 }));
+      const marca = () => { cambiados.add(id); c.classList.add('cambiado'); json(); };
+      c.appendChild(ctl('Tono (semitonos, solo para probar)', tonos[id] || 0, -12, 12, 1, x => { tonos[id] = x; }));
+      c.appendChild(ctl('Reverb', def.rev || 0, 0, 1, 0.05, x => { def.rev = x; marca(); }));
+      const det = document.createElement('details'); det.innerHTML = '<summary>' + def.voces.length + ' voces</summary>';
+      def.voces.forEach((v, k) => {
+        const d = document.createElement('div'); d.className = 'voz';
+        d.innerHTML = '<div class="t">Voz ' + (k + 1) + ': ' + v.onda + (v.filtro ? ' · filtro ' + v.filtro.tipo : '') + (v.t ? ' · empieza a ' + v.t + ' s' : '') + '</div>';
+        if (v.onda !== 'ruido') d.appendChild(ctl('Frecuencia (Hz)', v.f, 40, 4000, 1, x => { if (v.fFin) v.fFin = +(v.fFin * x / v.f).toFixed(1); v.f = x; marca(); }));
+        d.appendChild(ctl('Ataque (s)', v.a || 0.004, 0.001, 0.3, 0.001, x => { v.a = x; marca(); }));
+        d.appendChild(ctl('Caída (s)', v.d || 0.2, 0.005, 2.5, 0.005, x => { v.d = x; marca(); }));
+        d.appendChild(ctl('Volumen', v.vol, 0.005, 0.5, 0.005, x => { v.vol = x; marca(); }));
+        if (v.filtro) d.appendChild(ctl('Filtro (Hz)', v.filtro.f, 100, 8000, 10, x => { v.filtro.f = x; marca(); }));
+        det.appendChild(d);
+      });
+      c.appendChild(det);
+      g.appendChild(c);
+    });
+  }
+  function json() {
+    const ids = cambiados.size ? [...cambiados] : Object.keys(S.SONIDOS);
+    const out = { volEfectos: S.config().volEfectos, volMusica: S.config().volMusica, sonidos: {} };
+    ids.forEach(id => { out.sonidos[id] = S.SONIDOS[id]; });
+    $('#json').value = JSON.stringify(out);
+    return $('#json').value;
+  }
+
+  $('#vol-e').addEventListener('input', e => { $('#vol-e-v').textContent = e.target.value; S.fijar({ volEfectos: e.target.value / 100 }); json(); });
+  $('#vol-m').addEventListener('input', e => { $('#vol-m-v').textContent = e.target.value; S.fijar({ volMusica: e.target.value / 100 }); json(); });
+  document.querySelectorAll('[data-mus]').forEach(b => b.addEventListener('click', () => S.musica(b.dataset.mus || null)));
+  $('#agachar').addEventListener('change', e => S.bajarMusica(e.target.checked));
+  $('#todos').addEventListener('click', () => {
+    Object.keys(S.SONIDOS).forEach((id, i) => setTimeout(() => { S.efecto(id); $('#estado').textContent = '▶ ' + id; }, i * 1100));
+  });
+  $('#ruleta').addEventListener('click', () => {
+    // tics que se espacian como una ruleta que frena (el motor deja pasar uno cada 60 ms como máximo)
+    S.efecto('ruleta-giro'); let t = 0, gap = 30;
+    for (let k = 0; k < 40; k++) { t += gap; gap *= 1.07; const f = Math.min(1, t / 2100); setTimeout(() => S.efecto('ruleta-tic', { vol: 1 - 0.65 * f }), t); }
+    setTimeout(() => S.efecto('ruleta-alto'), t + 120);
+    setTimeout(() => S.efecto('combate-gana'), t + 300);
+  });
+  $('#estres').addEventListener('click', () => ['meter', 'mover', 'elegir', 'toque', 'nudo', 'estado', 'enfermeria', 'sello', 'victoria', 'ruleta-alto'].forEach(id => S.efecto(id)));
+  $('#copiar').addEventListener('click', () => {
+    const t = json();
+    const ok = () => { $('#copiar').textContent = 'Copiado ✓'; setTimeout(() => { $('#copiar').textContent = 'Copiar parámetros'; }, 1500); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(ok, () => $('#json').select());
+    else { $('#json').select(); try { document.execCommand('copy'); ok(); } catch (e) { /* copiar a mano */ } }
+  });
+  $('#restaurar').addEventListener('click', () => {
+    Object.keys(ORIGINAL).forEach(id => { S.SONIDOS[id] = JSON.parse(JSON.stringify(ORIGINAL[id])); });
+    cambiados.clear(); pintar(); json();
+  });
+  pintar(); json(); estado();
+})();
+</script>
+</body>
+</html>
