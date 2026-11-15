@@ -36,9 +36,11 @@ function serie(nombre, team, cfg, nivelJugador) {
 const base = D.DUELS[process.env.DUELO || "c04"];
 const con = (cambios) => Object.assign(JSON.parse(JSON.stringify(base)), cambios);
 
-// Equipos del jugador al llegar al duelo 4 (figuras: Fuego x5, Zumbiza y las 4 de Planta)
+// Equipos del jugador al llegar al duelo 4 (prólogo: una común por tipo + Zumbiza; duelo 3: las 4 de Planta).
+// "inicial viejo" es el equipo de Fuego de hasta la 0.8.0, como referencia.
 const EQUIPOS = {
-  'por defecto (5 Fuego + Zumbiza)': ['tizonaje', 'magmuz', 'pavorasa', 'brasapo', 'lanaflama', 'zumbiza'],
+  'por defecto (surtido + Zumbiza)': ['tizonaje', 'pulpiza', 'erizarza', 'corazamba', 'crestrayo', 'zumbiza'],
+  'inicial viejo (5 Fuego + Zumbiza)': ['tizonaje', 'magmuz', 'pavorasa', 'brasapo', 'lanaflama', 'zumbiza'],
   'mixto (3 Fuego, Zumbiza, 2 Planta)': ['tizonaje', 'magmuz', 'brasapo', 'zumbiza', 'erizarza', 'hormihoja'],
   'sin Fuego (Zumbiza + Planta)': ['zumbiza', 'zumbiza', 'erizarza', 'musgoso', 'cestacol', 'hormihoja']
 };
